@@ -37,15 +37,10 @@ def rgb(r, g, b):
     return (r & 255) << 16 | (g & 255) << 8 | (b & 255)
 
 
-def to_rgbint(hex_str):
+def to_int(hex_str):
     if hex_str:
-        # the background color starts with #, the foreground colors don't
-        hex_str = hex_str.lstrip('#')
-        r = int(hex_str[:2], 16)
-        g = int(hex_str[2:4], 16)
-        b = int(hex_str[4:], 16)
-        return rgb(r, g, b)
-    return rgb(0, 0, 0)
+        return int(hex_str[-6:], 16)
+    return 0
 
 
 def log(msg):
@@ -136,43 +131,51 @@ def key_pressed(event):
         dialog = event.Source.getContext()
         dialog.endDialog(1)
 
-def highlightSourceCode(lang, style, colorize_bg=False):
-    style = styles.get_style_by_name(style)
+
+def highlightSourceCode(lang, style_, colorize_bg=False):
+    style = styles.get_style_by_name(style_)
     bg_color = style.background_color if colorize_bg else None
 
     ctx = XSCRIPTCONTEXT
     doc = ctx.getDocument()
-    # Get the selected item
-    selected_item = doc.getCurrentController().getSelection()
-    if hasattr(selected_item, 'getCount'):
-        for item_idx in range(selected_item.getCount()):
-            code_block = selected_item.getByIndex(item_idx)
-            if 'com.sun.star.drawing.Text' in code_block.SupportedServiceNames:
-                # TextBox
-                # highlight_code(style, lang, code_block)
-                code_block.FillStyle = FS_NONE
-                if bg_color:
-                    code_block.FillStyle = FS_SOLID
-                    code_block.FillColor = to_rgbint(bg_color)
-                code = code_block.String
-                cursor = code_block.createTextCursor()
-                cursor.gotoStart(False)
-            else:
-                # Plain text
-                # highlight_code_string(style, lang, code_block)
-                if bg_color:
-                    code_block.ParaBackColor = to_rgbint(bg_color)
-                code = code_block.getString()
-                cursor = code_block.getText().createTextCursorByRange(code_block)
-                cursor.goLeft(0, False)
+    doc.lockControllers()
+    undomanager = doc.UndoManager
+    undomanager.enterUndoContext(f"code highlight (lang: {lang or 'automatic'}, style: {style_})")
+    try:
+        # Get the selected item
+        selected_item = doc.getCurrentController().getSelection()
+        if hasattr(selected_item, 'getCount'):
+            for item_idx in range(selected_item.getCount()):
+                code_block = selected_item.getByIndex(item_idx)
+                if 'com.sun.star.drawing.Text' in code_block.SupportedServiceNames:
+                    # TextBox
+                    # highlight_code(style, lang, code_block)
+                    code_block.FillStyle = FS_NONE
+                    if bg_color:
+                        code_block.FillStyle = FS_SOLID
+                        code_block.FillColor = to_int(bg_color)
+                    code = code_block.String
+                    cursor = code_block.createTextCursor()
+                    cursor.gotoStart(False)
+                else:
+                    # Plain text
+                    # highlight_code_string(style, lang, code_block)
+                    if bg_color:
+                        code_block.ParaBackColor = to_int(bg_color)
+                    code = code_block.getString()
+                    cursor = code_block.getText().createTextCursorByRange(code_block)
+                    cursor.goLeft(0, False)
+                highlight_code(code, cursor, lang, style)
+        elif hasattr(selected_item, 'SupportedServiceNames') and 'com.sun.star.text.TextCursor' in selected_item.SupportedServiceNames:
+            # LO Impress text selection
+            code_block = selected_item
+            code = code_block.getString()
+            cursor = code_block.getText().createTextCursorByRange(code_block)
+            cursor.goLeft(0, False)
             highlight_code(code, cursor, lang, style)
-    elif hasattr(selected_item, 'SupportedServiceNames') and 'com.sun.star.text.TextCursor' in selected_item.SupportedServiceNames:
-        # LO Impress text selection
-        code_block = selected_item
-        code = code_block.getString()
-        cursor = code_block.getText().createTextCursorByRange(code_block)
-        cursor.goLeft(0, False)
-        highlight_code(code, cursor, lang, style)
+    finally:
+        undomanager.leaveUndoContext()
+        doc.unlockControllers()
 
 
 def highlight_code(code, cursor, lang, style):
@@ -194,7 +197,7 @@ def highlight_code(code, cursor, lang, style):
         cursor.goRight(len(tok_value), True)  # selects the token's text
         try:
             tok_style = style.style_for_token(tok_type)
-            cursor.CharColor = to_rgbint(tok_style['color'])
+            cursor.CharColor = to_int(tok_style['color'])
             cursor.CharWeight = W_BOLD if tok_style['bold'] else W_NORMAL
             cursor.CharPosture = SL_ITALIC if tok_style['italic'] else SL_NONE
         except:

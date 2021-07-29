@@ -125,13 +125,6 @@ def apply_previous_settings():
     highlightSourceCode(lang, style, colorize_bg != 0)
 
 
-def key_pressed(event):
-    if event.KeyCode == KEY_RETURN:
-        # handle 'return key press' like OK button
-        dialog = event.Source.getContext()
-        dialog.endDialog(1)
-
-
 def highlightSourceCode(lang, style_, colorize_bg=False):
     style = styles.get_style_by_name(style_)
     bg_color = style.background_color if colorize_bg else None

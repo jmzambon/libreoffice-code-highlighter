@@ -195,17 +195,26 @@ def highlight_code(code, cursor, lang, style):
                     break
             else:
                 raise
+    # caching consecutive tokens with same token type
+    lastval = ''
+    lasttype = None
     for tok_type, tok_value in lexer.get_tokens(code):
-        cursor.goRight(len(tok_value), True)  # selects the token's text
-        try:
-            tok_style = style.style_for_token(tok_type)
-            cursor.CharColor = to_int(tok_style['color'])
-            cursor.CharWeight = W_BOLD if tok_style['bold'] else W_NORMAL
-            cursor.CharPosture = SL_ITALIC if tok_style['italic'] else SL_NONE
-        except:
-            pass
-        finally:
-            cursor.goRight(0, False)  # deselects the selected text
+        if tok_type == lasttype:
+            lastval += tok_value
+        else:
+            if lastval:
+                cursor.goRight(len(lastval), True)  # selects the token's text
+                try:
+                    tok_style = style.style_for_token(lasttype)
+                    cursor.CharColor = to_int(tok_style['color'])
+                    cursor.CharWeight = W_BOLD if tok_style['bold'] else W_NORMAL
+                    cursor.CharPosture = SL_ITALIC if tok_style['italic'] else SL_NONE
+                except:
+                    pass
+                finally:
+                    cursor.goRight(0, False)  # deselects the selected text
+            lastval = tok_value
+            lasttype = tok_type
 
 
 # export these, so they can be used for key bindings

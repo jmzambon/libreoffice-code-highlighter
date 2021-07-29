@@ -55,7 +55,7 @@ def create_dialog():
     all_lexer_aliases = [lex[0] for lex in get_all_lexers()]
     for lex in get_all_lexers():
         all_lexer_aliases.extend(list(lex[1]))
-    all_styles = sorted(get_all_styles())
+    all_styles = sorted(get_all_styles(), key=lambda x: (x != 'default', x.lower()))
 
     ctx = uno.getComponentContext()
     smgr = ctx.ServiceManager

@@ -234,6 +234,8 @@ def highlight_code(code, cursor, lang, style):
                     break
             else:
                 raise
+    # prevent offset color if selection start with empty line
+    lexer.stripnl = False
     # caching consecutive tokens with same token type
     lastval = ''
     lasttype = None

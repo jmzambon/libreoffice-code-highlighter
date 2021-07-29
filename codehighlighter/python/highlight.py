@@ -24,6 +24,7 @@ from com.sun.star.awt.FontSlant import NONE as SL_NONE, ITALIC as SL_ITALIC
 from com.sun.star.awt.FontWeight import NORMAL as W_NORMAL, BOLD as W_BOLD
 
 from com.sun.star.beans import PropertyValue
+from com.sun.star.lang import Locale
 
 from pygments import styles
 from pygments.lexers import get_all_lexers
@@ -153,6 +154,7 @@ def highlightSourceCode(lang, style_, colorize_bg=False):
                 else:
                     # Plain text
                     # highlight_code_string(style, lang, code_block)
+                    code_block.ParaBackColor = -1
                     if bg_color:
                         code_block.ParaBackColor = to_int(bg_color)
                     code = code_block.getString()

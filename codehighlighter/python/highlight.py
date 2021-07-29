@@ -178,6 +178,35 @@ def highlightSourceCode(lang, style_, colorize_bg=False):
             cursor.gotoStart(False)
             highlight_code(code, cursor, lang, style)
 
+        elif selected_item.supportsService('com.sun.star.text.TextTableCursor'):
+            # Selection is one or more table cell range
+            table = doc.CurrentController.ViewCursor.TextTable
+            rangename = selected_item.RangeName
+            if ':' in rangename:
+                # at least two cells
+                cellrange = table.getCellRangeByName(rangename)
+                nrows, ncols = len(cellrange.Data), len(cellrange.Data[0])
+                for row in range(nrows):
+                    for col in range(ncols):
+                        code_block = cellrange.getCellByPosition(col, row)
+                        code_block.BackColor = -1
+                        if bg_color:
+                            code_block.BackColor = to_int(bg_color)
+                        code = code_block.String
+                        cursor = code_block.createTextCursor()
+                        cursor.gotoStart(False)
+                        highlight_code(code, cursor, lang, style)
+            else:
+                # only one cell
+                code_block = table.getCellByName(rangename)
+                code_block.BackColor = -1
+                if bg_color:
+                    code_block.BackColor = to_int(bg_color)
+                code = code_block.String
+                cursor = code_block.createTextCursor()
+                cursor.gotoStart(False)
+                highlight_code(code, cursor, lang, style)
+
         elif hasattr(selected_item, 'SupportedServiceNames') and selected_item.supportsService('com.sun.star.text.TextCursor'):
             # LO Impress text selection
             code_block = selected_item

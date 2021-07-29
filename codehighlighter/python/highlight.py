@@ -144,6 +144,7 @@ def highlightSourceCode(lang, style_, colorize_bg=False):
                 if code_block.supportsService('com.sun.star.drawing.Text'):
                     # TextBox
                     # highlight_code(style, lang, code_block)
+                    code_block.CharLocale = Locale("zxx", "", "")
                     code_block.FillStyle = FS_NONE
                     if bg_color:
                         code_block.FillStyle = FS_SOLID
@@ -154,6 +155,7 @@ def highlightSourceCode(lang, style_, colorize_bg=False):
                 else:
                     # Plain text
                     # highlight_code_string(style, lang, code_block)
+                    code_block.CharLocale = Locale("zxx", "", "")
                     code_block.ParaBackColor = -1
                     if bg_color:
                         code_block.ParaBackColor = to_int(bg_color)
@@ -169,12 +171,14 @@ def highlightSourceCode(lang, style_, colorize_bg=False):
             if bg_color:
                 code_block.BackColor = to_int(bg_color)
             code = code_block.String
-            cursor = code_block.createTextCursor()
+            cursor = code_block.createTextCursorByRange(code_block)
+            cursor.CharLocale = Locale("zxx", "", "")
             cursor.gotoStart(False)
             highlight_code(code, cursor, lang, style)
 
         elif selected_item.supportsService('com.sun.star.text.TextTableCursor'):
             # Selection is one or more table cell range
+            selected_item.CharLocale = Locale("zxx", "", "")
             table = doc.CurrentController.ViewCursor.TextTable
             rangename = selected_item.RangeName
             if ':' in rangename:

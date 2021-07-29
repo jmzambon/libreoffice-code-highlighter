@@ -17,6 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import uno
+from com.sun.star.awt import Selection
 from com.sun.star.awt.Key import RETURN as KEY_RETURN
 from com.sun.star.drawing.FillStyle import NONE as FS_NONE, SOLID as FS_SOLID
 from com.sun.star.awt.FontSlant import NONE as SL_NONE, ITALIC as SL_ITALIC
@@ -74,14 +75,13 @@ def create_dialog():
 
     cb_lang.addItem('automatic', 0)
     cb_lang.Text = cfg_access.getPropertyValue('Language')
-    for i, lex in enumerate(all_lexers):
-        cb_lang.addItem(lex, i+1)
+    cb_lang.setSelection(Selection(0, len(cb_lang.Text)))
+    cb_lang.addItems(all_lexers, 0)
 
     style = cfg_access.getPropertyValue('Style')
     if style in all_styles:
         cb_style.Text = style
-    for i, style in enumerate(all_styles):
-        cb_style.addItem(style, i)
+    cb_style.addItems(all_styles, 0)
 
     check_col_bg.State = int(cfg_access.getPropertyValue('ColorizeBackground'))
 

@@ -161,9 +161,7 @@ def highlightSourceCode(lang, style_, colorize_bg=False):
                     # Plain text
                     # highlight_code_string(style, lang, code_block)
                     if bg_color:
-                        for para in code_block:
-                            para.FillStyle = FS_SOLID
-                            para.FillColor = to_int(bg_color)
+                        code_block.ParaBackColor = to_int(bg_color)
                     code = code_block.getString()
                     cursor = code_block.getText().createTextCursorByRange(code_block)
                     cursor.goLeft(0, False)

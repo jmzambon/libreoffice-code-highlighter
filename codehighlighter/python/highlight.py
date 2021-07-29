@@ -147,7 +147,7 @@ def highlightSourceCode(lang, style_, colorize_bg=False):
         if hasattr(selected_item, 'getCount'):
             for item_idx in range(selected_item.getCount()):
                 code_block = selected_item.getByIndex(item_idx)
-                if 'com.sun.star.drawing.Text' in code_block.SupportedServiceNames:
+                if code_block.supportsService('com.sun.star.drawing.Text'):
                     # TextBox
                     # highlight_code(style, lang, code_block)
                     code_block.FillStyle = FS_NONE
@@ -166,7 +166,19 @@ def highlightSourceCode(lang, style_, colorize_bg=False):
                     cursor = code_block.getText().createTextCursorByRange(code_block)
                     cursor.goLeft(0, False)
                 highlight_code(code, cursor, lang, style)
-        elif hasattr(selected_item, 'SupportedServiceNames') and 'com.sun.star.text.TextCursor' in selected_item.SupportedServiceNames:
+
+        elif selected_item.supportsService('com.sun.star.text.TextFrame'):
+            # Selection is a text frame
+            code_block = selected_item
+            code_block.BackColor = -1
+            if bg_color:
+                code_block.BackColor = to_int(bg_color)
+            code = code_block.String
+            cursor = code_block.createTextCursor()
+            cursor.gotoStart(False)
+            highlight_code(code, cursor, lang, style)
+
+        elif hasattr(selected_item, 'SupportedServiceNames') and selected_item.supportsService('com.sun.star.text.TextCursor'):
             # LO Impress text selection
             code_block = selected_item
             code = code_block.getString()

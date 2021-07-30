@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<manifest:manifest 
-  xmlns:manifest="http://openoffice.org/2001/manifest">
-  <manifest:file-entry manifest:media-type="application/vnd.sun.star.framework-script" manifest:full-path="python"/>
+<manifest:manifest xmlns:manifest="http://openoffice.org/2001/manifest">
+  <manifest:file-entry manifest:media-type="application/vnd.sun.star.uno-component;type=Python" manifest:full-path="python/highlight.py" />
   <manifest:file-entry manifest:media-type="application/vnd.sun.star.configuration-data" manifest:full-path="Addons.xcu"/>
   <manifest:file-entry manifest:full-path="AddonRegistry.xcs" manifest:media-type="application/vnd.sun.star.configuration-schema"/> 
   <manifest:file-entry manifest:full-path="AddonRegistry.xcu" manifest:media-type="application/vnd.sun.star.configuration-data"/>

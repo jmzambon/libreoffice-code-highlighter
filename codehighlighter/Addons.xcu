@@ -2,19 +2,15 @@
 <!--
 ~ Code Highligher is a LibreOffice extension to highlight code snippets
 ~ over 350 languages.
-
 ~ Copyright (C) 2017  Gobinath
-
 ~ This program is free software: you can redistribute it and/or modify
 ~ it under the terms of the GNU General Public License as published by
 ~ the Free Software Foundation, either version 3 of the License, or
 ~ (at your option) any later version.
-
 ~ This program is distributed in the hope that it will be useful,
 ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
 ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ~ GNU General Public License for more details.
-
 ~ You should have received a copy of the GNU General Public License
 ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
@@ -43,7 +39,7 @@
                                 <value xml:lang="en">Highlight Code</value>
                             </prop>
                             <prop oor:name="URL" oor:type="xs:string">
-                                <value>vnd.sun.star.script:codehighlighter.oxt|python|highlight.py$create_dialog?language=Python&amp;location=user:uno_packages</value>
+                                <value>service:code.highlighter.impl?highlight</value>
                             </prop>
                             <prop oor:name="Target" oor:type="xs:string">
                                 <value>_self</value>
@@ -57,7 +53,7 @@
                                 <value xml:lang="en">Highlight Code (previous settings)</value>
                             </prop>
                             <prop oor:name="URL" oor:type="xs:string">
-                                <value>vnd.sun.star.script:codehighlighter.oxt|python|highlight.py$apply_previous_settings?language=Python&amp;location=user:uno_packages</value>
+                                <value>service:code.highlighter.impl?highlight_previous</value>
                             </prop>
                             <prop oor:name="Target" oor:type="xs:string">
                                 <value>_self</value>

@@ -22,9 +22,10 @@ import traceback
 import uno
 import unohelper
 from com.sun.star.awt import Selection
-from com.sun.star.awt.Key import RETURN as KEY_RETURN
 from com.sun.star.awt.FontSlant import NONE as SL_NONE, ITALIC as SL_ITALIC
 from com.sun.star.awt.FontWeight import NORMAL as W_NORMAL, BOLD as W_BOLD
+from com.sun.star.awt.Key import RETURN as KEY_RETURN
+from com.sun.star.awt.MessageBoxType import MESSAGEBOX, ERRORBOX
 from com.sun.star.beans import PropertyValue
 from com.sun.star.drawing.FillStyle import NONE as FS_NONE, SOLID as FS_SOLID
 from com.sun.star.lang import Locale
@@ -43,8 +44,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
         try:
             self.ctx = ctx
             self.sm = ctx.ServiceManager
-            desktop = self.create("com.sun.star.frame.Desktop")
-            self.doc = desktop.getCurrentComponent()
+            self.desktop = self.create("com.sun.star.frame.Desktop")
+            self.doc = self.desktop.getCurrentComponent()
             self.cfg_access = self.create_cfg_access()
             self.options = self.load_options()
             self.dialog = self.create_dialog()
@@ -66,15 +67,17 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
         # self.dialog.setVisible(True)
         if self.dialog.execute() == 0:
             return
-        lang = self.dialog.getControl('cb_lang').Text
-        style = self.dialog.getControl('cb_style').Text
+        lang = self.dialog.getControl('cb_lang').Text.strip() or 'automatic'
+        style = self.dialog.getControl('cb_style').Text.strip() or 'default'
         colorize_bg = self.dialog.getControl('check_col_bg').State
-        self.save_options(Style=style, Language=lang or 'automatic', ColorizeBackground=str(colorize_bg))
 
-        # # TODO: handle exceptions here
-        # assert lang == None or (lang in all_lexer_aliases), 'no valid language: ' + lang
-        # assert style in all_styles, 'no valid style: ' + style
-
+        if lang != 'automatic' and lang not in self.all_lexer_aliases:
+            self.msgbox("Unsupported language.", ERRORBOX)
+            return
+        if style not in self.all_styles:
+            self.msgbox("Unknown.", ERRORBOX)
+            return
+        self.save_options(Style=style, Language=lang, ColorizeBackground=str(colorize_bg))
         self.highlight_source_code()
 
     def do_highlight_previous(self):
@@ -83,6 +86,15 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
     # private functions
     def create(self, service):
         return self.sm.createInstance(service)
+
+    def msgbox(self, message, boxtype=MESSAGEBOX):
+        frame = self.desktop.ActiveFrame
+        if frame.ActiveFrame:
+            # top window is a subdocument
+            frame = frame.ActiveFrame
+        win = frame.ComponentWindow
+        box = win.Toolkit.createMessageBox(win, boxtype, 1, "Error", message)
+        return box.execute()
 
     def to_int(self, hex_str):
         if hex_str:
@@ -109,10 +121,10 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
         # get_all_lexers() returns:
         # (longname, tuple of aliases, tuple of filename patterns, tuple of mimetypes)
         all_lexers = sorted((lex[0] for lex in get_all_lexers()), key=str.casefold)
-        all_lexer_aliases = [lex[0] for lex in get_all_lexers()]
+        self.all_lexer_aliases = [lex[0] for lex in get_all_lexers()]
         for lex in get_all_lexers():
-            all_lexer_aliases.extend(list(lex[1]))
-        all_styles = sorted(get_all_styles(), key=lambda x: (x != 'default', x.lower()))
+            self.all_lexer_aliases.extend(list(lex[1]))
+        self.all_styles = sorted(get_all_styles(), key=lambda x: (x != 'default', x.lower()))
 
         dialog_provider = self.create("com.sun.star.awt.DialogProvider")
         dialog = dialog_provider.createDialog("vnd.sun.star.extension://javahelps.codehighlighter/dialogs/CodeHighlighter.xdl")
@@ -128,9 +140,9 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
         cb_lang.addItems(all_lexers, 0)
 
         style = self.options['Style']
-        if style in all_styles:
+        if style in self.all_styles:
             cb_style.Text = style
-        cb_style.addItems(all_styles, 0)
+        cb_style.addItems(self.all_styles, 0)
 
         check_col_bg.State = int(self.options['ColorizeBackground'])
 
@@ -270,7 +282,6 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
                 cursor = code_block.getText().createTextCursorByRange(code_block)
                 cursor.goLeft(0, False)
                 self.highlight_code(code, cursor, lexer, style)
-
         finally:
             self.doc.unlockControllers()
 

@@ -46,7 +46,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
             desktop = self.create("com.sun.star.frame.Desktop")
             self.doc = desktop.getCurrentComponent()
             self.cfg_access = self.create_cfg_access()
-            self.config = self.load_config()
+            self.options = self.load_options()
             self.dialog = self.create_dialog()
         except Exception:
             traceback.print_exc()
@@ -74,13 +74,13 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
         cfg_access = cfg.createInstanceWithArguments('com.sun.star.configuration.ConfigurationUpdateAccess', (prop,))
         return cfg_access
 
-    def load_config(self):
+    def load_options(self):
         properties = self.cfg_access.ElementNames
         values = self.cfg_access.getPropertyValues(properties)
         return dict(zip(properties, values))
 
-    def save_config(self, **kwargs):
-        self.config.update(kwargs)
+    def save_options(self, **kwargs):
+        self.options.update(kwargs)
         self.cfg_access.setPropertyValues(tuple(kwargs.keys()), tuple(kwargs.values()))
         self.cfg_access.commitChanges()
 
@@ -102,16 +102,16 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
 
         # TODO: reformat config access
         cb_lang.addItem('automatic', 0)
-        cb_lang.Text = self.config['Language']
+        cb_lang.Text = self.options['Language']
         cb_lang.setSelection(Selection(0, len(cb_lang.Text)))
         cb_lang.addItems(all_lexers, 0)
 
-        style = self.config['Style']
+        style = self.options['Style']
         if style in all_styles:
             cb_style.Text = style
         cb_style.addItems(all_styles, 0)
 
-        check_col_bg.State = int(self.config['ColorizeBackground'])
+        check_col_bg.State = int(self.options['ColorizeBackground'])
 
         return dialog
 
@@ -130,14 +130,14 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
         # assert lang == None or (lang in all_lexer_aliases), 'no valid language: ' + lang
         # assert style in all_styles, 'no valid style: ' + style
 
-        self.save_config(Style=style, Language=lang or 'automatic', ColorizeBackground=str(colorize_bg))
+        self.save_options(Style=style, Language=lang or 'automatic', ColorizeBackground=str(colorize_bg))
 
         self.highlight_source_code(lang, style, colorize_bg != 0)
 
     def do_highlight_previous(self):
-        lang = self.config['Language']
-        style = self.config['Style']
-        colorize_bg = int(self.config['ColorizeBackground'])
+        lang = self.options['Language']
+        style = self.options['Style']
+        colorize_bg = int(self.options['ColorizeBackground'])
         if lang == 'automatic':
             lang = None
         self.highlight_source_code(lang, style, colorize_bg != 0)

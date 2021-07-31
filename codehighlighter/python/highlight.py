@@ -171,6 +171,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
                 for item_idx in range(selected_item.getCount()):
                     code_block = selected_item.getByIndex(item_idx)
                     code = code_block.String
+                    if not code.strip():
+                        return
                     lexer = self.getlexer(code)
                     undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
                     try:
@@ -198,6 +200,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
                 # Selection is a text frame
                 code_block = selected_item
                 code = code_block.String
+                if not code.strip():
+                    return
                 lexer = self.getlexer(code)
                 undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
                 try:
@@ -223,6 +227,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
                         for col in range(ncols):
                             code_block = cellrange.getCellByPosition(col, row)
                             code = code_block.String
+                            if not code.strip():
+                                return
                             lexer = self.getlexer(code)
                             undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
                             try:
@@ -239,6 +245,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
                     # only one cell
                     code_block = table.getCellByName(rangename)
                     code = code_block.String
+                    if not code.strip():
+                        return
                     lexer = self.getlexer(code)
                     undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
                     try:
@@ -255,7 +263,9 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
             elif hasattr(selected_item, 'SupportedServiceNames') and selected_item.supportsService('com.sun.star.text.TextCursor'):
                 # LO Impress text selection
                 code_block = selected_item
-                code = code_block.getString()
+                code = code_block.String
+                if not code.strip():
+                    return
                 cursor = code_block.getText().createTextCursorByRange(code_block)
                 cursor.goLeft(0, False)
                 self.highlight_code(code, cursor, lexer, style)

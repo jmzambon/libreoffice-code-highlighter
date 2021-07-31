@@ -49,6 +49,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
             self.cfg_access = self.create_cfg_access()
             self.options = self.load_options()
             self.dialog = self.create_dialog()
+            self.nolocale = Locale("zxx", "", "")
         except Exception:
             traceback.print_exc()
 
@@ -189,22 +190,23 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
                     lexer = self.getlexer(code)
                     undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
                     try:
-                        code_block.CharLocale = Locale("zxx", "", "")
                         if code_block.supportsService('com.sun.star.drawing.Text'):
                             # TextBox
                             code_block.FillStyle = FS_NONE
                             if bg_color:
                                 code_block.FillStyle = FS_SOLID
                                 code_block.FillColor = self.to_int(bg_color)
-                            cursor = code_block.createTextCursor()
-                            cursor.gotoStart(False)
+                            cursor = code_block.createTextCursorByRange(code_block)
+                            code_block.CharLocale = self.nolocale
+                            cursor.collapseToStart()
                         else:
                             # Plain text
                             code_block.ParaBackColor = -1
                             if bg_color:
                                 code_block.ParaBackColor = self.to_int(bg_color)
                             cursor = code_block.getText().createTextCursorByRange(code_block)
-                            cursor.goLeft(0, False)
+                            code_block.CharLocale = self.nolocale
+                            cursor.collapseToStart()
                         self.highlight_code(code, cursor, lexer, style)
                     finally:
                         undomanager.leaveUndoContext()
@@ -221,9 +223,9 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
                     code_block.BackColor = -1
                     if bg_color:
                         code_block.BackColor = self.to_int(bg_color)
-                    cursor = code_block.createTextCursor()
-                    cursor.CharLocale = Locale("zxx", "", "")
-                    cursor.gotoStart(False)
+                    cursor = code_block.createTextCursorByRange(code_block)
+                    cursor.CharLocale = self.nolocale
+                    cursor.collapseToStart()
                     self.highlight_code(code, cursor, lexer, style)
                 finally:
                     undomanager.leaveUndoContext()
@@ -248,9 +250,9 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
                                 code_block.BackColor = -1
                                 if bg_color:
                                     code_block.BackColor = self.to_int(bg_color)
-                                cursor = code_block.createTextCursor()
-                                cursor.CharLocale = Locale("zxx", "", "")
-                                cursor.gotoStart(False)
+                                cursor = code_block.createTextCursorByRange(code_block)
+                                cursor.CharLocale = self.nolocale
+                                cursor.collapseToStart()
                                 self.highlight_code(code, cursor, lexer, style)
                             finally:
                                 undomanager.leaveUndoContext()
@@ -266,9 +268,9 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
                         code_block.BackColor = -1
                         if bg_color:
                             code_block.BackColor = self.to_int(bg_color)
-                        cursor = code_block.createTextCursor()
-                        cursor.CharLocale = Locale("zxx", "", "")
-                        cursor.gotoStart(False)
+                        cursor = code_block.createTextCursorByRange(code_block)
+                        cursor.CharLocale = self.nolocale
+                        cursor.collapseToStart()
                         self.highlight_code(code, cursor, lexer, style)
                     finally:
                         undomanager.leaveUndoContext()
@@ -280,7 +282,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
                 if not code.strip():
                     return
                 cursor = code_block.getText().createTextCursorByRange(code_block)
-                cursor.goLeft(0, False)
+                cursor.collapseToStart()
                 self.highlight_code(code, cursor, lexer, style)
         finally:
             self.doc.unlockControllers()

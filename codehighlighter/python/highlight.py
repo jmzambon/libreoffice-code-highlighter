@@ -115,118 +115,9 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
 
         return dialog
 
-    def do_highlight(self):
-        # self.dialog.setVisible(True)
-        # 0: canceled, 1: OK
-        if self.dialog.execute() == 0:
-            return
-
-        lang = self.dialog.getControl('cb_lang').Text
-        style = self.dialog.getControl('cb_style').Text
-        colorize_bg = self.dialog.getControl('check_col_bg').State
-        if lang == 'automatic':
-            lang = None
-        # # TODO: handle exceptions here
-        # assert lang == None or (lang in all_lexer_aliases), 'no valid language: ' + lang
-        # assert style in all_styles, 'no valid style: ' + style
-
-        self.save_options(Style=style, Language=lang or 'automatic', ColorizeBackground=str(colorize_bg))
-
-        self.highlight_source_code(lang, style, colorize_bg != 0)
-
-    def do_highlight_previous(self):
+    def getlexer(self, code):
         lang = self.options['Language']
-        style = self.options['Style']
-        colorize_bg = int(self.options['ColorizeBackground'])
         if lang == 'automatic':
-            lang = None
-        self.highlight_source_code(lang, style, colorize_bg != 0)
-
-    def highlight_source_code(self, lang, style_, colorize_bg=False):
-        style = styles.get_style_by_name(style_)
-        style.name = style_
-        bg_color = style.background_color if colorize_bg else None
-
-        # Get the selected item
-        selected_item = self.doc.getCurrentController().getSelection()
-        if hasattr(selected_item, 'getCount'):
-            for item_idx in range(selected_item.getCount()):
-                code_block = selected_item.getByIndex(item_idx)
-                if code_block.supportsService('com.sun.star.drawing.Text'):
-                    # TextBox
-                    # highlight_code(style, lang, code_block)
-                    code_block.CharLocale = Locale("zxx", "", "")
-                    code_block.FillStyle = FS_NONE
-                    if bg_color:
-                        code_block.FillStyle = FS_SOLID
-                        code_block.FillColor = self.to_int(bg_color)
-                    code = code_block.String
-                    cursor = code_block.createTextCursor()
-                    cursor.gotoStart(False)
-                else:
-                    # Plain text
-                    # highlight_code_string(style, lang, code_block)
-                    code_block.CharLocale = Locale("zxx", "", "")
-                    code_block.ParaBackColor = -1
-                    if bg_color:
-                        code_block.ParaBackColor = self.to_int(bg_color)
-                    code = code_block.getString()
-                    cursor = code_block.getText().createTextCursorByRange(code_block)
-                    cursor.goLeft(0, False)
-                self.highlight_code(code, cursor, lang, style)
-
-        elif selected_item.supportsService('com.sun.star.text.TextFrame'):
-            # Selection is a text frame
-            code_block = selected_item
-            code_block.BackColor = -1
-            if bg_color:
-                code_block.BackColor = self.to_int(bg_color)
-            code = code_block.String
-            cursor = code_block.createTextCursorByRange(code_block)
-            cursor.CharLocale = Locale("zxx", "", "")
-            cursor.gotoStart(False)
-            self.highlight_code(code, cursor, lang, style)
-
-        elif selected_item.supportsService('com.sun.star.text.TextTableCursor'):
-            # Selection is one or more table cell range
-            selected_item.CharLocale = Locale("zxx", "", "")
-            table = self.doc.CurrentController.ViewCursor.TextTable
-            rangename = selected_item.RangeName
-            if ':' in rangename:
-                # at least two cells
-                cellrange = table.getCellRangeByName(rangename)
-                nrows, ncols = len(cellrange.Data), len(cellrange.Data[0])
-                for row in range(nrows):
-                    for col in range(ncols):
-                        code_block = cellrange.getCellByPosition(col, row)
-                        code_block.BackColor = -1
-                        if bg_color:
-                            code_block.BackColor = self.to_int(bg_color)
-                        code = code_block.String
-                        cursor = code_block.createTextCursor()
-                        cursor.gotoStart(False)
-                        self.highlight_code(code, cursor, lang, style)
-            else:
-                # only one cell
-                code_block = table.getCellByName(rangename)
-                code_block.BackColor = -1
-                if bg_color:
-                    code_block.BackColor = self.to_int(bg_color)
-                code = code_block.String
-                cursor = code_block.createTextCursor()
-                cursor.gotoStart(False)
-                self.highlight_code(code, cursor, lang, style)
-
-        elif hasattr(selected_item, 'SupportedServiceNames') and selected_item.supportsService('com.sun.star.text.TextCursor'):
-            # LO Impress text selection
-            code_block = selected_item
-            code = code_block.getString()
-            cursor = code_block.getText().createTextCursorByRange(code_block)
-            cursor.goLeft(0, False)
-            self.highlight_code(code, cursor, lang, style)
-
-    def highlight_code(self, code, cursor, lang, style):
-        if lang is None:
             lexer = guess_lexer(code)
             # print(f'lexer name = {lexer.name}')
         else:
@@ -243,36 +134,156 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
                     raise
         # prevent offset color if selection start with empty line
         lexer.stripnl = False
+        return lexer
+
+    def do_highlight(self):
+        # get options choice        
+        # 0: canceled, 1: OK
+        # self.dialog.setVisible(True)
+        if self.dialog.execute() == 0:
+            return
+        lang = self.dialog.getControl('cb_lang').Text
+        style = self.dialog.getControl('cb_style').Text
+        colorize_bg = self.dialog.getControl('check_col_bg').State
+        self.save_options(Style=style, Language=lang or 'automatic', ColorizeBackground=str(colorize_bg))
+
+        # # TODO: handle exceptions here
+        # assert lang == None or (lang in all_lexer_aliases), 'no valid language: ' + lang
+        # assert style in all_styles, 'no valid style: ' + style
+
+        self.highlight_source_code()
+
+    def do_highlight_previous(self):
+        self.highlight_source_code()
+
+    def highlight_source_code(self):
+        lang = self.options['Language']
+        stylename = self.options['Style']
+        style = styles.get_style_by_name(stylename)
+        bg_color = style.background_color if self.options['ColorizeBackground'] != "0" else None
 
         self.doc.lockControllers()
         undomanager = self.doc.UndoManager
-        undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {style.name})")
         try:
-            # caching consecutive tokens with same token type
-            lastval = ''
-            lasttype = None
-            for tok_type, tok_value in lexer.get_tokens(code):
-                if tok_type == lasttype:
-                    lastval += tok_value
+            # Get the selected item
+            selected_item = self.doc.getCurrentController().getSelection()
+            if hasattr(selected_item, 'getCount'):
+                for item_idx in range(selected_item.getCount()):
+                    code_block = selected_item.getByIndex(item_idx)
+                    code = code_block.String
+                    lexer = self.getlexer(code)
+                    undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
+                    try:
+                        code_block.CharLocale = Locale("zxx", "", "")
+                        if code_block.supportsService('com.sun.star.drawing.Text'):
+                            # TextBox
+                            code_block.FillStyle = FS_NONE
+                            if bg_color:
+                                code_block.FillStyle = FS_SOLID
+                                code_block.FillColor = self.to_int(bg_color)
+                            cursor = code_block.createTextCursor()
+                            cursor.gotoStart(False)
+                        else:
+                            # Plain text
+                            code_block.ParaBackColor = -1
+                            if bg_color:
+                                code_block.ParaBackColor = self.to_int(bg_color)
+                            cursor = code_block.getText().createTextCursorByRange(code_block)
+                            cursor.goLeft(0, False)
+                        self.highlight_code(code, cursor, lexer, style)
+                    finally:
+                        undomanager.leaveUndoContext()
+
+            elif selected_item.supportsService('com.sun.star.text.TextFrame'):
+                # Selection is a text frame
+                code_block = selected_item
+                code = code_block.String
+                lexer = self.getlexer(code)
+                undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
+                try:
+                    code_block.BackColor = -1
+                    if bg_color:
+                        code_block.BackColor = self.to_int(bg_color)
+                    cursor = code_block.createTextCursor()
+                    cursor.CharLocale = Locale("zxx", "", "")
+                    cursor.gotoStart(False)
+                    self.highlight_code(code, cursor, lexer, style)
+                finally:
+                    undomanager.leaveUndoContext()
+
+            elif selected_item.supportsService('com.sun.star.text.TextTableCursor'):
+                # Selection is one or more table cell range
+                table = self.doc.CurrentController.ViewCursor.TextTable
+                rangename = selected_item.RangeName
+                if ':' in rangename:
+                    # at least two cells
+                    cellrange = table.getCellRangeByName(rangename)
+                    nrows, ncols = len(cellrange.Data), len(cellrange.Data[0])
+                    for row in range(nrows):
+                        for col in range(ncols):
+                            code_block = cellrange.getCellByPosition(col, row)
+                            code = code_block.String
+                            lexer = self.getlexer(code)
+                            undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
+                            try:
+                                code_block.BackColor = -1
+                                if bg_color:
+                                    code_block.BackColor = self.to_int(bg_color)
+                                cursor = code_block.createTextCursor()
+                                cursor.CharLocale = Locale("zxx", "", "")
+                                cursor.gotoStart(False)
+                                self.highlight_code(code, cursor, lexer, style)
+                            finally:
+                                undomanager.leaveUndoContext()
                 else:
-                    if lastval:
-                        cursor.goRight(len(lastval), True)  # selects the token's text
-                        try:
-                            tok_style = style.style_for_token(lasttype)
-                            cursor.CharColor = self.to_int(tok_style['color'])
-                            cursor.CharWeight = W_BOLD if tok_style['bold'] else W_NORMAL
-                            cursor.CharPosture = SL_ITALIC if tok_style['italic'] else SL_NONE
-                        except:
-                            pass
-                        finally:
-                            cursor.goRight(0, False)  # deselects the selected text
-                    lastval = tok_value
-                    lasttype = tok_type
-        except Exception:
-            traceback.print_exc()
+                    # only one cell
+                    code_block = table.getCellByName(rangename)
+                    code = code_block.String
+                    lexer = self.getlexer(code)
+                    undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
+                    try:
+                        code_block.BackColor = -1
+                        if bg_color:
+                            code_block.BackColor = self.to_int(bg_color)
+                        cursor = code_block.createTextCursor()
+                        cursor.CharLocale = Locale("zxx", "", "")
+                        cursor.gotoStart(False)
+                        self.highlight_code(code, cursor, lexer, style)
+                    finally:
+                        undomanager.leaveUndoContext()
+
+            elif hasattr(selected_item, 'SupportedServiceNames') and selected_item.supportsService('com.sun.star.text.TextCursor'):
+                # LO Impress text selection
+                code_block = selected_item
+                code = code_block.getString()
+                cursor = code_block.getText().createTextCursorByRange(code_block)
+                cursor.goLeft(0, False)
+                self.highlight_code(code, cursor, lexer, style)
+
         finally:
-            undomanager.leaveUndoContext()
             self.doc.unlockControllers()
+
+    def highlight_code(self, code, cursor, lexer, style):
+        # caching consecutive tokens with same token type
+        lastval = ''
+        lasttype = None
+        for tok_type, tok_value in lexer.get_tokens(code):
+            if tok_type == lasttype:
+                lastval += tok_value
+            else:
+                if lastval:
+                    cursor.goRight(len(lastval), True)  # selects the token's text
+                    try:
+                        tok_style = style.style_for_token(lasttype)
+                        cursor.CharColor = self.to_int(tok_style['color'])
+                        cursor.CharWeight = W_BOLD if tok_style['bold'] else W_NORMAL
+                        cursor.CharPosture = SL_ITALIC if tok_style['italic'] else SL_NONE
+                    except:
+                        pass
+                    finally:
+                        cursor.goRight(0, False)  # deselects the selected text
+                lastval = tok_value
+                lasttype = tok_type
 
 
 # Component registration

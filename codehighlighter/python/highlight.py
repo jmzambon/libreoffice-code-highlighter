@@ -185,7 +185,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
                     code_block = selected_item.getByIndex(item_idx)
                     code = code_block.String
                     if not code.strip():
-                        return
+                        continue
                     lexer = self.getlexer(code)
                     undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
                     try:
@@ -241,7 +241,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
                             code_block = cellrange.getCellByPosition(col, row)
                             code = code_block.String
                             if not code.strip():
-                                return
+                                continue
                             lexer = self.getlexer(code)
                             undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
                             try:

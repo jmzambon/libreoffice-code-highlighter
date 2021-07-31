@@ -59,7 +59,28 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
         except:
             traceback.print_exc()
 
-    # core functions
+    # main functions
+    def do_highlight(self):
+        # get options choice        
+        # 0: canceled, 1: OK
+        # self.dialog.setVisible(True)
+        if self.dialog.execute() == 0:
+            return
+        lang = self.dialog.getControl('cb_lang').Text
+        style = self.dialog.getControl('cb_style').Text
+        colorize_bg = self.dialog.getControl('check_col_bg').State
+        self.save_options(Style=style, Language=lang or 'automatic', ColorizeBackground=str(colorize_bg))
+
+        # # TODO: handle exceptions here
+        # assert lang == None or (lang in all_lexer_aliases), 'no valid language: ' + lang
+        # assert style in all_styles, 'no valid style: ' + style
+
+        self.highlight_source_code()
+
+    def do_highlight_previous(self):
+        self.highlight_source_code()
+
+    # private functions
     def create(self, service):
         return self.sm.createInstance(service)
 
@@ -135,26 +156,6 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
         # prevent offset color if selection start with empty line
         lexer.stripnl = False
         return lexer
-
-    def do_highlight(self):
-        # get options choice        
-        # 0: canceled, 1: OK
-        # self.dialog.setVisible(True)
-        if self.dialog.execute() == 0:
-            return
-        lang = self.dialog.getControl('cb_lang').Text
-        style = self.dialog.getControl('cb_style').Text
-        colorize_bg = self.dialog.getControl('check_col_bg').State
-        self.save_options(Style=style, Language=lang or 'automatic', ColorizeBackground=str(colorize_bg))
-
-        # # TODO: handle exceptions here
-        # assert lang == None or (lang in all_lexer_aliases), 'no valid language: ' + lang
-        # assert style in all_styles, 'no valid style: ' + style
-
-        self.highlight_source_code()
-
-    def do_highlight_previous(self):
-        self.highlight_source_code()
 
     def highlight_source_code(self):
         lang = self.options['Language']

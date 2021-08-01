@@ -39,7 +39,7 @@
                                 <value xml:lang="en">Highlight Code</value>
                             </prop>
                             <prop oor:name="URL" oor:type="xs:string">
-                                <value>service:code.highlighter.impl?highlight</value>
+                                <value>service:ooo.ext.code-highlighter.impl?highlight</value>
                             </prop>
                             <prop oor:name="Target" oor:type="xs:string">
                                 <value>_self</value>
@@ -53,7 +53,7 @@
                                 <value xml:lang="en">Highlight Code (previous settings)</value>
                             </prop>
                             <prop oor:name="URL" oor:type="xs:string">
-                                <value>service:code.highlighter.impl?highlight_previous</value>
+                                <value>service:ooo.ext.code-highlighter.impl?highlight_previous</value>
                             </prop>
                             <prop oor:name="Target" oor:type="xs:string">
                                 <value>_self</value>

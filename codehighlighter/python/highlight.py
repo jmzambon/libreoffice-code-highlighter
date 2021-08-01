@@ -334,4 +334,4 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
 
 # Component registration
 g_ImplementationHelper = unohelper.ImplementationHelper()
-g_ImplementationHelper.addImplementation(CodeHighlighter, "code.highlighter.impl", (),)
+g_ImplementationHelper.addImplementation(CodeHighlighter, "ooo.ext.code-highlighter.impl", (),)

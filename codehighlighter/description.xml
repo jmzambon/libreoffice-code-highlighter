@@ -17,7 +17,7 @@
     <src xlink:href="description/desc_en.txt" lang="en" />
   </extension-description>
   <dependencies>
-    <l:LibreOffice-minimal-version value="4.0" d:name="LibreOffice.org or Open Office 4.0" />
+    <l:LibreOffice-minimal-version value="6.4" d:name="LibreOffice.org 6.4 or higher" />
   </dependencies>
   <registration>
     <simple-license accept-by="admin">

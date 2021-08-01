@@ -198,7 +198,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
                                 code_block.FillStyle = FS_SOLID
                                 code_block.FillColor = self.to_int(bg_color)
                             cursor = code_block.createTextCursorByRange(code_block)
-                            code_block.CharLocale = self.nolocale
+                            cursor.CharLocale = self.nolocale
                             cursor.collapseToStart()
                         else:
                             # Plain text
@@ -282,7 +282,9 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
                 code = code_block.String
                 if not code.strip():
                     return
+                lexer = self.getlexer(code)
                 cursor = code_block.getText().createTextCursorByRange(code_block)
+                cursor.CharLocale = self.nolocale
                 cursor.collapseToStart()
                 self.highlight_code(code, cursor, lexer, style)
 

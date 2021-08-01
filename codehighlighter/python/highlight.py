@@ -29,6 +29,7 @@ from com.sun.star.awt.MessageBoxType import MESSAGEBOX, ERRORBOX
 from com.sun.star.beans import PropertyValue
 from com.sun.star.drawing.FillStyle import NONE as FS_NONE, SOLID as FS_SOLID
 from com.sun.star.lang import Locale
+from com.sun.star.sheet.CellFlags import STRING as CF_STRING
 from com.sun.star.task import XJobExecutor
 
 import pygments.util
@@ -180,8 +181,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
         undomanager = self.doc.UndoManager
         try:
             # Get the selected item
-            selected_item = self.doc.getCurrentController().getSelection()
-            if hasattr(selected_item, 'getCount'):
+            selected_item = self.doc.CurrentSelection
+            if hasattr(selected_item, 'getCount') and not hasattr(selected_item, 'queryContentCells'):
                 for item_idx in range(selected_item.getCount()):
                     code_block = selected_item.getByIndex(item_idx)
                     code = code_block.String
@@ -284,6 +285,27 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
                 cursor = code_block.getText().createTextCursorByRange(code_block)
                 cursor.collapseToStart()
                 self.highlight_code(code, cursor, lexer, style)
+
+            elif hasattr(selected_item, 'queryContentCells'):
+                # LO Calc cell selection
+                cells = selected_item.queryContentCells(CF_STRING).Cells
+                if cells.hasElements():
+                    for code_block in cells:
+                        code = code_block.String
+                        lexer = self.getlexer(code)
+                        undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
+                        try:
+                            code_block.CellBackColor = -1
+                            code_block.CharLocale = self.nolocale
+                            if bg_color:
+                                code_block.CellBackColor = self.to_int(bg_color)
+                            cursor = code_block.createTextCursor()
+                            cursor.gotoStart(False)
+                            self.highlight_code(code, cursor, lexer, style)
+                        finally:
+                            undomanager.leaveUndoContext()
+        except Exception:
+            self.msgbox(traceback.format_exc())
         finally:
             self.doc.unlockControllers()
 

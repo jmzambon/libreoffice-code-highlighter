@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE dlg:window PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "dialog.dtd">
-<dlg:window xmlns:dlg="http://openoffice.org/2000/dialog" xmlns:script="http://openoffice.org/2000/script" dlg:id="CodeHighlighter" dlg:left="70" dlg:top="113" dlg:width="175" dlg:height="144" dlg:closeable="true" dlg:moveable="true">
+<dlg:window xmlns:dlg="http://openoffice.org/2000/dialog" xmlns:script="http://openoffice.org/2000/script" dlg:id="CodeHighlighter" dlg:left="70" dlg:top="113" dlg:width="153" dlg:height="138" dlg:closeable="true" dlg:moveable="true">
+ <dlg:styles>
+  <dlg:style dlg:style-id="0" dlg:border="simple"/>
+ </dlg:styles>
  <dlg:bulletinboard>
   <dlg:text dlg:id="Label1" dlg:tab-index="0" dlg:left="20" dlg:top="6" dlg:width="60" dlg:height="10" dlg:value="Language"/>
-  <dlg:text dlg:id="Label2" dlg:tab-index="2" dlg:left="20" dlg:top="50" dlg:width="60" dlg:height="10" dlg:value="Style"/>
-  <dlg:button dlg:id="btn_cancel" dlg:tab-index="6" dlg:left="20" dlg:top="120" dlg:width="52" dlg:height="16" dlg:value="Cancel" dlg:button-type="cancel"/>
-  <dlg:button dlg:id="btn_ok" dlg:tab-index="7" dlg:left="102" dlg:top="120" dlg:width="52" dlg:height="16" dlg:default="true" dlg:value="OK" dlg:button-type="ok"/>
-  <dlg:combobox dlg:id="cb_lang" dlg:tab-index="1" dlg:left="20" dlg:top="22" dlg:width="100" dlg:height="12" dlg:spin="true" dlg:linecount="20"/>
-  <dlg:combobox dlg:id="cb_style" dlg:tab-index="3" dlg:left="20" dlg:top="66" dlg:width="100" dlg:height="12" dlg:spin="true" dlg:linecount="20"/>
-  <dlg:checkbox dlg:id="check_col_bg" dlg:tab-index="4" dlg:left="20" dlg:top="90" dlg:width="8" dlg:height="10" dlg:help-text="Use the background color provided by the style." dlg:valign="center" dlg:checked="true"/>
-  <dlg:text dlg:id="Label3" dlg:tab-index="5" dlg:left="30" dlg:top="90" dlg:width="87" dlg:height="10" dlg:help-text="Use the background color provided by the style." dlg:value="Set background color" dlg:valign="center"/>
+  <dlg:text dlg:id="Label2" dlg:tab-index="2" dlg:left="20" dlg:top="44" dlg:width="60" dlg:height="10" dlg:value="Style"/>
+  <dlg:button dlg:id="btn_cancel" dlg:tab-index="5" dlg:left="20" dlg:top="105" dlg:width="52" dlg:height="16" dlg:value="Cancel" dlg:button-type="cancel"/>
+  <dlg:button dlg:id="btn_ok" dlg:tab-index="6" dlg:left="81" dlg:top="105" dlg:width="52" dlg:height="16" dlg:default="true" dlg:value="OK" dlg:button-type="ok"/>
+  <dlg:combobox dlg:style-id="0" dlg:id="cb_lang" dlg:tab-index="1" dlg:left="20" dlg:top="19" dlg:width="100" dlg:height="15" dlg:spin="true" dlg:linecount="20"/>
+  <dlg:combobox dlg:style-id="0" dlg:id="cb_style" dlg:tab-index="3" dlg:left="20" dlg:top="57" dlg:width="100" dlg:height="15" dlg:spin="true" dlg:linecount="20"/>
+  <dlg:checkbox dlg:id="check_col_bg" dlg:tab-index="4" dlg:left="20" dlg:top="82" dlg:width="83" dlg:height="10" dlg:help-text="Use the background color provided by the style." dlg:value="Set background color" dlg:valign="center" dlg:checked="true"/>
  </dlg:bulletinboard>
 </dlg:window>

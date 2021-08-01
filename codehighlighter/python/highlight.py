@@ -193,6 +193,9 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
                     try:
                         if code_block.supportsService('com.sun.star.drawing.Text'):
                             # TextBox
+                            # exit edit mode if necessary
+                            dispatcher = self.create("com.sun.star.frame.DispatchHelper")
+                            dispatcher.executeDispatch(self.doc.CurrentController.Frame, ".uno:SelectObject", "", 0, ())
                             code_block.FillStyle = FS_NONE
                             if bg_color:
                                 code_block.FillStyle = FS_SOLID
@@ -206,7 +209,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
                             if bg_color:
                                 code_block.ParaBackColor = self.to_int(bg_color)
                             cursor = code_block.getText().createTextCursorByRange(code_block)
-                            code_block.CharLocale = self.nolocale
+                            cursor.CharLocale = self.nolocale
                             cursor.collapseToStart()
                         self.highlight_code(code, cursor, lexer, style)
                     finally:
@@ -277,16 +280,29 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
                         undomanager.leaveUndoContext()
 
             elif hasattr(selected_item, 'SupportedServiceNames') and selected_item.supportsService('com.sun.star.text.TextCursor'):
-                # LO Impress text selection
-                code_block = selected_item
+                # LO Impress shape selection
+
+                # exit edit mode if necessary
+                dispatcher = self.create("com.sun.star.frame.DispatchHelper")
+                dispatcher.executeDispatch(self.doc.CurrentController.Frame, ".uno:SelectObject", "", 0, ())
+
+                code_block = self.doc.CurrentSelection[0]
                 code = code_block.String
                 if not code.strip():
                     return
                 lexer = self.getlexer(code)
-                cursor = code_block.getText().createTextCursorByRange(code_block)
-                cursor.CharLocale = self.nolocale
-                cursor.collapseToStart()
-                self.highlight_code(code, cursor, lexer, style)
+                undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
+                try:
+                    code_block.FillStyle = FS_NONE
+                    if bg_color:
+                        code_block.FillStyle = FS_SOLID
+                        code_block.FillColor = self.to_int(bg_color)
+                    cursor = code_block.createTextCursorByRange(code_block)
+                    cursor.CharLocale = self.nolocale
+                    cursor.collapseToStart()
+                    self.highlight_code(code, cursor, lexer, style)
+                finally:
+                    undomanager.leaveUndoContext()
 
             elif hasattr(selected_item, 'queryContentCells'):
                 # LO Calc cell selection

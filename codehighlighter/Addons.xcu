@@ -28,7 +28,7 @@
                         <value>AddBefore</value>
                     </prop>
                     <prop oor:name="MergeFallback">
-                        <value>AddLast</value>
+                        <value>AddPath</value>
                     </prop>
                     <node oor:name="MenuItems">
                         <node oor:name="hl_dialog" oor:op="replace">

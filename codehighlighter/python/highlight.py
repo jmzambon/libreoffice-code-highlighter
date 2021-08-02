@@ -282,25 +282,20 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
             elif hasattr(selected_item, 'SupportedServiceNames') and selected_item.supportsService('com.sun.star.text.TextCursor'):
                 # LO Impress shape selection
 
-                # exit edit mode if necessary
-                dispatcher = self.create("com.sun.star.frame.DispatchHelper")
-                dispatcher.executeDispatch(self.doc.CurrentController.Frame, ".uno:SelectObject", "", 0, ())
-
-                code_block = self.doc.CurrentSelection[0]
-                code = code_block.String
+                cursor = selected_item
+                code = cursor.String
                 if not code.strip():
                     return
                 lexer = self.getlexer(code)
                 undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
                 try:
-                    code_block.FillStyle = FS_NONE
-                    if bg_color:
-                        code_block.FillStyle = FS_SOLID
-                        code_block.FillColor = self.to_int(bg_color)
-                    cursor = code_block.createTextCursorByRange(code_block)
                     cursor.CharLocale = self.nolocale
                     cursor.collapseToStart()
                     self.highlight_code(code, cursor, lexer, style)
+
+                    # exit edit mode if necessary
+                    dispatcher = self.create("com.sun.star.frame.DispatchHelper")
+                    dispatcher.executeDispatch(self.doc.CurrentController.Frame, ".uno:SelectObject", "", 0, ())
                 finally:
                     undomanager.leaveUndoContext()
 
@@ -345,7 +340,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
                     except:
                         pass
                     finally:
-                        cursor.goRight(0, False)  # deselects the selected text
+                        cursor.collapseToEnd()  # deselects the selected text
                 lastval = tok_value
                 lasttype = tok_type
 

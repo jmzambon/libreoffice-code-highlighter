@@ -350,3 +350,15 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
 # Component registration
 g_ImplementationHelper = unohelper.ImplementationHelper()
 g_ImplementationHelper.addImplementation(CodeHighlighter, "ooo.ext.code-highlighter.impl", (),)
+
+
+# exposed functions for development stages
+def highlight(event=None):
+    ctx = XSCRIPTCONTEXT.getComponentContext()
+    highlighter = CodeHighlighter(ctx) 
+    highlighter.do_highlight()
+
+def highlight_previous(event=None):
+    ctx = XSCRIPTCONTEXT.getComponentContext()
+    highlighter = CodeHighlighter(ctx) 
+    highlighter.do_highlight_previous()

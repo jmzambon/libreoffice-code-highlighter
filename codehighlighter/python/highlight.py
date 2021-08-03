@@ -182,7 +182,9 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
         try:
             # Get the selected item
             selected_item = self.doc.CurrentSelection
-            if hasattr(selected_item, 'getCount') and not hasattr(selected_item, 'queryContentCells'):
+            if not hasattr(selected_item, 'supportsService'):
+                return 
+            elif hasattr(selected_item, 'getCount') and not hasattr(selected_item, 'queryContentCells'):
                 for item_idx in range(selected_item.getCount()):
                     code_block = selected_item.getByIndex(item_idx)
                     code = code_block.String
@@ -279,7 +281,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
                     finally:
                         undomanager.leaveUndoContext()
 
-            elif hasattr(selected_item, 'SupportedServiceNames') and selected_item.supportsService('com.sun.star.text.TextCursor'):
+            elif selected_item.supportsService('com.sun.star.text.TextCursor'):
                 # LO Impress shape selection
 
                 cursor = selected_item

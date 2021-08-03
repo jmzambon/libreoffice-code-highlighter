@@ -283,18 +283,22 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
 
             elif selected_item.supportsService('com.sun.star.text.TextCursor'):
                 # LO Impress shape selection
-
                 cursor = selected_item
                 code = cursor.String
-                if not code.strip():
+                cdirection = cursor.compareRegionStarts(cursor.Start, cursor.End)
+                if cdirection == 0:  # no selection
                     return
                 lexer = self.getlexer(code)
                 undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
                 try:
                     cursor.CharLocale = self.nolocale
-                    cursor.collapseToStart()
-                    self.highlight_code(code, cursor, lexer, style)
+                    if cdirection == 1:
+                        cursor.collapseToStart()
+                    else:
+                        # if selection is done right to left inside text box, end cursor is before start cursor
+                        cursor.collapseToEnd()
 
+                    self.highlight_code(code, cursor, lexer, style)
                     # exit edit mode if necessary
                     dispatcher = self.create("com.sun.star.frame.DispatchHelper")
                     dispatcher.executeDispatch(self.doc.CurrentController.Frame, ".uno:SelectObject", "", 0, ())

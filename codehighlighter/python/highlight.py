@@ -31,6 +31,16 @@ from com.sun.star.drawing.FillStyle import NONE as FS_NONE, SOLID as FS_SOLID
 from com.sun.star.lang import Locale
 from com.sun.star.sheet.CellFlags import STRING as CF_STRING
 from com.sun.star.task import XJobExecutor
+try:
+    import pygments.util
+    from pygments import styles
+    from pygments.lexers import get_all_lexers
+    from pygments.lexers import get_lexer_by_name
+    from pygments.lexers import guess_lexer
+    from pygments.styles import get_all_styles
+except ImportError:
+    # let CodeHighlighter take care of prompting for downloading pygments
+    pass
 
 
 ctx = uno.getComponentContext()
@@ -115,18 +125,6 @@ def downloadpygments():
         print('Error at pygments import:\n---')
         traceback.print_exc()
         msgbox("Sorry, unable to download pygments.", boxtype=ERRORBOX)
-
-
-try:
-    import pygments.util
-    from pygments import styles
-    from pygments.lexers import get_all_lexers
-    from pygments.lexers import get_lexer_by_name
-    from pygments.lexers import guess_lexer
-    from pygments.styles import get_all_styles
-except ImportError:
-    # let CodeHighlighter take care of prompting for downloading pygments
-    pass
 
 
 class CodeHighlighter(unohelper.Base, XJobExecutor):
@@ -458,6 +456,7 @@ g_ImplementationHelper.addImplementation(CodeHighlighter, "ooo.ext.code-highligh
 
 #--------------------------------------------------------------------------------
 # exposed functions for development stages
+# do not forget to comment the corresponding framework-script line in manifest.xml for final release
 #--------------------------------------------------------------------------------
 def highlight(event=None):
     ctx = XSCRIPTCONTEXT.getComponentContext()

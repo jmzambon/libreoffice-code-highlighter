@@ -125,7 +125,7 @@ try:
     from pygments.lexers import guess_lexer
     from pygments.styles import get_all_styles
 except ImportError:
-    # let CodeHighlighter take care of prompting for downloadpygments
+    # let CodeHighlighter take care of prompting for downloading pygments
     pass
 
 
@@ -138,9 +138,12 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
             self.desktop = self.create("com.sun.star.frame.Desktop")
             self.doc = self.desktop.getCurrentComponent()
             self.frame = self.desktop.ActiveFrame
-            self.get_pygments_objects()
+            self.ensure_pygments = self.get_pygments_objects()
+            if not self.ensure_pygments:
+                return
             self.cfg_access = self.create_cfg_access()
             self.options = self.load_options()
+            self.dialog = None
             self.dialog = self.create_dialog()
             self.nolocale = Locale("zxx", "", "")
         except Exception:
@@ -159,7 +162,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
         # get options choice        
         # 0: canceled, 1: OK
         # self.dialog.setVisible(True)
-        if self.dialog.execute() == 0:
+        if not self.ensure_pygments or self.dialog.execute() == 0:
             return
         lang = self.dialog.getControl('cb_lang').Text.strip() or 'automatic'
         style = self.dialog.getControl('cb_style').Text.strip() or 'default'
@@ -175,7 +178,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
         self.highlight_source_code()
 
     def do_highlight_previous(self):
-        self.highlight_source_code()
+        if self.ensure_pygments:
+            self.highlight_source_code()
 
     # private functions
     def create(self, service):
@@ -211,11 +215,15 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
             for lex in get_all_lexers():
                 self.all_lexer_aliases.extend(list(lex[1]))
             self.all_styles = sorted(get_all_styles(), key=lambda x: (x != 'default', x.lower()))
+            return True
         except NameError:
-            # get_all_lexers does not exists -> pygments is not installed
+            # if get_all_lexers does not exists -> pygments is not installed
             if not 'pygments' in globals():
                 if downloadpygments() == True:
                     self.get_pygments_objects()
+                    return True
+                else:
+                    return False
             else:
                 raise
 
@@ -450,6 +458,7 @@ g_ImplementationHelper.addImplementation(CodeHighlighter, "ooo.ext.code-highligh
 
 #--------------------------------------------------------------------------------
 # exposed functions for development stages
+#--------------------------------------------------------------------------------
 def highlight(event=None):
     ctx = XSCRIPTCONTEXT.getComponentContext()
     highlighter = CodeHighlighter(ctx) 
@@ -460,4 +469,5 @@ def highlight_previous(event=None):
     highlighter = CodeHighlighter(ctx) 
     highlighter.do_highlight_previous()
 
-# g_exportedScripts = highlight, highlight_previous
+
+g_exportedScripts = highlight, highlight_previous

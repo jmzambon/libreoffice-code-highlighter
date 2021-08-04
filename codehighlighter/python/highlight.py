@@ -16,15 +16,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
 import traceback
 
-import uno
 import unohelper
 from com.sun.star.awt import Selection
 from com.sun.star.awt.FontSlant import NONE as SL_NONE, ITALIC as SL_ITALIC
 from com.sun.star.awt.FontWeight import NORMAL as W_NORMAL, BOLD as W_BOLD
-from com.sun.star.awt.Key import RETURN as KEY_RETURN
 from com.sun.star.awt.MessageBoxType import MESSAGEBOX, ERRORBOX
 from com.sun.star.beans import PropertyValue
 from com.sun.star.drawing.FillStyle import NONE as FS_NONE, SOLID as FS_SOLID
@@ -59,12 +56,12 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
         # print(f"trigger arg: {arg}")
         try:
             getattr(self, 'do_'+arg)()
-        except:
+        except Exception:
             traceback.print_exc()
 
     # main functions
     def do_highlight(self):
-        # get options choice        
+        # get options choice
         # 0: canceled, 1: OK
         # self.dialog.setVisible(True)
         if self.dialog.execute() == 0:
@@ -172,7 +169,6 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
         return lexer
 
     def highlight_source_code(self):
-        lang = self.options['Language']
         stylename = self.options['Style']
         style = styles.get_style_by_name(stylename)
         bg_color = style.background_color if self.options['ColorizeBackground'] != "0" else None
@@ -183,7 +179,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
             # Get the selected item
             selected_item = self.doc.CurrentSelection
             if not hasattr(selected_item, 'supportsService'):
-                return 
+                return
             elif hasattr(selected_item, 'getCount') and not hasattr(selected_item, 'queryContentCells'):
                 for item_idx in range(selected_item.getCount()):
                     code_block = selected_item.getByIndex(item_idx)
@@ -343,7 +339,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
                         cursor.CharColor = self.to_int(tok_style['color'])
                         cursor.CharWeight = W_BOLD if tok_style['bold'] else W_NORMAL
                         cursor.CharPosture = SL_ITALIC if tok_style['italic'] else SL_NONE
-                    except:
+                    except Exception:
                         pass
                     finally:
                         cursor.collapseToEnd()  # deselects the selected text
@@ -359,10 +355,11 @@ g_ImplementationHelper.addImplementation(CodeHighlighter, "ooo.ext.code-highligh
 # exposed functions for development stages
 def highlight(event=None):
     ctx = XSCRIPTCONTEXT.getComponentContext()
-    highlighter = CodeHighlighter(ctx) 
+    highlighter = CodeHighlighter(ctx)
     highlighter.do_highlight()
+
 
 def highlight_previous(event=None):
     ctx = XSCRIPTCONTEXT.getComponentContext()
-    highlighter = CodeHighlighter(ctx) 
+    highlighter = CodeHighlighter(ctx)
     highlighter.do_highlight_previous()

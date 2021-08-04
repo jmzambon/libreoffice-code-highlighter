@@ -48,7 +48,7 @@ def msgbox(message, title="Error", frame=None, boxtype=MESSAGEBOX, buttons=BUTTO
 
 def downloadpygments():
     import zipfile, urllib.request, ssl
-    import json, shutil
+    import json, shutil, importlib
     from sys import path as sys_path
     from os.path import join as os_path_join
 
@@ -60,7 +60,7 @@ def downloadpygments():
     if msgbox(message, 
               boxtype=QUERYBOX,
               buttons=BUTTONS_YES_NO | DEFAULT_BUTTON_YES) == 3:   # YES = 2, NO = 3
-        return
+        return False
 
     try:
         # prevent ssl errors
@@ -96,8 +96,21 @@ def downloadpygments():
                     zf.extract(file_, extpath)
 
         # add pytonpath to syspath and import
-        sys_path.append(os_path_join(extpath, 'python/pythonpath/'))
-        msgbox("Please restart Libreoffice.", "Download succeeded")
+        pygpath = os_path_join(extpath, 'python/pythonpath/')
+        if not pygpath in sys_path:
+            sys_path.append(pygpath)
+
+        globals()['pygments'] = importlib.import_module('pygments')
+        _styles = importlib.import_module('pygments.styles')
+        globals()['styles'] = _styles
+        globals()['get_all_styles'] = _styles.get_all_styles
+        _lexers = importlib.import_module('pygments.lexers')
+        globals()['get_all_lexers'] = _lexers.get_all_lexers
+        globals()['get_lexer_by_name'] = _lexers.get_lexer_by_name
+        globals()['guess_lexer'] = _lexers.guess_lexer
+
+        return True
+
     except Exception:
         print('Error at pygments import:\n---')
         traceback.print_exc()
@@ -200,7 +213,11 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
             self.all_styles = sorted(get_all_styles(), key=lambda x: (x != 'default', x.lower()))
         except NameError:
             # get_all_lexers does not exists -> pygments is not installed
-            downloadpygments()
+            if not 'pygments' in globals():
+                if downloadpygments() == True:
+                    self.get_pygments_objects()
+            else:
+                raise
 
     def create_dialog(self):
         dialog_provider = self.create("com.sun.star.awt.DialogProvider")

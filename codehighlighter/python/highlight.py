@@ -16,7 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
 import traceback
 
 import uno
@@ -25,28 +24,108 @@ from com.sun.star.awt import Selection
 from com.sun.star.awt.FontSlant import NONE as SL_NONE, ITALIC as SL_ITALIC
 from com.sun.star.awt.FontWeight import NORMAL as W_NORMAL, BOLD as W_BOLD
 from com.sun.star.awt.Key import RETURN as KEY_RETURN
-from com.sun.star.awt.MessageBoxType import MESSAGEBOX, ERRORBOX
+from com.sun.star.awt.MessageBoxButtons import BUTTONS_OK, BUTTONS_YES_NO, DEFAULT_BUTTON_YES
+from com.sun.star.awt.MessageBoxType import MESSAGEBOX, ERRORBOX, INFOBOX, QUERYBOX
 from com.sun.star.beans import PropertyValue
 from com.sun.star.drawing.FillStyle import NONE as FS_NONE, SOLID as FS_SOLID
 from com.sun.star.lang import Locale
 from com.sun.star.sheet.CellFlags import STRING as CF_STRING
 from com.sun.star.task import XJobExecutor
 
-import pygments.util
-from pygments import styles
-from pygments.lexers import get_all_lexers
-from pygments.lexers import get_lexer_by_name
-from pygments.lexers import guess_lexer
-from pygments.styles import get_all_styles
+
+ctx = uno.getComponentContext()
+
+def msgbox(message, title="Error", frame=None, boxtype=MESSAGEBOX, buttons=BUTTONS_OK):
+    if not frame:
+        desktop = ctx.ServiceManager.createInstance("com.sun.star.frame.Desktop")
+        frame = desktop.ActiveFrame
+    if frame.ActiveFrame:
+        # top window is a subdocument
+        frame = frame.ActiveFrame
+    win = frame.ComponentWindow
+    box = win.Toolkit.createMessageBox(win, boxtype, buttons, title, message)
+    return box.execute()
+
+def downloadpygments():
+    import zipfile, urllib.request, ssl
+    import json, shutil
+    from sys import path as sys_path
+    from os.path import join as os_path_join
+
+    message = ("Pygments is not installed on this system, but is required\n"
+               "for CodeHighlighter.\n\n"
+               "Do you want to download it now?\n"
+               "It will be installed within CodeHighlighter installation folder.")
+
+    if msgbox(message, 
+              boxtype=QUERYBOX,
+              buttons=BUTTONS_YES_NO | DEFAULT_BUTTON_YES) == 3:   # YES = 2, NO = 3
+        return
+
+    try:
+        # prevent ssl errors
+        requestcontext = ssl._create_unverified_context()
+
+        # get last release url
+        def getlastreleaseurl():
+            baseurl = "https://api.github.com/repos/pygments/pygments/releases"
+            with urllib.request.urlopen(baseurl, context=requestcontext) as response:
+                if response.code == 200:
+                    data = json.loads(response.read())
+                    return data[0]['zipball_url']
+                return None
+        lastreleaseurl = getlastreleaseurl()
+
+        # get extension absolute path
+        def getextpath():
+            pip = ctx.getByName("/singletons/com.sun.star.deployment.PackageInformationProvider")
+            url = pip.getPackageLocation("javahelps.codehighlighter")
+            return uno.fileUrlToSystemPath(url)
+        extpath = getextpath()
+
+        # grab latest release of pygments
+        zipname = 'myzip'
+        with urllib.request.urlopen(lastreleaseurl, context=requestcontext) as response, open(zipname, 'wb') as out_file:
+            shutil.copyfileobj(response, out_file)
+            with zipfile.ZipFile(zipname) as zf:
+                infolist = zf.infolist()
+                basename = infolist[0].filename 
+                rep_pygments = [zipinfo for zipinfo in infolist[1:] if zipinfo.filename.startswith(basename + 'pygments/')]
+                for file_ in rep_pygments:
+                    file_.filename = file_.filename.replace(basename, 'python/pythonpath/', 1)
+                    zf.extract(file_, extpath)
+
+        # add pytonpath to syspath and import
+        sys_path.append(os_path_join(extpath, 'python/pythonpath/'))
+        msgbox("Please restart Libreoffice.", "Download succeeded")
+    except Exception:
+        print('Error at pygments import:\n---')
+        traceback.print_exc()
+        msgbox("Sorry, unable to download pygments.", boxtype=ERRORBOX)
+
+
+try:
+    import pygments.util
+    from pygments import styles
+    from pygments.lexers import get_all_lexers
+    from pygments.lexers import get_lexer_by_name
+    from pygments.lexers import guess_lexer
+    from pygments.styles import get_all_styles
+except ImportError:
+    # let CodeHighlighter take care of prompting for downloadpygments
+    pass
 
 
 class CodeHighlighter(unohelper.Base, XJobExecutor):
     def __init__(self, ctx):
+        print('CodeHighlighter.__init__()')
         try:
             self.ctx = ctx
             self.sm = ctx.ServiceManager
             self.desktop = self.create("com.sun.star.frame.Desktop")
             self.doc = self.desktop.getCurrentComponent()
+            self.frame = self.desktop.ActiveFrame
+            self.get_pygments_objects()
             self.cfg_access = self.create_cfg_access()
             self.options = self.load_options()
             self.dialog = self.create_dialog()
@@ -74,10 +153,10 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
         colorize_bg = self.dialog.getControl('check_col_bg').State
 
         if lang != 'automatic' and lang not in self.all_lexer_aliases:
-            self.msgbox("Unsupported language.", ERRORBOX)
+            msgbox("Unsupported language.", "Error", self.frame, ERRORBOX)
             return
         if style not in self.all_styles:
-            self.msgbox("Unknown.", ERRORBOX)
+            msgbox("Unknown.", "Error", self.frame, ERRORBOX)
             return
         self.save_options(Style=style, Language=lang, ColorizeBackground=str(colorize_bg))
         self.highlight_source_code()
@@ -88,15 +167,6 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
     # private functions
     def create(self, service):
         return self.sm.createInstance(service)
-
-    def msgbox(self, message, boxtype=MESSAGEBOX):
-        frame = self.desktop.ActiveFrame
-        if frame.ActiveFrame:
-            # top window is a subdocument
-            frame = frame.ActiveFrame
-        win = frame.ComponentWindow
-        box = win.Toolkit.createMessageBox(win, boxtype, 1, "Error", message)
-        return box.execute()
 
     def to_int(self, hex_str):
         if hex_str:
@@ -119,15 +189,20 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
         self.cfg_access.setPropertyValues(tuple(kwargs.keys()), tuple(kwargs.values()))
         self.cfg_access.commitChanges()
 
-    def create_dialog(self):
-        # get_all_lexers() returns:
-        # (longname, tuple of aliases, tuple of filename patterns, tuple of mimetypes)
-        all_lexers = sorted((lex[0] for lex in get_all_lexers()), key=str.casefold)
-        self.all_lexer_aliases = [lex[0] for lex in get_all_lexers()]
-        for lex in get_all_lexers():
-            self.all_lexer_aliases.extend(list(lex[1]))
-        self.all_styles = sorted(get_all_styles(), key=lambda x: (x != 'default', x.lower()))
+    def get_pygments_objects(self):
+        try:
+            # get_all_lexers() returns:
+            # (longname, tuple of aliases, tuple of filename patterns, tuple of mimetypes)
+            self.all_lexers = sorted((lex[0] for lex in get_all_lexers()), key=str.casefold)
+            self.all_lexer_aliases = [lex[0] for lex in get_all_lexers()]
+            for lex in get_all_lexers():
+                self.all_lexer_aliases.extend(list(lex[1]))
+            self.all_styles = sorted(get_all_styles(), key=lambda x: (x != 'default', x.lower()))
+        except NameError:
+            # get_all_lexers does not exists -> pygments is not installed
+            downloadpygments()
 
+    def create_dialog(self):
         dialog_provider = self.create("com.sun.star.awt.DialogProvider")
         dialog = dialog_provider.createDialog("vnd.sun.star.extension://javahelps.codehighlighter/dialogs/CodeHighlighter.xdl")
 
@@ -139,7 +214,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
         cb_lang.addItem('automatic', 0)
         cb_lang.Text = self.options['Language']
         cb_lang.setSelection(Selection(0, len(cb_lang.Text)))
-        cb_lang.addItems(all_lexers, 0)
+        cb_lang.addItems(self.all_lexers, 0)
 
         style = self.options['Style']
         if style in self.all_styles:
@@ -324,7 +399,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
                         finally:
                             undomanager.leaveUndoContext()
         except Exception:
-            self.msgbox(traceback.format_exc())
+            msgbox(traceback.format_exc(), frame=self.frame)
         finally:
             self.doc.unlockControllers()
 
@@ -356,6 +431,7 @@ g_ImplementationHelper = unohelper.ImplementationHelper()
 g_ImplementationHelper.addImplementation(CodeHighlighter, "ooo.ext.code-highlighter.impl", (),)
 
 
+#--------------------------------------------------------------------------------
 # exposed functions for development stages
 def highlight(event=None):
     ctx = XSCRIPTCONTEXT.getComponentContext()
@@ -366,3 +442,5 @@ def highlight_previous(event=None):
     ctx = XSCRIPTCONTEXT.getComponentContext()
     highlighter = CodeHighlighter(ctx) 
     highlighter.do_highlight_previous()
+
+# g_exportedScripts = highlight, highlight_previous

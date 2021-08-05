@@ -71,10 +71,10 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
         colorize_bg = self.dialog.getControl('check_col_bg').State
 
         if lang != 'automatic' and lang not in self.all_lexer_aliases:
-            self.msgbox("Unsupported language.", ERRORBOX)
+            self.msgbox("Unsupported language.")
             return
         if style not in self.all_styles:
-            self.msgbox("Unknown.", ERRORBOX)
+            self.msgbox("Unknown.")
             return
         self.save_options(Style=style, Language=lang, ColorizeBackground=str(colorize_bg))
         self.highlight_source_code()
@@ -86,13 +86,13 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
     def create(self, service):
         return self.sm.createInstance(service)
 
-    def msgbox(self, message, boxtype=MESSAGEBOX):
+    def msgbox(self, message, boxtype=ERRORBOX, title="Error"):
         frame = self.desktop.ActiveFrame
         if frame.ActiveFrame:
             # top window is a subdocument
             frame = frame.ActiveFrame
-        win = frame.ComponentWindow
-        box = win.Toolkit.createMessageBox(win, boxtype, 1, "Error", message)
+        win = frame.ContainerWindow
+        box = win.Toolkit.createMessageBox(win, boxtype, 1, title, message)
         return box.execute()
 
     def to_int(self, hex_str):
@@ -185,95 +185,52 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
 
         self.doc.lockControllers()
         undomanager = self.doc.UndoManager
+        hascode = False
         try:
             # Get the selected item
             selected_item = self.doc.CurrentSelection
             if not hasattr(selected_item, 'supportsService'):
+                self.msgbox("Unsupported selection.")
                 return
             elif hasattr(selected_item, 'getCount') and not hasattr(selected_item, 'queryContentCells'):
                 for item_idx in range(selected_item.getCount()):
                     code_block = selected_item.getByIndex(item_idx)
                     code = code_block.String
-                    if not code.strip():
-                        continue
-                    lexer = self.getlexer(code)
-                    undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
-                    try:
-                        if code_block.supportsService('com.sun.star.drawing.Text'):
-                            # TextBox
-                            # exit edit mode if necessary
-                            dispatcher = self.create("com.sun.star.frame.DispatchHelper")
-                            dispatcher.executeDispatch(self.doc.CurrentController.Frame, ".uno:SelectObject", "", 0, ())
-                            code_block.FillStyle = FS_NONE
-                            if bg_color:
-                                code_block.FillStyle = FS_SOLID
-                                code_block.FillColor = self.to_int(bg_color)
-                            cursor = code_block.createTextCursorByRange(code_block)
-                            cursor.CharLocale = self.nolocale
-                            cursor.collapseToStart()
-                        else:
-                            # Plain text
-                            code_block.ParaBackColor = -1
-                            if bg_color:
-                                code_block.ParaBackColor = self.to_int(bg_color)
-                            cursor = code_block.getText().createTextCursorByRange(code_block)
-                            cursor.CharLocale = self.nolocale
-                            cursor.collapseToStart()
-                        self.highlight_code(code, cursor, lexer, style)
-                    finally:
-                        undomanager.leaveUndoContext()
+                    if code.strip():
+                        hascode = True
+                        lexer = self.getlexer(code)
+                        undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
+                        try:
+                            if code_block.supportsService('com.sun.star.drawing.Text'):
+                                # TextBox
+                                # exit edit mode if necessary
+                                dispatcher = self.create("com.sun.star.frame.DispatchHelper")
+                                dispatcher.executeDispatch(self.doc.CurrentController.Frame, ".uno:SelectObject", "", 0, ())
+                                code_block.FillStyle = FS_NONE
+                                if bg_color:
+                                    code_block.FillStyle = FS_SOLID
+                                    code_block.FillColor = self.to_int(bg_color)
+                                cursor = code_block.createTextCursorByRange(code_block)
+                                cursor.CharLocale = self.nolocale
+                                cursor.collapseToStart()
+                            else:
+                                # Plain text
+                                code_block.ParaBackColor = -1
+                                if bg_color:
+                                    code_block.ParaBackColor = self.to_int(bg_color)
+                                cursor = code_block.getText().createTextCursorByRange(code_block)
+                                cursor.CharLocale = self.nolocale
+                                cursor.collapseToStart()
+                            self.highlight_code(code, cursor, lexer, style)
+                        finally:
+                            undomanager.leaveUndoContext()
 
             elif selected_item.supportsService('com.sun.star.text.TextFrame'):
                 # Selection is a text frame
                 code_block = selected_item
                 code = code_block.String
-                if not code.strip():
-                    return
-                lexer = self.getlexer(code)
-                undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
-                try:
-                    code_block.BackColor = -1
-                    if bg_color:
-                        code_block.BackColor = self.to_int(bg_color)
-                    cursor = code_block.createTextCursorByRange(code_block)
-                    cursor.CharLocale = self.nolocale
-                    cursor.collapseToStart()
-                    self.highlight_code(code, cursor, lexer, style)
-                finally:
-                    undomanager.leaveUndoContext()
-
-            elif selected_item.supportsService('com.sun.star.text.TextTableCursor'):
-                # Selection is one or more table cell range
-                table = self.doc.CurrentController.ViewCursor.TextTable
-                rangename = selected_item.RangeName
-                if ':' in rangename:
-                    # at least two cells
-                    cellrange = table.getCellRangeByName(rangename)
-                    nrows, ncols = len(cellrange.Data), len(cellrange.Data[0])
-                    for row in range(nrows):
-                        for col in range(ncols):
-                            code_block = cellrange.getCellByPosition(col, row)
-                            code = code_block.String
-                            if not code.strip():
-                                continue
-                            lexer = self.getlexer(code)
-                            undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
-                            try:
-                                code_block.BackColor = -1
-                                if bg_color:
-                                    code_block.BackColor = self.to_int(bg_color)
-                                cursor = code_block.createTextCursorByRange(code_block)
-                                cursor.CharLocale = self.nolocale
-                                cursor.collapseToStart()
-                                self.highlight_code(code, cursor, lexer, style)
-                            finally:
-                                undomanager.leaveUndoContext()
-                else:
-                    # only one cell
-                    code_block = table.getCellByName(rangename)
-                    code = code_block.String
-                    if not code.strip():
-                        return
+                if code.strip():
+                    hascode = True
                     lexer = self.getlexer(code)
                     undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
                     try:
@@ -287,34 +244,80 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
                     finally:
                         undomanager.leaveUndoContext()
 
+            elif selected_item.supportsService('com.sun.star.text.TextTableCursor'):
+                # Selection is one or more table cell range
+                table = self.doc.CurrentController.ViewCursor.TextTable
+                rangename = selected_item.RangeName
+                if ':' in rangename:
+                    # at least two cells
+                    cellrange = table.getCellRangeByName(rangename)
+                    nrows, ncols = len(cellrange.Data), len(cellrange.Data[0])
+                    for row in range(nrows):
+                        for col in range(ncols):
+                            code_block = cellrange.getCellByPosition(col, row)
+                            code = code_block.String
+                            if code.strip():
+                                hascode = True
+                                lexer = self.getlexer(code)
+                                undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
+                                try:
+                                    code_block.BackColor = -1
+                                    if bg_color:
+                                        code_block.BackColor = self.to_int(bg_color)
+                                    cursor = code_block.createTextCursorByRange(code_block)
+                                    cursor.CharLocale = self.nolocale
+                                    cursor.collapseToStart()
+                                    self.highlight_code(code, cursor, lexer, style)
+                                finally:
+                                    undomanager.leaveUndoContext()
+                else:
+                    # only one cell
+                    code_block = table.getCellByName(rangename)
+                    code = code_block.String
+                    if code.strip():
+                        hascode = True
+                        lexer = self.getlexer(code)
+                        undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
+                        try:
+                            code_block.BackColor = -1
+                            if bg_color:
+                                code_block.BackColor = self.to_int(bg_color)
+                            cursor = code_block.createTextCursorByRange(code_block)
+                            cursor.CharLocale = self.nolocale
+                            cursor.collapseToStart()
+                            self.highlight_code(code, cursor, lexer, style)
+                        finally:
+                            undomanager.leaveUndoContext()
+
             elif selected_item.supportsService('com.sun.star.text.TextCursor'):
                 # LO Impress shape selection
                 cursor = selected_item
                 code = cursor.String
                 cdirection = cursor.compareRegionStarts(cursor.Start, cursor.End)
-                if cdirection == 0:  # no selection
-                    return
-                lexer = self.getlexer(code)
-                undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
-                try:
-                    cursor.CharLocale = self.nolocale
-                    if cdirection == 1:
-                        cursor.collapseToStart()
-                    else:
-                        # if selection is done right to left inside text box, end cursor is before start cursor
-                        cursor.collapseToEnd()
+                if cdirection != 0:  # a selection exists
+                    hascode = True
+                    lexer = self.getlexer(code)
+                    undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
+                    try:
+                        cursor.CharLocale = self.nolocale
+                        if cdirection == 1:
+                            cursor.collapseToStart()
+                        else:
+                            # if selection is done right to left inside text box, end cursor is before start cursor
+                            cursor.collapseToEnd()
 
-                    self.highlight_code(code, cursor, lexer, style)
-                    # exit edit mode if necessary
-                    dispatcher = self.create("com.sun.star.frame.DispatchHelper")
-                    dispatcher.executeDispatch(self.doc.CurrentController.Frame, ".uno:SelectObject", "", 0, ())
-                finally:
-                    undomanager.leaveUndoContext()
+                        self.highlight_code(code, cursor, lexer, style)
+                        # exit edit mode if necessary
+                        dispatcher = self.create("com.sun.star.frame.DispatchHelper")
+                        dispatcher.executeDispatch(self.doc.CurrentController.Frame, ".uno:SelectObject", "", 0, ())
+                    finally:
+                        undomanager.leaveUndoContext()
 
             elif hasattr(selected_item, 'queryContentCells'):
                 # LO Calc cell selection
                 cells = selected_item.queryContentCells(CF_STRING).Cells
                 if cells.hasElements():
+                    hascode = True
                     for code_block in cells:
                         code = code_block.String
                         lexer = self.getlexer(code)
@@ -329,6 +332,13 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
                             self.highlight_code(code, cursor, lexer, style)
                         finally:
                             undomanager.leaveUndoContext()
+            else:
+                self.msgbox("Unsupported selection.")
+                return
+
+            if not hascode:
+                self.msgbox("Nothing to highlight.")
+
         except Exception:
             self.msgbox(traceback.format_exc())
         finally:

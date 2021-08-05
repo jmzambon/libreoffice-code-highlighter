@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     pygments.lexers.csound
     ~~~~~~~~~~~~~~~~~~~~~~
 
     Lexers for Csound languages.
 
-    :copyright: Copyright 2006-2017 by the Pygments team, see AUTHORS.
+    :copyright: Copyright 2006-2021 by the Pygments team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -35,6 +34,7 @@ class CsoundLexer(RegexLexer):
 
         'preprocessor directives': [
             (r'#(?:e(?:nd(?:if)?|lse)\b|##)|@@?[ \t]*\d+', Comment.Preproc),
+            (r'#includestr', Comment.Preproc, 'includestr directive'),
             (r'#include', Comment.Preproc, 'include directive'),
             (r'#[ \t]*define', Comment.Preproc, 'define directive'),
             (r'#(?:ifn?def|undef)\b', Comment.Preproc, 'macro directive')
@@ -43,6 +43,10 @@ class CsoundLexer(RegexLexer):
         'include directive': [
             include('whitespace'),
             (r'([^ \t]).*?\1', String, '#pop')
+        ],
+        'includestr directive': [
+            include('whitespace'),
+            (r'"', String, ('#pop', 'quoted string'))
         ],
 
         'define directive': [
@@ -114,6 +118,13 @@ class CsoundLexer(RegexLexer):
             (r'\d+', Number.Integer)
         ],
 
+        'quoted string': [
+            (r'"', String, '#pop'),
+            (r'[^"$]+', String),
+            include('macro uses'),
+            (r'[$]', String)
+        ],
+
         'braced string': [
             # Do nothing. This must be defined in subclasses.
         ]
@@ -122,7 +133,7 @@ class CsoundLexer(RegexLexer):
 
 class CsoundScoreLexer(CsoundLexer):
     """
-    For `Csound <https://csound.github.io>`_ scores.
+    For `Csound <https://csound.com>`_ scores.
 
     .. versionadded:: 2.1
     """
@@ -137,14 +148,14 @@ class CsoundScoreLexer(CsoundLexer):
             include('whitespace and macro uses'),
             include('preprocessor directives'),
 
-            (r'[abCdefiqstvxy]', Keyword),
+            (r'[aBbCdefiqstvxy]', Keyword),
             # There is also a w statement that is generated internally and should not be
             # used; see https://github.com/csound/csound/issues/750.
 
             (r'z', Keyword.Constant),
             # z is a constant equal to 800,000,000,000. 800 billion seconds is about
             # 25,367.8 years. See also
-            # https://csound.github.io/docs/manual/ScoreTop.html and
+            # https://csound.com/docs/manual/ScoreTop.html and
             # https://github.com/csound/csound/search?q=stof+path%3AEngine+filename%3Asread.c.
 
             (r'([nNpP][pP])(\d+)', bygroups(Keyword, Number.Integer)),
@@ -164,13 +175,6 @@ class CsoundScoreLexer(CsoundLexer):
             (r'\n', Text, '#pop')
         ],
 
-        'quoted string': [
-            (r'"', String, '#pop'),
-            (r'[^"$]+', String),
-            include('macro uses'),
-            (r'[$]', String)
-        ],
-
         'loop after left brace': [
             include('whitespace and macro uses'),
             (r'\d+', Number.Integer, ('#pop', 'loop after repeat count')),
@@ -184,8 +188,8 @@ class CsoundScoreLexer(CsoundLexer):
             include('root')
         ],
 
-        # Braced strings are not allowed in Csound scores, but this is needed
-        # because the superclass includes it.
+        # Braced strings are not allowed in Csound scores, but this is needed because the
+        # superclass includes it.
         'braced string': [
             (r'\}\}', String, '#pop'),
             (r'[^}]|\}(?!\})', String)
@@ -195,7 +199,7 @@ class CsoundScoreLexer(CsoundLexer):
 
 class CsoundOrchestraLexer(CsoundLexer):
     """
-    For `Csound <https://csound.github.io>`_ orchestras.
+    For `Csound <https://csound.com>`_ orchestras.
 
     .. versionadded:: 2.1
     """
@@ -212,30 +216,31 @@ class CsoundOrchestraLexer(CsoundLexer):
         yield match.start(), Name.Function, opcode
 
     def name_callback(lexer, match):
+        type_annotation_token = Keyword.Type
+
         name = match.group(1)
         if name in OPCODES or name in DEPRECATED_OPCODES:
             yield match.start(), Name.Builtin, name
-            if match.group(2):
-                yield match.start(2), Punctuation, match.group(2)
-                yield match.start(3), Keyword.Type, match.group(3)
         elif name in lexer.user_defined_opcodes:
             yield match.start(), Name.Function, name
         else:
-            nameMatch = re.search(r'^(g?[afikSw])(\w+)', name)
-            if nameMatch:
-                yield nameMatch.start(1), Keyword.Type, nameMatch.group(1)
-                yield nameMatch.start(2), Name, nameMatch.group(2)
+            type_annotation_token = Name
+            name_match = re.search(r'^(g?[afikSw])(\w+)', name)
+            if name_match:
+                yield name_match.start(1), Keyword.Type, name_match.group(1)
+                yield name_match.start(2), Name, name_match.group(2)
             else:
                 yield match.start(), Name, name
-                if match.group(2):
-                    yield match.start(2), Punctuation, match.group(2)
-                    yield match.start(3), Name, match.group(3)
+
+        if match.group(2):
+            yield match.start(2), Punctuation, match.group(2)
+            yield match.start(3), type_annotation_token, match.group(3)
 
     tokens = {
         'root': [
             (r'\n', Text),
 
-            (r'^([ \t]*)(\w+)(:)(?:[ \t]+|$)', bygroups(Text, Name.Label, Punctuation)),
+            (r'^([ \t]*)(\w+)(:)([ \t]+|$)', bygroups(Text, Name.Label, Punctuation, Text)),
 
             include('whitespace and macro uses'),
             include('preprocessor directives'),
@@ -324,22 +329,24 @@ class CsoundOrchestraLexer(CsoundLexer):
             (r'\\(?:[\\abnrt"]|[0-7]{1,3})', String.Escape)
         ],
         # Format specifiers are highlighted in all strings, even though only
-        #   fprintks        https://csound.github.io/docs/manual/fprintks.html
-        #   fprints         https://csound.github.io/docs/manual/fprints.html
-        #   printf/printf_i https://csound.github.io/docs/manual/printf.html
-        #   printks         https://csound.github.io/docs/manual/printks.html
-        #   prints          https://csound.github.io/docs/manual/prints.html
-        #   sprintf         https://csound.github.io/docs/manual/sprintf.html
-        #   sprintfk        https://csound.github.io/docs/manual/sprintfk.html
-        # work with strings that contain format specifiers. In addition, these
-        # opcodes’ handling of format specifiers is inconsistent:
-        #   - fprintks, fprints, printks, and prints do accept %a and %A
-        #     specifiers, but can’t accept %s specifiers.
-        #   - printf, printf_i, sprintf, and sprintfk don’t accept %a and %A
-        #     specifiers, but can accept %s specifiers.
+        #   fprintks        https://csound.com/docs/manual/fprintks.html
+        #   fprints         https://csound.com/docs/manual/fprints.html
+        #   printf/printf_i https://csound.com/docs/manual/printf.html
+        #   printks         https://csound.com/docs/manual/printks.html
+        #   prints          https://csound.com/docs/manual/prints.html
+        #   sprintf         https://csound.com/docs/manual/sprintf.html
+        #   sprintfk        https://csound.com/docs/manual/sprintfk.html
+        # work with strings that contain format specifiers. In addition, these opcodes’
+        # handling of format specifiers is inconsistent:
+        #   - fprintks and fprints accept %a and %A specifiers, and accept %s specifiers
+        #     starting in Csound 6.15.0.
+        #   - printks and prints accept %a and %A specifiers, but don’t accept %s
+        #     specifiers.
+        #   - printf, printf_i, sprintf, and sprintfk don’t accept %a and %A specifiers,
+        #     but accept %s specifiers.
         # See https://github.com/csound/csound/issues/747 for more information.
         'format specifiers': [
-            (r'%[#0\- +]*\d*(?:\.\d+)?[diuoxXfFeEgGaAcs]', String.Interpol),
+            (r'%[#0\- +]*\d*(?:\.\d+)?[AE-GXac-giosux]', String.Interpol),
             (r'%%', String.Escape)
         ],
 
@@ -367,6 +374,7 @@ class CsoundOrchestraLexer(CsoundLexer):
 
         'Csound score opcode': [
             include('whitespace and macro uses'),
+            (r'"', String, 'quoted string'),
             (r'\{\{', String, 'Csound score'),
             (r'\n', Text, '#pop')
         ],
@@ -377,6 +385,7 @@ class CsoundOrchestraLexer(CsoundLexer):
 
         'Python opcode': [
             include('whitespace and macro uses'),
+            (r'"', String, 'quoted string'),
             (r'\{\{', String, 'Python'),
             (r'\n', Text, '#pop')
         ],
@@ -387,6 +396,7 @@ class CsoundOrchestraLexer(CsoundLexer):
 
         'Lua opcode': [
             include('whitespace and macro uses'),
+            (r'"', String, 'quoted string'),
             (r'\{\{', String, 'Lua'),
             (r'\n', Text, '#pop')
         ],
@@ -399,7 +409,7 @@ class CsoundOrchestraLexer(CsoundLexer):
 
 class CsoundDocumentLexer(RegexLexer):
     """
-    For `Csound <https://csound.github.io>`_ documents.
+    For `Csound <https://csound.com>`_ documents.
 
     .. versionadded:: 2.1
     """

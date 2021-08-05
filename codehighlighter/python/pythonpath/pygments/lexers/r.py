@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     pygments.lexers.r
     ~~~~~~~~~~~~~~~~~
 
     Lexers for the R/S languages.
 
-    :copyright: Copyright 2006-2017 by the Pygments team, see AUTHORS.
+    :copyright: Copyright 2006-2021 by the Pygments team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -49,9 +48,8 @@ class RConsoleLexer(Lexer):
                 # If we have stored prompt lines, need to process them first.
                 if current_code_block:
                     # Weave together the prompts and highlight code.
-                    for item in do_insertions(
-                            insertions, slexer.get_tokens_unprocessed(current_code_block)):
-                        yield item
+                    yield from do_insertions(
+                        insertions, slexer.get_tokens_unprocessed(current_code_block))
                     # Reset vars for next code block.
                     current_code_block = ''
                     insertions = []
@@ -62,9 +60,8 @@ class RConsoleLexer(Lexer):
         # process the last code block. This is neither elegant nor DRY so
         # should be changed.
         if current_code_block:
-            for item in do_insertions(
-                    insertions, slexer.get_tokens_unprocessed(current_code_block)):
-                yield item
+            yield from do_insertions(
+                insertions, slexer.get_tokens_unprocessed(current_code_block))
 
 
 class SLexer(RegexLexer):
@@ -80,7 +77,7 @@ class SLexer(RegexLexer):
     mimetypes = ['text/S-plus', 'text/S', 'text/x-r-source', 'text/x-r',
                  'text/x-R', 'text/x-r-history', 'text/x-r-profile']
 
-    valid_name = r'(?:`[^`\\]*(?:\\.[^`\\]*)*`)|(?:(?:[a-zA-z]|[_.][^0-9])[\w_.]*)'
+    valid_name = r'`[^`\\]*(?:\\.[^`\\]*)*`|(?:[a-zA-Z]|\.[A-Za-z_.])[\w.]*|\.'
     tokens = {
         'comments': [
             (r'#.*$', Comment.Single),
@@ -161,7 +158,7 @@ class RdLexer(RegexLexer):
     This is a very minimal implementation, highlighting little more
     than the macros. A description of Rd syntax is found in `Writing R
     Extensions <http://cran.r-project.org/doc/manuals/R-exts.html>`_
-    and `Parsing Rd files <developer.r-project.org/parseRd.pdf>`_.
+    and `Parsing Rd files <http://developer.r-project.org/parseRd.pdf>`_.
 
     .. versionadded:: 1.6
     """

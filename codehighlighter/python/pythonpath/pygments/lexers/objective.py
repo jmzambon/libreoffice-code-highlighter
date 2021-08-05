@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     pygments.lexers.objective
     ~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Lexers for Objective-C family languages.
 
-    :copyright: Copyright 2006-2017 by the Pygments team, see AUTHORS.
+    :copyright: Copyright 2006-2021 by the Pygments team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -66,7 +65,7 @@ def objective(baselexer):
                     'copy', 'retain', 'assign', 'unsafe_unretained', 'atomic', 'nonatomic',
                     'readonly', 'readwrite', 'setter', 'getter', 'typeof', 'in',
                     'out', 'inout', 'release', 'class', '@dynamic', '@optional',
-                    '@required', '@autoreleasepool'), suffix=r'\b'),
+                    '@required', '@autoreleasepool', '@import'), suffix=r'\b'),
                  Keyword),
                 (words(('id', 'instancetype', 'Class', 'IMP', 'SEL', 'BOOL',
                         'IBOutlet', 'IBAction', 'unichar'), suffix=r'\b'),
@@ -441,8 +440,8 @@ class SwiftLexer(RegexLexer):
             (r'(var|let)(\s+)([a-zA-Z_]\w*)', bygroups(Keyword.Declaration,
              Text, Name.Variable)),
             (words((
-                'class', 'deinit', 'enum', 'extension', 'func', 'import', 'init',
-                'internal', 'let', 'operator', 'private', 'protocol', 'public',
+                'associatedtype', 'class', 'deinit', 'enum', 'extension', 'func', 'import',
+                'init', 'internal', 'let', 'operator', 'private', 'protocol', 'public',
                 'static', 'struct', 'subscript', 'typealias', 'var'), suffix=r'\b'),
              Keyword.Declaration)
         ],

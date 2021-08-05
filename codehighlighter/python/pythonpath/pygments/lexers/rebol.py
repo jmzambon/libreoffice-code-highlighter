@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     pygments.lexers.rebol
     ~~~~~~~~~~~~~~~~~~~~~
 
     Lexers for the REBOL and related languages.
 
-    :copyright: Copyright 2006-2017 by the Pygments team, see AUTHORS.
+    :copyright: Copyright 2006-2021 by the Pygments team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -239,7 +238,7 @@ class RebolLexer(RegexLexer):
         if re.match(r'^\s*REBOL\s*\[', text, re.IGNORECASE):
             # The code starts with REBOL header
             return 1.0
-        elif re.search(r'\s*REBOL\s*[', text, re.IGNORECASE):
+        elif re.search(r'\s*REBOL\s*\[', text, re.IGNORECASE):
             # The code contains REBOL header but also some text before it
             return 0.5
 

@@ -29,7 +29,7 @@ from com.sun.star.lang import Locale
 from com.sun.star.sheet.CellFlags import STRING as CF_STRING
 from com.sun.star.task import XJobExecutor
 
-import pygments.util
+import pygments
 from pygments import styles
 from pygments.lexers import get_all_lexers
 from pygments.lexers import get_lexer_by_name
@@ -131,8 +131,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
         cb_lang = dialog.getControl('cb_lang')
         cb_style = dialog.getControl('cb_style')
         check_col_bg = dialog.getControl('check_col_bg')
+        pygments_ver = dialog.getControl('pygments_ver')
 
-        # TODO: reformat config access
         cb_lang.addItem('automatic', 0)
         cb_lang.Text = self.options['Language']
         cb_lang.setSelection(Selection(0, len(cb_lang.Text)))
@@ -144,6 +144,16 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
         cb_style.addItems(self.all_styles, 0)
 
         check_col_bg.State = int(self.options['ColorizeBackground'])
+
+        def getextver():
+            pip = self.ctx.getByName("/singletons/com.sun.star.deployment.PackageInformationProvider")
+            extensions = pip.getExtensionList()
+            for e in extensions:
+                if "javahelps.codehighlighter" in e:
+                    return e[1]
+            return ''
+        dialog.Title = dialog.Title.format(getextver())
+        pygments_ver.Text = pygments_ver.Text.format(pygments.__version__)
 
         return dialog
 

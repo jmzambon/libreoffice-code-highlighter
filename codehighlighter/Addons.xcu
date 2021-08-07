@@ -31,7 +31,7 @@
                         <value>AddPath</value>
                     </prop>
                     <node oor:name="MenuItems">
-                        <node oor:name="hl_dialog" oor:op="replace">
+                        <node oor:name="hl_highlight" oor:op="replace">
                             <prop oor:name="Context" oor:type="xs:string">
                                 <value>com.sun.star.text.TextDocument,com.sun.star.sdb.TextReportDesign,com.sun.star.text.WebDocument,com.sun.star.xforms.XMLFormDocument,com.sun.star.text.GlobalDocument,com.sun.star.sdb.FormDesign,com.sun.star.sheet.SpreadsheetDocument,com.sun.star.drawing.DrawingDocument,com.sun.star.presentation.PresentationDocument,com.sun.star.sdb.OfficeDatabaseDocument</value>
                             </prop>
@@ -45,7 +45,7 @@
                                 <value>_self</value>
                             </prop>
                         </node>
-                        <node oor:name="hl_previous_settings" oor:op="replace">
+                        <node oor:name="hl_highlight_previous" oor:op="replace">
                             <prop oor:name="Context" oor:type="xs:string">
                                 <value>com.sun.star.text.TextDocument,com.sun.star.sdb.TextReportDesign,com.sun.star.text.WebDocument,com.sun.star.xforms.XMLFormDocument,com.sun.star.text.GlobalDocument,com.sun.star.sdb.FormDesign,com.sun.star.sheet.SpreadsheetDocument,com.sun.star.drawing.DrawingDocument,com.sun.star.presentation.PresentationDocument,com.sun.star.sdb.OfficeDatabaseDocument</value>
                             </prop>
@@ -60,6 +60,34 @@
                             </prop>
                         </node>
                     </node>
+                </node>
+            </node>
+        </node>
+        <node oor:name="Images">
+            <node oor:name="codehighlighter.image1" oor:op="replace">
+                <prop oor:name="URL" oor:type="xs:string">
+                    <value>service:ooo.ext.code-highlighter.impl?highlight</value>
+                </prop>
+                <node oor:name="UserDefinedImages">
+                    <prop oor:name="ImageSmallURL">
+                        <value>%origin%/images/icon_16.png</value>
+                    </prop>
+                    <prop oor:name="ImageBigURL">
+                        <value>%origin%/images/icon_26.png</value>
+                    </prop>
+                </node>
+            </node>
+            <node oor:name="codehighlighter.image2" oor:op="replace">
+                <prop oor:name="URL" oor:type="xs:string">
+                    <value>service:ooo.ext.code-highlighter.impl?highlight_previous</value>
+                </prop>
+                <node oor:name="UserDefinedImages">
+                    <prop oor:name="ImageSmallURL">
+                        <value>%origin%/images/icon_16.png</value>
+                    </prop>
+                    <prop oor:name="ImageBigURL">
+                        <value>%origin%/images/icon_26png</value>
+                    </prop>
                 </node>
             </node>
         </node>

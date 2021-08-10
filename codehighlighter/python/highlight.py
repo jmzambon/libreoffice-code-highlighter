@@ -225,6 +225,13 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
                         finally:
                             undomanager.leaveUndoContext()
 
+                if not hascode and selected_item.Count == 1:
+                    code_block = selected_item[0]
+                    if code_block.TextFrame:
+                        self.doc.CurrentController.select(code_block.TextFrame)
+                        self.highlight_source_code()
+                        return
+
             elif selected_item.supportsService('com.sun.star.text.TextFrame'):
                 # Selection is a text frame
                 code_block = selected_item

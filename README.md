@@ -1,3 +1,19 @@
+**Fork main features**
+```
+- embed pygments
+- support for text frame and table cell selection in Writer (frame selection is preferred)
+- support cell selection in Calc
+- show highlight operations in undo manager
+- add key shortcuts (Shift+Alt+H and Alt+H)
+- add Pygments icon and version in dialog box
+- add error messages for unsupported selection or no selection at all
+- add menu item icon
+- speed up dialog opening + sorted languages and styles 
+- remove spelling language for highlighted code
+- various little enhancements and fixes
+```
+---
+
 # libreoffice-code-highlighter
 Code snippet highlighter for LibreOffice Writer and Impress.
 

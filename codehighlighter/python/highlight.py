@@ -133,10 +133,10 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
         check_col_bg = dialog.getControl('check_col_bg')
         pygments_ver = dialog.getControl('pygments_ver')
 
-        cb_lang.addItem('automatic', 0)
         cb_lang.Text = self.options['Language']
         cb_lang.setSelection(Selection(0, len(cb_lang.Text)))
         cb_lang.addItems(all_lexers, 0)
+        cb_lang.addItem('automatic', 0)
 
         style = self.options['Style']
         if style in self.all_styles:

@@ -2,7 +2,7 @@
 <oor:component-data xmlns:oor="http://openoffice.org/2001/registry" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:install="http://openoffice.org/2004/installation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" oor:name="Accelerators" oor:package="org.openoffice.Office">
   <node oor:name="PrimaryKeys">
     <node oor:name="Modules">
-      <node oor:name="com.sun.star.text.TextDocument" oor:op="replace">
+      <node oor:name="com.sun.star.text.TextDocument" oor:op="fuse">
         <node oor:name="X_SHIFT_MOD2" oor:op="replace">
           <prop oor:name="Command">
             <value xml:lang="en-US">service:ooo.ext.code-highlighter.impl?highlight</value>
@@ -14,7 +14,7 @@
           </prop>
         </node>
       </node>
-      <node oor:name="com.sun.star.sheet.SpreadsheetDocument" oor:op="replace">
+      <node oor:name="com.sun.star.sheet.SpreadsheetDocument" oor:op="fuse">
         <node oor:name="X_SHIFT_MOD2" oor:op="replace">
           <prop oor:name="Command">
             <value xml:lang="en-US">service:ooo.ext.code-highlighter.impl?highlight</value>
@@ -26,7 +26,7 @@
           </prop>
         </node>
       </node>
-      <node oor:name="com.sun.star.drawing.DrawingDocument" oor:op="replace">
+      <node oor:name="com.sun.star.drawing.DrawingDocument" oor:op="fuse">
         <node oor:name="X_SHIFT_MOD2" oor:op="replace">
           <prop oor:name="Command">
             <value xml:lang="en-US">service:ooo.ext.code-highlighter.impl?highlight</value>
@@ -38,7 +38,7 @@
           </prop>
         </node>
       </node>
-      <node oor:name="com.sun.star.presentation.PresentationDocument" oor:op="replace">
+      <node oor:name="com.sun.star.presentation.PresentationDocument" oor:op="fuse">
         <node oor:name="X_SHIFT_MOD2" oor:op="replace">
           <prop oor:name="Command">
             <value xml:lang="en-US">service:ooo.ext.code-highlighter.impl?highlight</value>
@@ -50,7 +50,7 @@
           </prop>
         </node>
       </node>
-      <node oor:name="com.sun.star.sdb.TextReportDesign" oor:op="replace">
+      <node oor:name="com.sun.star.sdb.TextReportDesign" oor:op="fuse">
         <node oor:name="X_SHIFT_MOD2" oor:op="replace">
           <prop oor:name="Command">
             <value xml:lang="en-US">service:ooo.ext.code-highlighter.impl?highlight</value>
@@ -62,7 +62,7 @@
           </prop>
         </node>
       </node>
-      <node oor:name="com.sun.star.text.WebDocument" oor:op="replace">
+      <node oor:name="com.sun.star.text.WebDocument" oor:op="fuse">
         <node oor:name="X_SHIFT_MOD2" oor:op="replace">
           <prop oor:name="Command">
             <value xml:lang="en-US">service:ooo.ext.code-highlighter.impl?highlight</value>
@@ -74,7 +74,7 @@
           </prop>
         </node>
       </node>
-      <node oor:name="com.sun.star.xforms.XMLFormDocument" oor:op="replace">
+      <node oor:name="com.sun.star.xforms.XMLFormDocument" oor:op="fuse">
         <node oor:name="X_SHIFT_MOD2" oor:op="replace">
           <prop oor:name="Command">
             <value xml:lang="en-US">service:ooo.ext.code-highlighter.impl?highlight</value>
@@ -86,7 +86,7 @@
           </prop>
         </node>
       </node>
-      <node oor:name="com.sun.star.text.GlobalDocument" oor:op="replace">
+      <node oor:name="com.sun.star.text.GlobalDocument" oor:op="fuse">
         <node oor:name="X_SHIFT_MOD2" oor:op="replace">
           <prop oor:name="Command">
             <value xml:lang="en-US">service:ooo.ext.code-highlighter.impl?highlight</value>
@@ -98,7 +98,7 @@
           </prop>
         </node>
       </node>
-      <node oor:name="com.sun.star.sdb.FormDesign" oor:op="replace">
+      <node oor:name="com.sun.star.sdb.FormDesign" oor:op="fuse">
         <node oor:name="X_SHIFT_MOD2" oor:op="replace">
           <prop oor:name="Command">
             <value xml:lang="en-US">service:ooo.ext.code-highlighter.impl?highlight</value>
@@ -110,7 +110,7 @@
           </prop>
         </node>
       </node>
-      <node oor:name="com.sun.star.sdb.OfficeDatabaseDocument" oor:op="replace">
+      <node oor:name="com.sun.star.sdb.OfficeDatabaseDocument" oor:op="fuse">
         <node oor:name="X_SHIFT_MOD2" oor:op="replace">
           <prop oor:name="Command">
             <value xml:lang="en-US">service:ooo.ext.code-highlighter.impl?highlight</value>
@@ -127,7 +127,7 @@
 
   <node oor:name="SecondaryKeys">
     <node oor:name="Modules">
-      <node oor:name="com.sun.star.text.TextDocument" oor:op="replace">
+      <node oor:name="com.sun.star.text.TextDocument" oor:op="fuse">
         <node oor:name="H_SHIFT_MOD2" oor:op="replace">
           <prop oor:name="Command">
             <value xml:lang="en-US">service:ooo.ext.code-highlighter.impl?highlight</value>
@@ -139,7 +139,7 @@
           </prop>
         </node>
       </node>
-      <node oor:name="com.sun.star.sheet.SpreadsheetDocument" oor:op="replace">
+      <node oor:name="com.sun.star.sheet.SpreadsheetDocument" oor:op="fuse">
         <node oor:name="H_SHIFT_MOD2" oor:op="replace">
           <prop oor:name="Command">
             <value xml:lang="en-US">service:ooo.ext.code-highlighter.impl?highlight</value>
@@ -151,7 +151,7 @@
           </prop>
         </node>
       </node>
-      <node oor:name="com.sun.star.drawing.DrawingDocument" oor:op="replace">
+      <node oor:name="com.sun.star.drawing.DrawingDocument" oor:op="fuse">
         <node oor:name="H_SHIFT_MOD2" oor:op="replace">
           <prop oor:name="Command">
             <value xml:lang="en-US">service:ooo.ext.code-highlighter.impl?highlight</value>
@@ -163,7 +163,7 @@
           </prop>
         </node>
       </node>
-      <node oor:name="com.sun.star.presentation.PresentationDocument" oor:op="replace">
+      <node oor:name="com.sun.star.presentation.PresentationDocument" oor:op="fuse">
         <node oor:name="H_SHIFT_MOD2" oor:op="replace">
           <prop oor:name="Command">
             <value xml:lang="en-US">service:ooo.ext.code-highlighter.impl?highlight</value>
@@ -175,7 +175,7 @@
           </prop>
         </node>
       </node>
-      <node oor:name="com.sun.star.sdb.TextReportDesign" oor:op="replace">
+      <node oor:name="com.sun.star.sdb.TextReportDesign" oor:op="fuse">
         <node oor:name="H_SHIFT_MOD2" oor:op="replace">
           <prop oor:name="Command">
             <value xml:lang="en-US">service:ooo.ext.code-highlighter.impl?highlight</value>
@@ -187,7 +187,7 @@
           </prop>
         </node>
       </node>
-      <node oor:name="com.sun.star.text.WebDocument" oor:op="replace">
+      <node oor:name="com.sun.star.text.WebDocument" oor:op="fuse">
         <node oor:name="H_SHIFT_MOD2" oor:op="replace">
           <prop oor:name="Command">
             <value xml:lang="en-US">service:ooo.ext.code-highlighter.impl?highlight</value>
@@ -199,7 +199,7 @@
           </prop>
         </node>
       </node>
-      <node oor:name="com.sun.star.xforms.XMLFormDocument" oor:op="replace">
+      <node oor:name="com.sun.star.xforms.XMLFormDocument" oor:op="fuse">
         <node oor:name="H_SHIFT_MOD2" oor:op="replace">
           <prop oor:name="Command">
             <value xml:lang="en-US">service:ooo.ext.code-highlighter.impl?highlight</value>
@@ -211,7 +211,7 @@
           </prop>
         </node>
       </node>
-      <node oor:name="com.sun.star.text.GlobalDocument" oor:op="replace">
+      <node oor:name="com.sun.star.text.GlobalDocument" oor:op="fuse">
         <node oor:name="H_SHIFT_MOD2" oor:op="replace">
           <prop oor:name="Command">
             <value xml:lang="en-US">service:ooo.ext.code-highlighter.impl?highlight</value>
@@ -223,7 +223,7 @@
           </prop>
         </node>
       </node>
-      <node oor:name="com.sun.star.sdb.FormDesign" oor:op="replace">
+      <node oor:name="com.sun.star.sdb.FormDesign" oor:op="fuse">
         <node oor:name="H_SHIFT_MOD2" oor:op="replace">
           <prop oor:name="Command">
             <value xml:lang="en-US">service:ooo.ext.code-highlighter.impl?highlight</value>
@@ -235,7 +235,7 @@
           </prop>
         </node>
       </node>
-      <node oor:name="com.sun.star.sdb.OfficeDatabaseDocument" oor:op="replace">
+      <node oor:name="com.sun.star.sdb.OfficeDatabaseDocument" oor:op="fuse">
         <node oor:name="H_SHIFT_MOD2" oor:op="replace">
           <prop oor:name="Command">
             <value xml:lang="en-US">service:ooo.ext.code-highlighter.impl?highlight</value>

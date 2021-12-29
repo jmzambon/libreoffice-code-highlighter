@@ -44,6 +44,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
             self.sm = ctx.ServiceManager
             self.desktop = self.create("com.sun.star.frame.Desktop")
             self.doc = self.desktop.getCurrentComponent()
+            self.frame = self.doc.CurrentController.Frame
+            self.dispatcher = self.create("com.sun.star.frame.DispatchHelper")
             self.cfg_access = self.create_cfg_access()
             self.options = self.load_options()
             self.dialog = self.create_dialog()
@@ -204,8 +206,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
                             if code_block.supportsService('com.sun.star.drawing.Text'):
                                 # TextBox
                                 # exit edit mode if necessary
-                                dispatcher = self.create("com.sun.star.frame.DispatchHelper")
-                                dispatcher.executeDispatch(self.doc.CurrentController.Frame, ".uno:SelectObject", "", 0, ())
+                                self.dispatcher.executeDispatch(self.frame, ".uno:SelectObject", "", 0, ())
                                 code_block.FillStyle = FS_NONE
                                 if bg_color:
                                     code_block.FillStyle = FS_SOLID
@@ -315,13 +316,13 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
 
                         self.highlight_code(code, cursor, lexer, style)
                         # exit edit mode if necessary
-                        dispatcher = self.create("com.sun.star.frame.DispatchHelper")
-                        dispatcher.executeDispatch(self.doc.CurrentController.Frame, ".uno:SelectObject", "", 0, ())
+                        self.dispatcher.executeDispatch(self.frame, ".uno:SelectObject", "", 0, ())
                     finally:
                         undomanager.leaveUndoContext()
 
             elif hasattr(selected_item, 'queryContentCells'):
                 # LO Calc cell selection
+                self.dispatcher.executeDispatch(self.frame, ".uno:Deselect", "", 0, ())  # exit edit mode if necessary
                 cells = selected_item.queryContentCells(CF_STRING).Cells
                 if cells.hasElements():
                     hascode = True

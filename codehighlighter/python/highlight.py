@@ -180,7 +180,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
         lexer.stripnl = False
         return lexer
 
-    def highlight_source_code(self):
+    def highlight_source_code(self, selected_item=None):
         stylename = self.options['Style']
         style = styles.get_style_by_name(stylename)
         bg_color = style.background_color if self.options['ColorizeBackground'] != "0" else None
@@ -190,7 +190,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
         hascode = False
         try:
             # Get the selected item
-            selected_item = self.doc.CurrentSelection
+            if selected_item == None:
+                selected_item = self.doc.CurrentSelection
             if not hasattr(selected_item, 'supportsService'):
                 self.msgbox("Unsupported selection.")
                 return
@@ -229,9 +230,13 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
                 if not hascode and selected_item.Count == 1:
                     code_block = selected_item[0]
                     if code_block.TextFrame:
-                        self.doc.CurrentController.select(code_block.TextFrame)
-                        self.highlight_source_code()
-                        return
+                        self.highlight_source_code(code_block.TextFrame)
+                    elif code_block.TextTable:
+                        cellname = code_block.Cell.CellName
+                        texttablecursor = code_block.TextTable.createCursorByCellName(cellname)
+                        self.highlight_source_code(texttablecursor)
+                    return
+
 
             elif selected_item.supportsService('com.sun.star.text.TextFrame'):
                 # Selection is a text frame

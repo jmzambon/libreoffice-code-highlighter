@@ -28,6 +28,7 @@ from com.sun.star.drawing.FillStyle import NONE as FS_NONE, SOLID as FS_SOLID
 from com.sun.star.lang import Locale
 from com.sun.star.sheet.CellFlags import STRING as CF_STRING
 from com.sun.star.task import XJobExecutor
+from com.sun.star.document import XUndoAction
 
 import pygments
 from pygments import styles
@@ -35,6 +36,59 @@ from pygments.lexers import get_all_lexers
 from pygments.lexers import get_lexer_by_name
 from pygments.lexers import guess_lexer
 from pygments.styles import get_all_styles
+
+
+class UndoAction(unohelper.Base, XUndoAction):
+    def __init__(self, doc, textbox, title):
+        self.doc = doc
+        self.textbox = textbox
+        self.Title = title
+        self.old_portions = None
+        self.old_bg = None
+        self.new_portions = None
+        self.new_bg = None
+        self.charprops = ("CharColor", "CharLocale", "CharPosture", "CharWeight")
+        self.bgprops = ("FillColor", "FillStyle")
+        self.get_old_state()
+
+    def undo(self):
+        self._format(self.old_portions, self.old_bg)
+
+    def redo(self):
+        self._format(self.new_portions, self.new_bg)
+
+    def get_old_state(self):
+        self.old_bg = self.textbox.getPropertyValues(self.bgprops)
+        self.old_portions = self._extract_portions()
+
+    def get_new_state(self):
+        self.new_bg = self.textbox.getPropertyValues(self.bgprops)
+        self.new_portions = self._extract_portions()
+
+    def _extract_portions(self):
+        textportions = []
+        for para in self.textbox:
+            if textportions:
+                textportions[-1][0] += 1
+            for portion in para:
+                plen = len(portion.String)
+                pprops = portion.getPropertyValues(self.charprops)
+                if textportions and textportions[-1][1] == pprops:
+                    textportions[-1][0] += plen
+                else:
+                    textportions.append([plen, pprops])
+        return textportions
+
+    def _format(self, portions, bg):
+        self.textbox.setPropertyValues(self.bgprops, bg)
+        cursor = self.textbox.createTextCursor()
+        cursor.gotoStart(False)
+        for length, props in portions:
+            cursor.goRight(length, True)
+            cursor.setPropertyValues(self.charprops, props)
+            cursor.collapseToEnd()
+        self.doc.CurrentController.select(self.textbox)
+        self.doc.setModified(True)
 
 
 class CodeHighlighter(unohelper.Base, XJobExecutor):
@@ -202,30 +256,36 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
                     if code.strip():
                         hascode = True
                         lexer = self.getlexer(code)
-                        undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
-                        try:
-                            if code_block.supportsService('com.sun.star.drawing.Text'):
-                                # TextBox
-                                # exit edit mode if necessary
-                                self.dispatcher.executeDispatch(self.frame, ".uno:SelectObject", "", 0, ())
-                                code_block.FillStyle = FS_NONE
-                                if bg_color:
-                                    code_block.FillStyle = FS_SOLID
-                                    code_block.FillColor = self.to_int(bg_color)
-                                cursor = code_block.createTextCursorByRange(code_block)
-                                cursor.CharLocale = self.nolocale
-                                cursor.collapseToStart()
-                            else:
-                                # Plain text
+                        if code_block.supportsService('com.sun.star.drawing.Text'):
+                            # TextBox
+                            # exit edit mode if necessary
+                            self.dispatcher.executeDispatch(self.frame, ".uno:SelectObject", "", 0, ())
+                            undoaction = UndoAction(self.doc, code_block, f"code highlight (lang: {lexer.name}, style: {stylename})")
+                            code_block.FillStyle = FS_NONE
+                            if bg_color:
+                                code_block.FillStyle = FS_SOLID
+                                code_block.FillColor = self.to_int(bg_color)
+                            cursor = code_block.createTextCursorByRange(code_block)
+                            cursor.CharLocale = self.nolocale
+                            cursor.collapseToStart()
+                            self.highlight_code(code, cursor, lexer, style)
+                            # model is not considered as modified after textbox formatting
+                            self.doc.setModified(True)
+                            undoaction.get_new_state()
+                            undomanager.addUndoAction(undoaction)
+                        else:
+                            # Plain text
+                            try:
+                                undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
                                 code_block.ParaBackColor = -1
                                 if bg_color:
                                     code_block.ParaBackColor = self.to_int(bg_color)
                                 cursor = code_block.getText().createTextCursorByRange(code_block)
                                 cursor.CharLocale = self.nolocale
                                 cursor.collapseToStart()
-                            self.highlight_code(code, cursor, lexer, style)
-                        finally:
-                            undomanager.leaveUndoContext()
+                                self.highlight_code(code, cursor, lexer, style)
+                            finally:
+                                undomanager.leaveUndoContext()
 
                 if not hascode and selected_item.Count == 1:
                     code_block = selected_item[0]

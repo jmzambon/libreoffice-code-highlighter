@@ -1,7 +1,21 @@
 # Code Highlighter
 Code snippet highlighter for LibreOffice.
 
+Code Highlighter is build upon [Pygments](https://pygments.org/) python library. 
+
 ## INSTALLATION
+
+### Install Dependencies (Linux Users)
+**Note: Close all the LibreOffice products before installing the dependencies**
+
+Install libreoffice-script-provider-python
+```
+sudo apt-get install libreoffice-script-provider-python
+```
+The above command is for Ubuntu and its derivatives. Other Linux users, may not need this package.
+If you encounter any problems after installing the extension, please check whether you have this or similar pacakge.
+
+### Install Extension
 Open LibreOffice, go to `Tools` -> `Extension Manager...` and add the extension `codehighlighter.oxt`
 
 You can download the extension either from the official LibreOffice extensions page or from [releases](https://github.com/jmzambon/libreoffice-code-highlighter/releases).
@@ -22,7 +36,7 @@ If you have downloaded the `codehighlighter.oxt.zip` file from GitHub releases, 
 Multiselection is also supported.
 
 #### Screenshots
-*Menu items*
+*Menu items (Writer)*
 
 ![Menu](screenshots/code-highlighter-menu.png?raw=true "Menu")
 

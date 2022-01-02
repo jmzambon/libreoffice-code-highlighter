@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<description xmlns="http://openoffice.org/extensions/update/2006" xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <identifier value="javahelps.codehighlighter"/>
+
+    <version value="1.9.0" />
+
+    <update-download>
+        <src xlink:href="http://zambonbranquart.eu/apso/apso.oxt" />
+    </update-download>
+
+    <release-notes>
+        <src xlink:href="https://gitlab.com/jmzambon/apso/-/raw/v1.3.0/release-notes.txt" lang="en" />
+    </release-notes>
+</description>

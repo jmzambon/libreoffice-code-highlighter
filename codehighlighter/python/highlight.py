@@ -17,6 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import traceback
+from os import linesep as os_linesep
 
 import unohelper
 from com.sun.star.awt import Selection
@@ -39,10 +40,14 @@ from pygments.styles import get_all_styles
 
 
 class UndoAction(unohelper.Base, XUndoAction):
+    """ Add undo/redo action for highlighting not catched by the system,
+        i.e. when applied on textbox objects."""
+
     def __init__(self, doc, textbox, title):
         self.doc = doc
         self.textbox = textbox
         self.Title = title
+        self.eol = len(os_linesep)
         self.old_portions = None
         self.old_bg = None
         self.new_portions = None
@@ -68,8 +73,8 @@ class UndoAction(unohelper.Base, XUndoAction):
     def _extract_portions(self):
         textportions = []
         for para in self.textbox:
-            if textportions:
-                textportions[-1][0] += 1
+            if textportions:    # new paragraph after first one
+                textportions[-1][0] += self.eol
             for portion in para:
                 plen = len(portion.String)
                 pprops = portion.getPropertyValues(self.charprops)

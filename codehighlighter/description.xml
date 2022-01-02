@@ -3,26 +3,38 @@
   xmlns:d = "http://openoffice.org/extensions/description/2006"             
   xmlns:l = "http://libreoffice.org/extensions/description/2011" 
   xmlns:xlink="http://www.w3.org/1999/xlink">
-  <version value="1.8.1"/>
+
   <identifier value="javahelps.codehighlighter"/>
+
+  <version value="1.9.0"/>
+
+  <update-information>
+    <src xlink:href="https://github.com/jmzambon/libreoffice-code-highlighter/blob/master/codehighlighter.update.xml" />
+  </update-information>
+
   <icon>
     <default xlink:href="images/icon_48.png" />
   </icon>
+
   <display-name>
     <name>Code Highlighter</name>
     <name lang="en">Code Highlighter</name>
   </display-name>
+
   <extension-description>
     <src xlink:href="description/desc_en.txt"/>
     <src xlink:href="description/desc_en.txt" lang="en" />
   </extension-description>
+
   <dependencies>
     <l:LibreOffice-minimal-version value="6.4" d:name="LibreOffice.org 6.4 or higher" />
   </dependencies>
+
   <registration>
     <simple-license accept-by="admin" suppress-on-update="true">
       <license-text xlink:href="license/license.txt" />
       <license-text xlink:href="license/license.txt" lang="en-US" />
     </simple-license>
   </registration>
+
 </description>

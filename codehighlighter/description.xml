@@ -9,7 +9,7 @@
   <version value="1.9.0"/>
 
   <update-information>
-    <src xlink:href="https://github.com/jmzambon/libreoffice-code-highlighter/blob/master/codehighlighter.update.xml" />
+    <src xlink:href="https://raw.githubusercontent.com/jmzambon/libreoffice-code-highlighter/master/codehighlighter.update.xml" />
   </update-information>
 
   <icon>

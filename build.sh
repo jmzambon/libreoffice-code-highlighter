@@ -1,6 +1,6 @@
 #!/bin/sh
 
 cd codehighlighter
-zip -r codehighlighter.oxt .
+zip -r codehighlighter2.oxt .
 cd ..
-mv codehighlighter/codehighlighter.oxt ./
+mv codehighlighter/codehighlighter2.oxt ./

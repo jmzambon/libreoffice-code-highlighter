@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dlg:window PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "dialog.dtd">
+<dlg:window xmlns:dlg="http://openoffice.org/2000/dialog" xmlns:script="http://openoffice.org/2000/script" dlg:id="CodeHighlighter" dlg:left="70" dlg:top="113" dlg:width="157" dlg:height="142" dlg:closeable="true" dlg:moveable="true" dlg:title="Code Highlighter 2 {}">
+ <dlg:styles>
+  <dlg:style dlg:style-id="0" dlg:border="simple"/>
+  <dlg:style dlg:style-id="1" dlg:text-color="0x4c4c4c" dlg:font-height="8" dlg:font-stylename="Normal" dlg:font-family="swiss"/>
+  <dlg:style dlg:style-id="2" dlg:border="none"/>
+ </dlg:styles>
+ <dlg:bulletinboard>
+  <dlg:text dlg:id="Label1" dlg:tab-index="0" dlg:left="20" dlg:top="6" dlg:width="60" dlg:height="10" dlg:value="Language"/>
+  <dlg:text dlg:id="Label2" dlg:tab-index="2" dlg:left="20" dlg:top="43" dlg:width="60" dlg:height="10" dlg:value="Style"/>
+  <dlg:button dlg:id="btn_ok" dlg:tab-index="5" dlg:left="20" dlg:top="100" dlg:width="52" dlg:height="16" dlg:default="true" dlg:value="OK" dlg:button-type="ok"/>
+  <dlg:button dlg:id="btn_cancel" dlg:tab-index="6" dlg:left="81" dlg:top="100" dlg:width="52" dlg:height="16" dlg:value="Cancel" dlg:button-type="cancel"/>
+  <dlg:combobox dlg:style-id="0" dlg:id="cb_lang" dlg:tab-index="1" dlg:left="20" dlg:top="19" dlg:width="100" dlg:height="15" dlg:spin="true" dlg:linecount="20"/>
+  <dlg:combobox dlg:style-id="0" dlg:id="cb_style" dlg:tab-index="3" dlg:left="20" dlg:top="56" dlg:width="100" dlg:height="15" dlg:spin="true" dlg:linecount="20"/>
+  <dlg:checkbox dlg:id="check_col_bg" dlg:tab-index="4" dlg:left="20" dlg:top="78" dlg:width="83" dlg:height="10" dlg:help-text="Use the background color provided by the style." dlg:value="Set background color" dlg:valign="center" dlg:checked="true"/>
+  <dlg:text dlg:style-id="1" dlg:id="pygments_ver" dlg:tab-index="7" dlg:left="18" dlg:top="125" dlg:width="85" dlg:height="8" dlg:value="Build upon pygments {}"/>
+  <dlg:img dlg:style-id="2" dlg:id="pygments_logo" dlg:tab-index="8" dlg:left="5" dlg:top="124" dlg:width="11" dlg:height="9" dlg:scale-mode="isotropic" dlg:src="vnd.sun.star.extension://javahelps.codehighlighter/images/pygments.png"/>
+ </dlg:bulletinboard>
+</dlg:window>

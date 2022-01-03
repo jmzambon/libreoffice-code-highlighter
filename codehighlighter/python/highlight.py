@@ -1,4 +1,4 @@
-# Code Highligher is a LibreOffice extension to highlight code snippets
+# Code Highligher 2 is a LibreOffice extension to highlight code snippets
 # over 350 languages.
 
 # Copyright (C) 2017  Gobinath
@@ -187,7 +187,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
         self.all_styles = sorted(get_all_styles(), key=lambda x: (x != 'default', x.lower()))
 
         dialog_provider = self.create("com.sun.star.awt.DialogProvider")
-        dialog = dialog_provider.createDialog("vnd.sun.star.extension://javahelps.codehighlighter/dialogs/CodeHighlighter.xdl")
+        dialog = dialog_provider.createDialog("vnd.sun.star.extension://javahelps.codehighlighter/dialogs/CodeHighlighter2.xdl")
 
         cb_lang = dialog.getControl('cb_lang')
         cb_style = dialog.getControl('cb_style')

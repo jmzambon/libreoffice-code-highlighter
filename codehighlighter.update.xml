@@ -6,7 +6,7 @@
     <version value="1.9.0.1" />
 
     <update-download>
-        <src xlink:href="https://github.com/jmzambon/libreoffice-code-highlighter/releases/download/v1.9/codehighlighter.oxt" />
+        <src xlink:href="https://github.com/jmzambon/libreoffice-code-highlighter/releases/download/v1.9.0.1/codehighlighter.oxt" />
     </update-download>
 
     <release-notes>

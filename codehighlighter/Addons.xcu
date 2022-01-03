@@ -71,9 +71,23 @@
                 </node>
             </node>
         </node>
-    </node>
-</oor:component-data>
-       <value>service:ooo.ext.code-highlighter.impl?highlight_previous</value>
+        <node oor:name="Images">
+            <node oor:name="codehighlighter.image1" oor:op="replace">
+                <prop oor:name="URL" oor:type="xs:string">
+                    <value>service:ooo.ext.code-highlighter.impl?highlight</value>
+                </prop>
+                <node oor:name="UserDefinedImages">
+                    <prop oor:name="ImageSmallURL">
+                        <value>%origin%/images/icon_16.png</value>
+                    </prop>
+                    <prop oor:name="ImageBigURL">
+                        <value>%origin%/images/icon_26.png</value>
+                    </prop>
+                </node>
+            </node>
+            <node oor:name="codehighlighter.image2" oor:op="replace">
+                <prop oor:name="URL" oor:type="xs:string">
+                    <value>service:ooo.ext.code-highlighter.impl?highlight_previous</value>
                 </prop>
                 <node oor:name="UserDefinedImages">
                     <prop oor:name="ImageSmallURL">

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE dlg:window PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "dialog.dtd">
-<dlg:window xmlns:dlg="http://openoffice.org/2000/dialog" xmlns:script="http://openoffice.org/2000/script" dlg:id="CodeHighlighter" dlg:left="70" dlg:top="113" dlg:width="157" dlg:height="142" dlg:closeable="true" dlg:moveable="true" dlg:title="Code Highlighter 2 {}">
+<dlg:window xmlns:dlg="http://openoffice.org/2000/dialog" xmlns:script="http://openoffice.org/2000/script" dlg:id="CodeHighlighter" dlg:left="70" dlg:top="113" dlg:width="157" dlg:height="142" dlg:closeable="true" dlg:moveable="true" dlg:title="Code Highlighter 2 - v{}">
  <dlg:styles>
   <dlg:style dlg:style-id="0" dlg:border="simple"/>
   <dlg:style dlg:style-id="1" dlg:text-color="0x4c4c4c" dlg:font-height="8" dlg:font-stylename="Normal" dlg:font-family="swiss"/>

@@ -450,7 +450,8 @@ g_ImplementationHelper = unohelper.ImplementationHelper()
 g_ImplementationHelper.addImplementation(CodeHighlighter, "ooo.ext.code-highlighter.impl", (),)
 
 
-# exposed functions for development stages
+# exposed functions for development stages only
+# uncomment corresponding entry in manifest.xml to add them as framework scripts
 def highlight(event=None):
     ctx = XSCRIPTCONTEXT.getComponentContext()
     highlighter = CodeHighlighter(ctx)

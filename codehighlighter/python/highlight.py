@@ -131,7 +131,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
         style = self.dialog.getControl('cb_style').Text.strip() or 'default'
         colorize_bg = self.dialog.getControl('check_col_bg').State
 
-        if lang != 'automatic' and lang not in self.all_lexer_aliases:
+        if lang != 'automatic' and lang.lower() not in self.all_lexer_aliases:
             self.msgbox("Unsupported language.")
             return
         if style not in self.all_styles:
@@ -181,7 +181,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
         # get_all_lexers() returns:
         # (longname, tuple of aliases, tuple of filename patterns, tuple of mimetypes)
         all_lexers = sorted((lex[0] for lex in get_all_lexers()), key=str.casefold)
-        self.all_lexer_aliases = [lex[0] for lex in get_all_lexers()]
+        self.all_lexer_aliases = [lex[0].lower() for lex in get_all_lexers()]
         for lex in get_all_lexers():
             self.all_lexer_aliases.extend(list(lex[1]))
         self.all_styles = sorted(get_all_styles(), key=lambda x: (x != 'default', x.lower()))
@@ -229,7 +229,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
             except pygments.util.ClassNotFound:
                 # get_lexer_by_name() only checks aliases, not the actual longname
                 for lex in get_all_lexers():
-                    if lex[0] == lang:
+                    if lex[0].lower() == lang.lower():
                         # found the longname, use the first alias
                         lexer = get_lexer_by_name(lex[1][0])
                         break

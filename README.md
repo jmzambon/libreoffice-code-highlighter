@@ -1,7 +1,7 @@
 # Code Highlighter
 Code snippet highlighter for LibreOffice. Forked from original project created by [slgobinath](https://github.com/slgobinath/libreoffice-code-highlighter). 
 
-Code Highlighter is build upon [Pygments](https://pygments.org/) python library. 
+Code Highlighter is built upon [Pygments](https://pygments.org/) python library. 
 
 ## INSTALLATION
 

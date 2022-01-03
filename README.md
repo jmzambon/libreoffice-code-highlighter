@@ -35,7 +35,9 @@ If you have downloaded the `codehighlighter2.oxt.zip` file from GitHub releases,
 - Alternatively *Tools -> Highlight Code (previous settings)*
   - does not open a dialog, but applies previous settings (persistent also between restarts of LO)
 
-Multiselection is supported.
+#### Tips
+- Multiselection is supported: you can select several code snippets at the same time, even from different languages (choose "automatic" in this last case).
+- Not all language aliases that are valide names for Code Highlighter 2 appear in the option dialog: if you don't find a language, try anyway to type its name in the combobox (try for example with "R" or with "Pascal").  
 
 #### Screenshots
 *Menu items (Writer)*

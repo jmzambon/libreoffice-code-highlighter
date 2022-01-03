@@ -1,7 +1,9 @@
-# Code Highlighter
-Code snippet highlighter for LibreOffice. Forked from original project created by [slgobinath](https://github.com/slgobinath/libreoffice-code-highlighter). 
+# Code Highlighter 2
+Code snippet highlighter for LibreOffice.
 
-Code Highlighter is built upon [Pygments](https://pygments.org/) python library. 
+Code Highlighter 2 is a forked of [Code Highlighter](https://github.com/slgobinath/libreoffice-code-highlighter), originally created by slgobinath but no more maintained. 
+
+Code Highlighter 2 is built upon [Pygments](https://pygments.org/) python library. 
 
 ## INSTALLATION
 
@@ -16,10 +18,10 @@ The above command is for Ubuntu and its derivatives. Other Linux users, may not 
 If you encounter any problems after installing the extension, please check whether you have this or similar pacakge.
 
 ### Install Extension
-Open LibreOffice, go to `Tools` -> `Extension Manager...` and add the extension `codehighlighter.oxt`
+Open LibreOffice, go to `Tools` -> `Extension Manager...` and add the extension `codehighlighter2.oxt`
 
 You can download the extension either from the official LibreOffice extensions page or from [releases](https://github.com/jmzambon/libreoffice-code-highlighter/releases).
-If you have downloaded the `codehighlighter.oxt.zip` file from GitHub releases, extract it before adding to the LibreOffice.
+If you have downloaded the `codehighlighter2.oxt.zip` file from GitHub releases, extract it before adding to the LibreOffice.
 
 ## USAGE
 - Open a LibreOffice document.
@@ -33,7 +35,7 @@ If you have downloaded the `codehighlighter.oxt.zip` file from GitHub releases, 
 - Alternatively *Tools -> Highlight Code (previous settings)*
   - does not open a dialog, but applies previous settings (persistent also between restarts of LO)
 
-Multiselection is also supported.
+Multiselection is supported.
 
 #### Screenshots
 *Menu items (Writer)*

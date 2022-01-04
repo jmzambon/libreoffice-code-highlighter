@@ -17,7 +17,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import traceback
-from os import linesep as os_linesep
 
 import unohelper
 from com.sun.star.awt import Selection
@@ -47,7 +46,6 @@ class UndoAction(unohelper.Base, XUndoAction):
         self.doc = doc
         self.textbox = textbox
         self.Title = title
-        self.eol = len(os_linesep)
         self.old_portions = None
         self.old_bg = None
         self.new_portions = None
@@ -74,7 +72,7 @@ class UndoAction(unohelper.Base, XUndoAction):
         textportions = []
         for para in self.textbox:
             if textportions:    # new paragraph after first one
-                textportions[-1][0] += self.eol
+                textportions[-1][0] += 1
             for portion in para:
                 plen = len(portion.String)
                 pprops = portion.getPropertyValues(self.charprops)

@@ -264,14 +264,17 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
                             # exit edit mode if necessary
                             self.dispatcher.executeDispatch(self.frame, ".uno:SelectObject", "", 0, ())
                             undoaction = UndoAction(self.doc, code_block, f"code highlight (lang: {lexer.name}, style: {stylename})")
-                            code_block.FillStyle = FS_NONE
-                            if bg_color:
-                                code_block.FillStyle = FS_SOLID
-                                code_block.FillColor = self.to_int(bg_color)
                             cursor = code_block.createTextCursorByRange(code_block)
                             cursor.CharLocale = self.nolocale
                             cursor.collapseToStart()
                             self.highlight_code(code, cursor, lexer, style)
+                            # unlock controllers here to force left pane syncing in draw/impress
+                            if self.doc.supportsService("com.sun.star.drawing.GenericDrawingDocument"):
+                                self.doc.unlockControllers()
+                            code_block.FillStyle = FS_NONE
+                            if bg_color:
+                                code_block.FillStyle = FS_SOLID
+                                code_block.FillColor = self.to_int(bg_color)
                             # model is not considered as modified after textbox formatting
                             self.doc.setModified(True)
                             undoaction.get_new_state()
@@ -418,7 +421,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
         except Exception:
             self.msgbox(traceback.format_exc())
         finally:
-            self.doc.unlockControllers()
+            if self.doc.hasControllersLocked():
+                self.doc.unlockControllers()
 
     def highlight_code(self, code, cursor, lexer, style):
         # caching consecutive tokens with same token type

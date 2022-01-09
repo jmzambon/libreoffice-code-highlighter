@@ -6,7 +6,7 @@
 
   <identifier value="javahelps.codehighlighter"/>
 
-  <version value="2.0.2"/>
+  <version value="2.0.1"/>
 
   <update-information>
     <src xlink:href="https://raw.githubusercontent.com/jmzambon/libreoffice-code-highlighter/master/codehighlighter.update.xml" />
@@ -24,6 +24,7 @@
   <extension-description>
     <src xlink:href="description/desc_en.txt"/>
     <src xlink:href="description/desc_en.txt" lang="en" />
+    <src xlink:href="description/desc_fr.txt" lang="fr" />
   </extension-description>
 
   <dependencies>

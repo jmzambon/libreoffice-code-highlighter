@@ -37,6 +37,8 @@ from pygments.lexers import get_lexer_by_name
 from pygments.lexers import guess_lexer
 from pygments.styles import get_all_styles
 
+import ch2_i18n
+
 
 class UndoAction(unohelper.Base, XUndoAction):
     """ Add undo/redo action for highlighting not catched by the system,
@@ -105,6 +107,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
             self.dispatcher = self.create("com.sun.star.frame.DispatchHelper")
             self.cfg_access = self.create_cfg_access()
             self.options = self.load_options()
+            self.strings = ch2_i18n.getstrings(ctx)
             self.dialog = self.create_dialog()
             self.nolocale = Locale("zxx", "", "")
         except Exception:
@@ -130,10 +133,10 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
         colorize_bg = self.dialog.getControl('check_col_bg').State
 
         if lang != 'automatic' and lang.lower() not in self.all_lexer_aliases:
-            self.msgbox("Unsupported language.")
+            self.msgbox(self.strings["errlang"])
             return
         if style not in self.all_styles:
-            self.msgbox("Unknown.")
+            self.msgbox(self.strings["errstyle"])
             return
         self.save_options(Style=style, Language=lang, ColorizeBackground=str(colorize_bg))
         self.highlight_source_code()
@@ -186,6 +189,10 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
 
         dialog_provider = self.create("com.sun.star.awt.DialogProvider")
         dialog = dialog_provider.createDialog("vnd.sun.star.extension://javahelps.codehighlighter/dialogs/CodeHighlighter2.xdl")
+
+        # set localized strings
+        for controlname in ("label_lang", "label_style", "check_col_bg", "pygments_ver"):
+            dialog.getControl(controlname).Model.setPropertyValues(("Label", "HelpText"), self.strings[controlname])
 
         cb_lang = dialog.getControl('cb_lang')
         cb_style = dialog.getControl('cb_style')
@@ -250,7 +257,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
             if selected_item == None:
                 selected_item = self.doc.CurrentSelection
             if not hasattr(selected_item, 'supportsService'):
-                self.msgbox("Unsupported selection.")
+                self.msgbox(self.strings["errsel1"])
                 return
             elif hasattr(selected_item, 'getCount') and not hasattr(selected_item, 'queryContentCells'):
                 for item_idx in range(selected_item.getCount()):
@@ -412,11 +419,11 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
                         finally:
                             undomanager.leaveUndoContext()
             else:
-                self.msgbox("Unsupported selection.")
+                self.msgbox(self.strings["errsel1"])
                 return
 
             if not hascode:
-                self.msgbox("Nothing to highlight.")
+                self.msgbox(self.strings["errsel2"])
 
         except Exception:
             self.msgbox(traceback.format_exc())

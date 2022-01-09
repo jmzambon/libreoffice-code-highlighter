@@ -45,6 +45,7 @@
                             </prop>
                             <prop oor:name="Title" oor:type="xs:string">
                                 <value xml:lang="en">Highlight Code</value>
+                                <value xml:lang="fr">Colorer le code</value>
                             </prop>
                             <prop oor:name="URL" oor:type="xs:string">
                                 <value>service:ooo.ext.code-highlighter.impl?highlight</value>
@@ -59,6 +60,7 @@
                             </prop>
                             <prop oor:name="Title" oor:type="xs:string">
                                 <value xml:lang="en">Highlight Code (previous settings)</value>
+                                <value xml:lang="fr">Colorer le code (choix précédents)</value>
                             </prop>
                             <prop oor:name="URL" oor:type="xs:string">
                                 <value>service:ooo.ext.code-highlighter.impl?highlight_previous</value>

@@ -1,21 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE dlg:window PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "dialog.dtd">
-<dlg:window xmlns:dlg="http://openoffice.org/2000/dialog" xmlns:script="http://openoffice.org/2000/script" dlg:id="CodeHighlighter" dlg:left="70" dlg:top="113" dlg:width="174" dlg:height="153" dlg:help-text="&amp;99.CodeHighlighter.HelpText" dlg:closeable="true" dlg:moveable="true" dlg:title="&amp;100.CodeHighlighter.Title">
+<dlg:window xmlns:dlg="http://openoffice.org/2000/dialog" xmlns:script="http://openoffice.org/2000/script" dlg:id="CodeHighlighter" dlg:left="70" dlg:top="113" dlg:width="195" dlg:height="153" dlg:page="1" dlg:closeable="true" dlg:moveable="true" dlg:title="Code Highlighter 2 - v{}">
  <dlg:styles>
   <dlg:style dlg:style-id="0" dlg:border="simple"/>
   <dlg:style dlg:style-id="1" dlg:text-color="0x4c4c4c" dlg:font-height="8" dlg:font-stylename="Normal" dlg:font-family="swiss"/>
   <dlg:style dlg:style-id="2" dlg:border="none"/>
  </dlg:styles>
  <dlg:bulletinboard>
-  <dlg:text dlg:id="label_lang" dlg:tab-index="0" dlg:left="20" dlg:top="6" dlg:width="60" dlg:height="10" dlg:value="Language"/>
-  <dlg:text dlg:id="label_style" dlg:tab-index="2" dlg:left="20" dlg:top="38" dlg:width="60" dlg:height="10" dlg:value="Style"/>
-  <dlg:button dlg:id="btn_ok" dlg:tab-index="6" dlg:left="20" dlg:top="109" dlg:width="52" dlg:height="16" dlg:default="true" dlg:value="OK" dlg:button-type="ok"/>
-  <dlg:button dlg:id="btn_cancel" dlg:tab-index="7" dlg:left="81" dlg:top="109" dlg:width="52" dlg:height="16" dlg:value="Cancel" dlg:button-type="cancel"/>
-  <dlg:combobox dlg:style-id="0" dlg:id="cb_lang" dlg:tab-index="1" dlg:left="20" dlg:top="19" dlg:width="100" dlg:height="15" dlg:spin="true" dlg:linecount="20"/>
-  <dlg:combobox dlg:style-id="0" dlg:id="cb_style" dlg:tab-index="3" dlg:left="20" dlg:top="50" dlg:width="100" dlg:height="15" dlg:spin="true" dlg:linecount="20"/>
-  <dlg:checkbox dlg:id="check_col_bg" dlg:tab-index="4" dlg:left="20" dlg:top="74" dlg:width="100" dlg:height="10" dlg:help-text="Use the background color provided by the style." dlg:value="Set background color" dlg:valign="center" dlg:checked="true"/>
-  <dlg:text dlg:style-id="1" dlg:id="pygments_ver" dlg:tab-index="8" dlg:left="18" dlg:top="134" dlg:width="85" dlg:height="8" dlg:value="Build upon pygments {}"/>
-  <dlg:img dlg:style-id="2" dlg:id="pygments_logo" dlg:tab-index="9" dlg:left="5" dlg:top="133" dlg:width="11" dlg:height="9" dlg:scale-mode="isotropic" dlg:src="vnd.sun.star.extension://javahelps.codehighlighter/images/pygments.png"/>
-  <dlg:checkbox dlg:id="check_linenb" dlg:tab-index="5" dlg:left="20" dlg:top="87" dlg:width="142" dlg:height="10" dlg:help-text="&amp;113.CodeHighlighter.check_linenb.HelpText" dlg:value="&amp;114.CodeHighlighter.check_linenb.Label" dlg:checked="false"/>
+  <dlg:text dlg:id="label_lang" dlg:tab-index="0" dlg:left="15" dlg:top="6" dlg:width="60" dlg:height="10" dlg:page="1" dlg:value="Language"/>
+  <dlg:text dlg:id="label_style" dlg:tab-index="2" dlg:left="15" dlg:top="38" dlg:width="60" dlg:height="10" dlg:page="1" dlg:value="Style"/>
+  <dlg:button dlg:id="btn_ok" dlg:tab-index="10" dlg:left="15" dlg:top="109" dlg:width="50" dlg:height="16" dlg:default="true" dlg:button-type="ok"/>
+  <dlg:button dlg:id="btn_cancel" dlg:tab-index="11" dlg:left="72" dlg:top="109" dlg:width="50" dlg:height="16" dlg:button-type="cancel"/>
+  <dlg:combobox dlg:style-id="0" dlg:id="cb_lang" dlg:tab-index="1" dlg:left="15" dlg:top="19" dlg:width="100" dlg:height="15" dlg:page="1" dlg:spin="true" dlg:linecount="20"/>
+  <dlg:combobox dlg:style-id="0" dlg:id="cb_style" dlg:tab-index="3" dlg:left="15" dlg:top="50" dlg:width="100" dlg:height="15" dlg:page="1" dlg:spin="true" dlg:linecount="20"/>
+  <dlg:checkbox dlg:id="check_col_bg" dlg:tab-index="4" dlg:left="15" dlg:top="74" dlg:width="100" dlg:height="10" dlg:page="1" dlg:help-text="Use the background color provided by the style." dlg:value="Set background color" dlg:valign="center" dlg:checked="true"/>
+  <dlg:text dlg:style-id="1" dlg:id="pygments_ver" dlg:tab-index="13" dlg:left="18" dlg:top="134" dlg:width="85" dlg:height="8" dlg:value="Build upon pygments {}"/>
+  <dlg:img dlg:style-id="2" dlg:id="pygments_logo" dlg:tab-index="14" dlg:left="5" dlg:top="133" dlg:width="11" dlg:height="9" dlg:scale-mode="isotropic" dlg:src="vnd.sun.star.extension://javahelps.codehighlighter/images/pygments.png"/>
+  <dlg:checkbox dlg:id="check_linenb" dlg:tab-index="5" dlg:left="15" dlg:top="87" dlg:width="142" dlg:height="10" dlg:page="1" dlg:checked="false"/>
+  <dlg:fixedline dlg:id="nb_line" dlg:tab-index="15" dlg:left="15" dlg:top="11" dlg:width="144" dlg:height="10" dlg:page="2"/>
+  <dlg:text dlg:id="lbl_nb_start" dlg:tab-index="16" dlg:left="15" dlg:top="30" dlg:width="47" dlg:height="15" dlg:page="2" dlg:align="right" dlg:valign="center"/>
+  <dlg:text dlg:id="lbl_nb_ratio" dlg:tab-index="20" dlg:left="15" dlg:top="47" dlg:width="47" dlg:height="15" dlg:page="2" dlg:align="right" dlg:valign="center"/>
+  <dlg:text dlg:id="lbl_nb_sep" dlg:tab-index="17" dlg:left="15" dlg:top="64" dlg:width="47" dlg:height="15" dlg:page="2" dlg:align="right" dlg:valign="center"/>
+  <dlg:text dlg:id="lbl_nb_spaces" dlg:tab-index="18" dlg:left="15" dlg:top="81" dlg:width="47" dlg:height="15" dlg:page="2" dlg:align="right" dlg:valign="center"/>
+  <dlg:numericfield dlg:style-id="2" dlg:id="nb_start" dlg:tab-index="6" dlg:left="72" dlg:top="30" dlg:width="57" dlg:height="15" dlg:page="2" dlg:valign="center" dlg:strict-format="true" dlg:decimal-accuracy="0" dlg:value="1" dlg:value-min="1" dlg:spin="true" dlg:repeat="50"/>
+  <dlg:numericfield dlg:style-id="2" dlg:id="nb_ratio" dlg:tab-index="7" dlg:left="72" dlg:top="47" dlg:width="57" dlg:height="15" dlg:page="2" dlg:valign="center" dlg:strict-format="true" dlg:decimal-accuracy="0" dlg:value-min="50" dlg:value-max="100" dlg:repeat="50"/>
+  <dlg:textfield dlg:style-id="2" dlg:id="nb_sep" dlg:tab-index="8" dlg:left="72" dlg:top="64" dlg:width="34" dlg:height="15" dlg:page="2" dlg:valign="center" dlg:maxlength="1"/>
+  <dlg:textfield dlg:style-id="2" dlg:id="nb_spaces" dlg:tab-index="9" dlg:left="72" dlg:top="81" dlg:width="34" dlg:height="15" dlg:page="2" dlg:valign="center" dlg:value="   "/>
+  <dlg:button dlg:id="topage1" dlg:tab-index="12" dlg:left="130" dlg:top="109" dlg:width="50" dlg:height="16" dlg:page="2">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.UNO:topage1" script:language="UNO"/>
+  </dlg:button>
+  <dlg:button dlg:id="topage2" dlg:tab-index="19" dlg:left="130" dlg:top="109" dlg:width="50" dlg:height="16" dlg:page="1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.UNO:topage2" script:language="UNO"/>
+  </dlg:button>
  </dlg:bulletinboard>
 </dlg:window>

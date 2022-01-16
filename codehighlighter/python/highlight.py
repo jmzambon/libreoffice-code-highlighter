@@ -16,10 +16,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+# python standard
+import re
 import traceback
+from math import log10
 
+# uno
 import unohelper
 from com.sun.star.awt import Selection
+from com.sun.star.awt import XDialogEventHandler
 from com.sun.star.awt.FontSlant import NONE as SL_NONE, ITALIC as SL_ITALIC
 from com.sun.star.awt.FontWeight import NORMAL as W_NORMAL, BOLD as W_BOLD
 from com.sun.star.awt.MessageBoxType import MESSAGEBOX, ERRORBOX
@@ -30,6 +35,7 @@ from com.sun.star.sheet.CellFlags import STRING as CF_STRING
 from com.sun.star.task import XJobExecutor
 from com.sun.star.document import XUndoAction
 
+# python standard
 import pygments
 from pygments import styles
 from pygments.lexers import get_all_lexers
@@ -37,6 +43,7 @@ from pygments.lexers import get_lexer_by_name
 from pygments.lexers import guess_lexer
 from pygments.styles import get_all_styles
 
+# internal
 import ch2_i18n
 
 
@@ -100,7 +107,7 @@ class UndoAction(unohelper.Base, XUndoAction):
         self.doc.setModified(True)
 
 
-class CodeHighlighter(unohelper.Base, XJobExecutor):
+class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
     def __init__(self, ctx):
         try:
             self.ctx = ctx
@@ -124,6 +131,21 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
             getattr(self, 'do_'+arg)()
         except Exception:
             traceback.print_exc()
+
+    # XDialogEventHandler
+    def callHandlerMethod(self, dialog, event, method):
+        if method == "topage1":
+            dialog.Model.Step = 1
+            dialog.getControl('cb_lang').setFocus()
+            return True
+        elif method == "topage2":
+            dialog.Model.Step = 2
+            dialog.getControl('nb_start').setFocus()
+            return True
+        return False
+
+    def getSupportedMethodNames(self):
+        return 'topage1', 'topage2'
 
     # main functions
     def do_highlight(self):
@@ -166,17 +188,25 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
             self.all_lexer_aliases.extend(list(lex[1]))
         self.all_styles = sorted(get_all_styles(), key=lambda x: (x != 'default', x.lower()))
 
-        dialog_provider = self.create("com.sun.star.awt.DialogProvider")
-        dialog = dialog_provider.createDialog("vnd.sun.star.extension://javahelps.codehighlighter/dialogs/CodeHighlighter2.xdl")
+        dialog_provider = self.create("com.sun.star.awt.DialogProvider2")
+        dialog = dialog_provider.createDialogWithHandler("vnd.sun.star.extension://javahelps.codehighlighter/dialogs/CodeHighlighter2.xdl", self)
 
         # set localized strings
-        for controlname in ("label_lang", "label_style", "check_col_bg", "check_linenb", "pygments_ver"):
+        controlnames = ("label_lang", "label_style", "check_col_bg", "check_linenb", "nb_line", "lbl_nb_start",
+                        "lbl_nb_ratio", "lbl_nb_sep", "lbl_nb_spaces", "pygments_ver", "topage1", "topage2")
+        for controlname in controlnames:
             dialog.getControl(controlname).Model.setPropertyValues(("Label", "HelpText"), self.strings[controlname])
+        for controlname in ("nb_sep", "nb_spaces"):
+            dialog.getControl(controlname).Model.HelpText = self.strings[controlname][1]
 
         cb_lang = dialog.getControl('cb_lang')
         cb_style = dialog.getControl('cb_style')
         check_col_bg = dialog.getControl('check_col_bg')
         check_linenb = dialog.getControl('check_linenb')
+        nb_start = dialog.getControl('nb_start')
+        nb_ratio = dialog.getControl('nb_ratio')
+        nb_sep = dialog.getControl('nb_sep')
+        nb_spaces = dialog.getControl('nb_spaces')
         pygments_ver = dialog.getControl('pygments_ver')
 
         cb_lang.Text = self.options['Language']
@@ -191,6 +221,10 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
 
         check_col_bg.State = self.options['ColorizeBackground']
         check_linenb.State = self.options['ShowLineNumbers']
+        nb_start.Value = self.options['LineNumberStart']
+        nb_ratio.Value = self.options['LineNumberRatio']
+        nb_sep.Text = self.options['LineNumberSeparator']
+        nb_spaces.Text = self.options['LineNumberSpaces']
 
         def getextver():
             pip = self.ctx.getByName("/singletons/com.sun.star.deployment.PackageInformationProvider")
@@ -219,6 +253,11 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
         style = self.dialog.getControl('cb_style').Text.strip() or 'default'
         colorize_bg = self.dialog.getControl('check_col_bg').State
         show_linenb = self.dialog.getControl('check_linenb').State
+        nb_start = int(self.dialog.getControl('nb_start').Value)
+        nb_ratio = int(self.dialog.getControl('nb_ratio').Value)
+        nb_sep = self.dialog.getControl('nb_sep').Text
+        nb_spaces = self.dialog.getControl('nb_spaces').Text
+
 
         if lang != 'automatic' and lang.lower() not in self.all_lexer_aliases:
             self.msgbox(self.strings["errlang"])
@@ -226,7 +265,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
         if style not in self.all_styles:
             self.msgbox(self.strings["errstyle"])
             return False
-        self.save_options(Style=style, Language=lang, ColorizeBackground=colorize_bg, ShowLineNumbers=show_linenb)
+        self.save_options(Style=style, Language=lang, ColorizeBackground=colorize_bg, ShowLineNumbers=show_linenb,
+                          LineNumberStart=nb_start, LineNumberRatio=nb_ratio, LineNumberSeparator=nb_sep, LineNumberSpaces=nb_spaces)
         return True     
 
     def save_options(self, **kwargs):
@@ -485,17 +525,18 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
                 lasttype = tok_type
 
     def show_line_numbers(self, code_block, isplaintext=False):
-        import re
-        from math import log10, ceil
         show_linenb = self.options['ShowLineNumbers']
-        startnb = 1
-        charsize = code_block.End.CharHeight
-        ratio = 1   #.85
-        numbersize = ceil(charsize*ratio)
-        spaces = 3*" "
-        sep = ""  # allowed values: ".", ":" or ""
+        startnb = self.options["LineNumberStart"]
+        ratio = self.options["LineNumberRatio"]
+        spaces = self.options["LineNumberSpaces"]
+        if spaces == r'\t':
+            spaces = '\t'
+        sep = self.options["LineNumberSeparator"]  # allowed values: ".", ":" or ""
         if not sep in (".:"):
             sep = ""
+        charsize = code_block.End.CharHeight
+        numbersize = round(charsize*ratio//50)/2   # round to 0.5
+
         p = re.compile(f"\s*([0-9]+)[\.|:]?{spaces}")
         c = code_block.Text.createTextCursor()
         code = c.Text.String

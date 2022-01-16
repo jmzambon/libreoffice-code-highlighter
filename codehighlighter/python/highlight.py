@@ -52,22 +52,26 @@ class UndoAction(unohelper.Base, XUndoAction):
         self.old_bg = None
         self.new_portions = None
         self.new_bg = None
-        self.charprops = ("CharColor", "CharLocale", "CharPosture", "CharWeight")
+        self.charprops = ("CharColor", "CharLocale", "CharPosture", "CharHeight", "CharWeight")
         self.bgprops = ("FillColor", "FillStyle")
         self.get_old_state()
 
     def undo(self):
+        self.textbox.setString(self.old_text)
         self._format(self.old_portions, self.old_bg)
 
     def redo(self):
+        self.textbox.setString(self.new_text)
         self._format(self.new_portions, self.new_bg)
 
     def get_old_state(self):
         self.old_bg = self.textbox.getPropertyValues(self.bgprops)
+        self.old_text = self.textbox.String
         self.old_portions = self._extract_portions()
 
     def get_new_state(self):
         self.new_bg = self.textbox.getPropertyValues(self.bgprops)
+        self.new_text = self.textbox.String
         self.new_portions = self._extract_portions()
 
     def _extract_portions(self):
@@ -123,23 +127,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
 
     # main functions
     def do_highlight(self):
-        # get options choice
-        # 0: canceled, 1: OK
-        # self.dialog.setVisible(True)
-        if self.dialog.execute() == 0:
-            return
-        lang = self.dialog.getControl('cb_lang').Text.strip() or 'automatic'
-        style = self.dialog.getControl('cb_style').Text.strip() or 'default'
-        colorize_bg = self.dialog.getControl('check_col_bg').State
-
-        if lang != 'automatic' and lang.lower() not in self.all_lexer_aliases:
-            self.msgbox(self.strings["errlang"])
-            return
-        if style not in self.all_styles:
-            self.msgbox(self.strings["errstyle"])
-            return
-        self.save_options(Style=style, Language=lang, ColorizeBackground=str(colorize_bg))
-        self.highlight_source_code()
+        if self.choose_options():
+            self.highlight_source_code()
 
     def do_highlight_previous(self):
         self.highlight_source_code()
@@ -168,16 +157,6 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
         cfg_access = cfg.createInstanceWithArguments('com.sun.star.configuration.ConfigurationUpdateAccess', (prop,))
         return cfg_access
 
-    def load_options(self):
-        properties = self.cfg_access.ElementNames
-        values = self.cfg_access.getPropertyValues(properties)
-        return dict(zip(properties, values))
-
-    def save_options(self, **kwargs):
-        self.options.update(kwargs)
-        self.cfg_access.setPropertyValues(tuple(kwargs.keys()), tuple(kwargs.values()))
-        self.cfg_access.commitChanges()
-
     def create_dialog(self):
         # get_all_lexers() returns:
         # (longname, tuple of aliases, tuple of filename patterns, tuple of mimetypes)
@@ -191,12 +170,13 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
         dialog = dialog_provider.createDialog("vnd.sun.star.extension://javahelps.codehighlighter/dialogs/CodeHighlighter2.xdl")
 
         # set localized strings
-        for controlname in ("label_lang", "label_style", "check_col_bg", "pygments_ver"):
+        for controlname in ("label_lang", "label_style", "check_col_bg", "check_linenb", "pygments_ver"):
             dialog.getControl(controlname).Model.setPropertyValues(("Label", "HelpText"), self.strings[controlname])
 
         cb_lang = dialog.getControl('cb_lang')
         cb_style = dialog.getControl('cb_style')
         check_col_bg = dialog.getControl('check_col_bg')
+        check_linenb = dialog.getControl('check_linenb')
         pygments_ver = dialog.getControl('pygments_ver')
 
         cb_lang.Text = self.options['Language']
@@ -209,7 +189,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
             cb_style.Text = style
         cb_style.addItems(self.all_styles, 0)
 
-        check_col_bg.State = int(self.options['ColorizeBackground'])
+        check_col_bg.State = self.options['ColorizeBackground']
+        check_linenb.State = self.options['ShowLineNumbers']
 
         def getextver():
             pip = self.ctx.getByName("/singletons/com.sun.star.deployment.PackageInformationProvider")
@@ -222,6 +203,36 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
         pygments_ver.Text = pygments_ver.Text.format(pygments.__version__)
 
         return dialog
+
+    def load_options(self):
+        properties = self.cfg_access.ElementNames
+        values = self.cfg_access.getPropertyValues(properties)
+        return dict(zip(properties, values))
+
+    def choose_options(self):
+        # get options choice
+        # 0: canceled, 1: OK
+        # self.dialog.setVisible(True)
+        if self.dialog.execute() == 0:
+            return False
+        lang = self.dialog.getControl('cb_lang').Text.strip() or 'automatic'
+        style = self.dialog.getControl('cb_style').Text.strip() or 'default'
+        colorize_bg = self.dialog.getControl('check_col_bg').State
+        show_linenb = self.dialog.getControl('check_linenb').State
+
+        if lang != 'automatic' and lang.lower() not in self.all_lexer_aliases:
+            self.msgbox(self.strings["errlang"])
+            return False
+        if style not in self.all_styles:
+            self.msgbox(self.strings["errstyle"])
+            return False
+        self.save_options(Style=style, Language=lang, ColorizeBackground=colorize_bg, ShowLineNumbers=show_linenb)
+        return True     
+
+    def save_options(self, **kwargs):
+        self.options.update(kwargs)
+        self.cfg_access.setPropertyValues(tuple(kwargs.keys()), tuple(kwargs.values()))
+        self.cfg_access.commitChanges()
 
     def getlexer(self, code):
         lang = self.options['Language']
@@ -247,7 +258,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
     def highlight_source_code(self, selected_item=None):
         stylename = self.options['Style']
         style = styles.get_style_by_name(stylename)
-        bg_color = style.background_color if self.options['ColorizeBackground'] != "0" else None
+        bg_color = style.background_color if self.options['ColorizeBackground'] else None
 
         self.doc.lockControllers()
         undomanager = self.doc.UndoManager
@@ -271,6 +282,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
                             # exit edit mode if necessary
                             self.dispatcher.executeDispatch(self.frame, ".uno:SelectObject", "", 0, ())
                             undoaction = UndoAction(self.doc, code_block, f"code highlight (lang: {lexer.name}, style: {stylename})")
+                            if self.show_line_numbers(code_block):
+                                code = code_block.String    #code string has changed
                             cursor = code_block.createTextCursorByRange(code_block)
                             cursor.CharLocale = self.nolocale
                             cursor.collapseToStart()
@@ -290,11 +303,13 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
                             # Plain text
                             try:
                                 undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
-                                code_block.ParaBackColor = -1
+                                self.show_line_numbers(code_block, isplaintext=True)
+                                cursor, code = self.ensure_selection(code_block)
+                                cursor.ParaBackColor = -1
                                 if bg_color:
-                                    code_block.ParaBackColor = self.to_int(bg_color)
-                                cursor = code_block.getText().createTextCursorByRange(code_block)
+                                    cursor.ParaBackColor = self.to_int(bg_color)
                                 cursor.CharLocale = self.nolocale
+                                self.doc.CurrentController.select(cursor)
                                 cursor.collapseToStart()
                                 self.highlight_code(code, cursor, lexer, style)
                             finally:
@@ -319,6 +334,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
                     hascode = True
                     lexer = self.getlexer(code)
                     undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
+                    if self.show_line_numbers(code_block):
+                        code = code_block.String    #code string has changed
                     try:
                         code_block.BackColor = -1
                         if bg_color:
@@ -346,6 +363,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
                                 hascode = True
                                 lexer = self.getlexer(code)
                                 undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
+                                if self.show_line_numbers(code_block):
+                                    code = code_block.String    #code string has changed
                                 try:
                                     code_block.BackColor = -1
                                     if bg_color:
@@ -364,6 +383,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
                         hascode = True
                         lexer = self.getlexer(code)
                         undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
+                        if self.show_line_numbers(code_block):
+                            code = code_block.String    #code string has changed
                         try:
                             code_block.BackColor = -1
                             if bg_color:
@@ -376,27 +397,35 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
                             undomanager.leaveUndoContext()
 
             elif selected_item.supportsService('com.sun.star.text.TextCursor'):
-                # LO Impress shape selection
-                cursor = selected_item
-                code = cursor.String
-                cdirection = cursor.compareRegionStarts(cursor.Start, cursor.End)
-                if cdirection != 0:  # a selection exists
-                    hascode = True
-                    lexer = self.getlexer(code)
-                    undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
-                    try:
-                        cursor.CharLocale = self.nolocale
-                        if cdirection == 1:
-                            cursor.collapseToStart()
-                        else:
-                            # if selection is done right to left inside text box, end cursor is before start cursor
-                            cursor.collapseToEnd()
+                # LO Impress text selection inside shape -> highlight all shape
+                # exit edit mode
+                self.dispatcher.executeDispatch(self.frame, ".uno:SelectObject", "", 0, ())
+                self.highlight_source_code()
+                return
 
-                        self.highlight_code(code, cursor, lexer, style)
-                        # exit edit mode if necessary
-                        self.dispatcher.executeDispatch(self.frame, ".uno:SelectObject", "", 0, ())
-                    finally:
-                        undomanager.leaveUndoContext()
+                ### OLD CODE, intended to highlight sub text, but api's too buggy'
+                # # first exit edit mode, otherwise formatting is not shown (bug?)
+                # self.dispatcher.executeDispatch(self.frame, ".uno:SelectObject", "", 0, ())
+                # cursor = selected_item
+                # code = cursor.String
+                # cdirection = cursor.compareRegionStarts(cursor.Start, cursor.End)
+                # if cdirection != 0:  # a selection exists
+                #     hascode = True
+                #     lexer = self.getlexer(code)
+                #     undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
+                #     try:
+                #         cursor.CharBackColor = -1
+                #         if bg_color:
+                #             cursor.CharBackColor = self.to_int(bg_color)
+                #         cursor.CharLocale = self.nolocale
+                #         if cdirection == 1:
+                #             cursor.collapseToStart()
+                #         else:
+                #             # if selection is done right to left inside text box, end cursor is before start cursor
+                #             cursor.collapseToEnd()
+                #         self.highlight_code(code, cursor, lexer, style)
+                #     finally:
+                #         undomanager.leaveUndoContext()
 
             elif hasattr(selected_item, 'queryContentCells'):
                 # LO Calc cell selection
@@ -408,6 +437,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
                         code = code_block.String
                         lexer = self.getlexer(code)
                         undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
+                        if self.show_line_numbers(code_block):
+                            code = code_block.String    #code string has changed
                         try:
                             code_block.CellBackColor = -1
                             code_block.CharLocale = self.nolocale
@@ -452,6 +483,74 @@ class CodeHighlighter(unohelper.Base, XJobExecutor):
                         cursor.collapseToEnd()  # deselects the selected text
                 lastval = tok_value
                 lasttype = tok_type
+
+    def show_line_numbers(self, code_block, isplaintext=False):
+        import re
+        from math import log10, ceil
+        show_linenb = self.options['ShowLineNumbers']
+        startnb = 1
+        charsize = code_block.End.CharHeight
+        ratio = 1   #.85
+        numbersize = ceil(charsize*ratio)
+        spaces = 3*" "
+        sep = ""  # allowed values: ".", ":" or ""
+        if not sep in (".:"):
+            sep = ""
+        p = re.compile(f"\s*([0-9]+)[\.|:]?{spaces}")
+        c = code_block.Text.createTextCursor()
+        code = c.Text.String
+        if isplaintext:
+            # if cursor is not at start of paragraph for plain text
+            # selection, line numbering can't be detected. So let's
+            # move the cursor to the whole first paragraph.
+            c = code_block.Text.createTextCursorByRange(code_block)
+            c.gotoStartOfParagraph(False)
+            c.gotoEndOfParagraph(True)
+            code = c.String
+
+        def show_numbering():
+            nblignes = len(code_block.String.split('\n'))
+            digits = int(log10(nblignes - 1 + startnb)) + 1
+            for n, para in enumerate(code_block, start=startnb):
+                # para.Start.CharHeight = numbersize
+                prefix = f'{n:>{digits}}{sep}{spaces}'
+                para.Start.setString(prefix)
+                c.gotoRange(para.Start, False)
+                c.goRight(len(prefix), True)
+                c.CharHeight = numbersize
+
+        def hide_numbering():
+            for para in code_block:
+                m = p.match(para.String)
+                if m:
+                    c.gotoRange(para.Start, False)
+                    c.goRight(m.end(), True)
+                    c.CharHeight = charsize
+                    c.setString("")
+
+        m = p.match(code) 
+        res = False
+        if show_linenb:
+            if not m:
+                show_numbering()
+                res = True
+            else:
+                # numbering already exists, but let's replace it anyway,
+                # as new settings can have been defined.
+                hide_numbering()
+                show_numbering()
+                res = True
+        elif m:
+            hide_numbering()
+            res = True
+        return res
+
+    def ensure_selection(self, selected_code):
+        c = selected_code.Text.createTextCursorByRange(selected_code)
+        c.gotoStartOfParagraph(False)
+        c.gotoRange(selected_code.End, True)
+        c.gotoEndOfParagraph(True)
+        return c, c.String
 
 
 # Component registration

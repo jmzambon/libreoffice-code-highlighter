@@ -20,10 +20,7 @@
       <value>100</value>
     </prop>
     <prop oor:name="LineNumberSeparator" oor:type="xs:string">
-      <value></value>
-    </prop>
-    <prop oor:name="LineNumberSpaces" oor:type="xs:string">
-      <value>   </value>
+      <value>  </value>
     </prop>
   </node>
 </oor:component-data>

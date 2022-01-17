@@ -21,11 +21,9 @@
   <dlg:text dlg:id="lbl_nb_start" dlg:tab-index="16" dlg:left="15" dlg:top="30" dlg:width="47" dlg:height="15" dlg:page="2" dlg:align="right" dlg:valign="center"/>
   <dlg:text dlg:id="lbl_nb_ratio" dlg:tab-index="20" dlg:left="15" dlg:top="47" dlg:width="47" dlg:height="15" dlg:page="2" dlg:align="right" dlg:valign="center"/>
   <dlg:text dlg:id="lbl_nb_sep" dlg:tab-index="17" dlg:left="15" dlg:top="64" dlg:width="47" dlg:height="15" dlg:page="2" dlg:align="right" dlg:valign="center"/>
-  <dlg:text dlg:id="lbl_nb_spaces" dlg:tab-index="18" dlg:left="15" dlg:top="81" dlg:width="47" dlg:height="15" dlg:page="2" dlg:align="right" dlg:valign="center"/>
   <dlg:numericfield dlg:style-id="2" dlg:id="nb_start" dlg:tab-index="6" dlg:left="72" dlg:top="30" dlg:width="57" dlg:height="15" dlg:page="2" dlg:valign="center" dlg:strict-format="true" dlg:decimal-accuracy="0" dlg:value="1" dlg:value-min="1" dlg:spin="true" dlg:repeat="50"/>
-  <dlg:numericfield dlg:style-id="2" dlg:id="nb_ratio" dlg:tab-index="7" dlg:left="72" dlg:top="47" dlg:width="57" dlg:height="15" dlg:page="2" dlg:valign="center" dlg:strict-format="true" dlg:decimal-accuracy="0" dlg:value-min="50" dlg:value-max="100" dlg:repeat="50"/>
-  <dlg:textfield dlg:style-id="2" dlg:id="nb_sep" dlg:tab-index="8" dlg:left="72" dlg:top="64" dlg:width="34" dlg:height="15" dlg:page="2" dlg:valign="center" dlg:maxlength="1"/>
-  <dlg:textfield dlg:style-id="2" dlg:id="nb_spaces" dlg:tab-index="9" dlg:left="72" dlg:top="81" dlg:width="34" dlg:height="15" dlg:page="2" dlg:valign="center" dlg:value="   "/>
+  <dlg:numericfield dlg:style-id="2" dlg:id="nb_ratio" dlg:tab-index="7" dlg:left="72" dlg:top="47" dlg:width="57" dlg:height="15" dlg:page="2" dlg:valign="center" dlg:strict-format="true" dlg:decimal-accuracy="0" dlg:value-min="50" dlg:value-max="100" dlg:spin="true" dlg:repeat="50"/>
+  <dlg:textfield dlg:style-id="2" dlg:id="nb_sep" dlg:tab-index="8" dlg:left="72" dlg:top="64" dlg:width="34" dlg:height="15" dlg:page="2" dlg:valign="center"/>
   <dlg:button dlg:id="topage1" dlg:tab-index="12" dlg:left="130" dlg:top="109" dlg:width="50" dlg:height="16" dlg:page="2">
    <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.UNO:topage1" script:language="UNO"/>
   </dlg:button>

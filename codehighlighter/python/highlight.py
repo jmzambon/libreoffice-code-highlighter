@@ -21,6 +21,14 @@ import re
 import traceback
 from math import log10
 
+# pygments
+import pygments
+from pygments import styles
+from pygments.lexers import get_all_lexers
+from pygments.lexers import get_lexer_by_name
+from pygments.lexers import guess_lexer
+from pygments.styles import get_all_styles
+
 # uno
 import unohelper
 from com.sun.star.awt import Selection
@@ -29,27 +37,19 @@ from com.sun.star.awt.FontSlant import NONE as SL_NONE, ITALIC as SL_ITALIC
 from com.sun.star.awt.FontWeight import NORMAL as W_NORMAL, BOLD as W_BOLD
 from com.sun.star.awt.MessageBoxType import MESSAGEBOX, ERRORBOX
 from com.sun.star.beans import PropertyValue
+from com.sun.star.document import XUndoAction
 from com.sun.star.drawing.FillStyle import NONE as FS_NONE, SOLID as FS_SOLID
 from com.sun.star.lang import Locale
 from com.sun.star.sheet.CellFlags import STRING as CF_STRING
 from com.sun.star.task import XJobExecutor
-from com.sun.star.document import XUndoAction
-
-# python standard
-import pygments
-from pygments import styles
-from pygments.lexers import get_all_lexers
-from pygments.lexers import get_lexer_by_name
-from pygments.lexers import guess_lexer
-from pygments.styles import get_all_styles
 
 # internal
 import ch2_i18n
 
 
 class UndoAction(unohelper.Base, XUndoAction):
-    """ Add undo/redo action for highlighting not catched by the system,
-        i.e. when applied on textbox objects."""
+    ''' Add undo/redo action for highlighting not catched by the system,
+        i.e. when applied on textbox objects.'''
 
     def __init__(self, doc, textbox, title):
         self.doc = doc
@@ -193,11 +193,10 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
 
         # set localized strings
         controlnames = ("label_lang", "label_style", "check_col_bg", "check_linenb", "nb_line", "lbl_nb_start",
-                        "lbl_nb_ratio", "lbl_nb_sep", "lbl_nb_spaces", "pygments_ver", "topage1", "topage2")
+                        "lbl_nb_ratio", "lbl_nb_sep", "pygments_ver", "topage1", "topage2")
         for controlname in controlnames:
             dialog.getControl(controlname).Model.setPropertyValues(("Label", "HelpText"), self.strings[controlname])
-        for controlname in ("nb_sep", "nb_spaces"):
-            dialog.getControl(controlname).Model.HelpText = self.strings[controlname][1]
+        # dialog.getControl("nb_sep").Model.HelpText = self.strings["nb_sep"][1]
 
         cb_lang = dialog.getControl('cb_lang')
         cb_style = dialog.getControl('cb_style')
@@ -206,7 +205,6 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         nb_start = dialog.getControl('nb_start')
         nb_ratio = dialog.getControl('nb_ratio')
         nb_sep = dialog.getControl('nb_sep')
-        nb_spaces = dialog.getControl('nb_spaces')
         pygments_ver = dialog.getControl('pygments_ver')
 
         cb_lang.Text = self.options['Language']
@@ -224,7 +222,6 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         nb_start.Value = self.options['LineNumberStart']
         nb_ratio.Value = self.options['LineNumberRatio']
         nb_sep.Text = self.options['LineNumberSeparator']
-        nb_spaces.Text = self.options['LineNumberSpaces']
 
         def getextver():
             pip = self.ctx.getByName("/singletons/com.sun.star.deployment.PackageInformationProvider")
@@ -256,8 +253,6 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         nb_start = int(self.dialog.getControl('nb_start').Value)
         nb_ratio = int(self.dialog.getControl('nb_ratio').Value)
         nb_sep = self.dialog.getControl('nb_sep').Text
-        nb_spaces = self.dialog.getControl('nb_spaces').Text
-
 
         if lang != 'automatic' and lang.lower() not in self.all_lexer_aliases:
             self.msgbox(self.strings["errlang"])
@@ -266,7 +261,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             self.msgbox(self.strings["errstyle"])
             return False
         self.save_options(Style=style, Language=lang, ColorizeBackground=colorize_bg, ShowLineNumbers=show_linenb,
-                          LineNumberStart=nb_start, LineNumberRatio=nb_ratio, LineNumberSeparator=nb_sep, LineNumberSpaces=nb_spaces)
+                          LineNumberStart=nb_start, LineNumberRatio=nb_ratio, LineNumberSeparator=nb_sep)
         return True     
 
     def save_options(self, **kwargs):
@@ -528,51 +523,48 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         show_linenb = self.options['ShowLineNumbers']
         startnb = self.options["LineNumberStart"]
         ratio = self.options["LineNumberRatio"]
-        spaces = self.options["LineNumberSpaces"]
-        if spaces == r'\t':
-            spaces = '\t'
         sep = self.options["LineNumberSeparator"]  # allowed values: ".", ":" or ""
-        if not sep in (".:"):
-            sep = ""
-        charsize = code_block.End.CharHeight
-        numbersize = round(charsize*ratio//50)/2   # round to 0.5
+        sep = sep.replace(r'\t', '\t')
+        codecharheight = code_block.End.CharHeight
+        nocharheight = round(codecharheight*ratio//50)/2   # round to 0.5
 
-        p = re.compile(f"\s*([0-9]+)[\.|:]?{spaces}")
         c = code_block.Text.createTextCursor()
         code = c.Text.String
         if isplaintext:
-            # if cursor is not at start of paragraph for plain text
-            # selection, line numbering can't be detected. So let's
-            # move the cursor to the whole first paragraph.
+            # cursor could not be at start of paragraph with plain text
+            # selection. So let's move it to the full paragraphs.
             c = code_block.Text.createTextCursorByRange(code_block)
             c.gotoStartOfParagraph(False)
+            c.gotoRange(code_block.End, True)
             c.gotoEndOfParagraph(True)
             code = c.String
+
+        # check for existing line numbering and its width
+        p = re.compile("^\s*[0-9]+[\W]*", re.MULTILINE)
+        try:
+            lenno = min(len(f) for f in p.findall(code))
+        except ValueError:
+            lenno = None
 
         def show_numbering():
             nblignes = len(code_block.String.split('\n'))
             digits = int(log10(nblignes - 1 + startnb)) + 1
             for n, para in enumerate(code_block, start=startnb):
-                # para.Start.CharHeight = numbersize
-                prefix = f'{n:>{digits}}{sep}{spaces}'
+                # para.Start.CharHeight = nocharheight
+                prefix = f'{n:>{digits}}{sep}'
                 para.Start.setString(prefix)
                 c.gotoRange(para.Start, False)
                 c.goRight(len(prefix), True)
-                c.CharHeight = numbersize
+                c.CharHeight = nocharheight
 
         def hide_numbering():
             for para in code_block:
-                m = p.match(para.String)
-                if m:
-                    c.gotoRange(para.Start, False)
-                    c.goRight(m.end(), True)
-                    c.CharHeight = charsize
-                    c.setString("")
+                para.CharHeight = codecharheight
+                para.String = para.String[lenno:]
 
-        m = p.match(code) 
         res = False
         if show_linenb:
-            if not m:
+            if not lenno:
                 show_numbering()
                 res = True
             else:
@@ -581,7 +573,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 hide_numbering()
                 show_numbering()
                 res = True
-        elif m:
+        elif lenno:
             hide_numbering()
             res = True
         return res

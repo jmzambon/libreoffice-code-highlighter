@@ -559,8 +559,9 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
 
         def hide_numbering():
             for para in code_block:
-                para.CharHeight = codecharheight
-                para.String = para.String[lenno:]
+                if p.match(para.String):
+                    para.CharHeight = codecharheight
+                    para.String = para.String[lenno:]
 
         res = False
         if show_linenb:

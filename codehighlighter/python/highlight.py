@@ -491,6 +491,9 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             if not hascode:
                 self.msgbox(self.strings["errsel2"])
 
+        except AttributeError:
+            self.msgbox(self.strings["errsel1"])
+            traceback.print_exc()
         except Exception:
             self.msgbox(traceback.format_exc())
         finally:

@@ -1,4 +1,4 @@
-CH2_STRINGS = {"en": { # dialog controls (label text + help text)
+CH2_STRINGS = {"en": {    # dialog controls (label text + help text)
                       "label_lang": ("Language", ""),
                       "label_style": ("Style", ""),
                       "check_col_bg": ("Set background color", "Use the background color provided by the style."),
@@ -11,14 +11,14 @@ CH2_STRINGS = {"en": { # dialog controls (label text + help text)
                       "pygments_ver": ("Build upon Pygments {}", ""),
                       "topage1": ("Back", ""),
                       "topage2": ("More...", ""),
-                       # messages
+                          # messages
                       "errlang": "Unsupported language.",
                       "errstyle": "Unknown style.",
                       "errsel1": "Unsupported selection.",
                       "errsel2": "Nothing to highlight.",
                       },
 
-               "fr": { # contrôles de dilaogue (texte + texte d'aide)
+               "fr": {    # contrôles de dilaogue (texte + texte d'aide)
                       "label_lang": ("Langage", ""),
                       "label_style": ("Style", ""),
                       "check_col_bg": ("Utiliser la couleur de fond", "Utiliser l'arrière-plan fourni par le style."),
@@ -31,13 +31,13 @@ CH2_STRINGS = {"en": { # dialog controls (label text + help text)
                       "pygments_ver": ("Basé sur Pygments {}", ""),
                       "topage1": ("Retour", ""),
                       "topage2": ("Plus...", ""),
-                       # messages
+                          # messages
                       "errlang": "Langage non supporté.",
                       "errstyle": "Style inconnu.",
                       "errsel1": "Sélection invalide.",
                       "errsel2": "Rien à coloriser.",
                       }
-              }
+               }
 
 
 def getstrings(ctx):
@@ -48,4 +48,3 @@ def getstrings(ctx):
     # print('vlang: {}'.format(vlang))
     # print('lang: {}'.format(lang))
     return CH2_STRINGS.get(lang, CH2_STRINGS["en"])
-

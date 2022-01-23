@@ -35,7 +35,7 @@ from com.sun.star.awt import Selection
 from com.sun.star.awt import XDialogEventHandler
 from com.sun.star.awt.FontSlant import NONE as SL_NONE, ITALIC as SL_ITALIC
 from com.sun.star.awt.FontWeight import NORMAL as W_NORMAL, BOLD as W_BOLD
-from com.sun.star.awt.MessageBoxType import MESSAGEBOX, ERRORBOX
+from com.sun.star.awt.MessageBoxType import ERRORBOX
 from com.sun.star.beans import PropertyValue
 from com.sun.star.document import XUndoAction
 from com.sun.star.drawing.FillStyle import NONE as FS_NONE, SOLID as FS_SOLID
@@ -152,7 +152,6 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         if self.choose_options():
             self.prepare_highlight()
 
-
     def do_highlight_previous(self):
         self.prepare_highlight()
 
@@ -190,7 +189,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         self.all_styles = sorted(get_all_styles(), key=lambda x: (x != 'default', x.lower()))
 
         dialog_provider = self.create("com.sun.star.awt.DialogProvider2")
-        dialog = dialog_provider.createDialogWithHandler("vnd.sun.star.extension://javahelps.codehighlighter/dialogs/CodeHighlighter2.xdl", self)
+        dialog = dialog_provider.createDialogWithHandler(
+            "vnd.sun.star.extension://javahelps.codehighlighter/dialogs/CodeHighlighter2.xdl", self)
 
         # set localized strings
         controlnames = ("label_lang", "label_style", "check_col_bg", "check_linenb", "nb_line", "lbl_nb_start",
@@ -263,7 +263,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             return False
         self.save_options(Style=style, Language=lang, ColorizeBackground=colorize_bg, ShowLineNumbers=show_linenb,
                           LineNumberStart=nb_start, LineNumberRatio=nb_ratio, LineNumberSeparator=nb_sep)
-        return True     
+        return True
 
     def save_options(self, **kwargs):
         self.options.update(kwargs)
@@ -301,7 +301,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         hascode = False
         try:
             # Get the selected item
-            if selected_item == None:
+            if selected_item is None:
                 selected_item = self.doc.CurrentSelection
             if not hasattr(selected_item, 'supportsService'):
                 self.msgbox(self.strings["errsel1"])
@@ -316,9 +316,10 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         lexer = self.getlexer(code)
                         # exit edit mode if necessary
                         self.dispatcher.executeDispatch(self.frame, ".uno:SelectObject", "", 0, ())
-                        undoaction = UndoAction(self.doc, code_block, f"code highlight (lang: {lexer.name}, style: {stylename})")
+                        undoaction = UndoAction(self.doc, code_block,
+                                                f"code highlight (lang: {lexer.name}, style: {stylename})")
                         if self.show_line_numbers(code_block):
-                            code = code_block.String    #code string has changed
+                            code = code_block.String    # code string has changed
                         cursor = code_block.createTextCursorByRange(code_block)
                         cursor.CharLocale = self.nolocale
                         cursor.collapseToStart()
@@ -375,7 +376,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     lexer = self.getlexer(code)
                     undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
                     if self.show_line_numbers(code_block):
-                        code = code_block.String    #code string has changed
+                        code = code_block.String    # code string has changed
                     try:
                         code_block.BackColor = -1
                         if bg_color:
@@ -400,7 +401,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         lexer = self.getlexer(code)
                         undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
                         if self.show_line_numbers(code_block):
-                            code = code_block.String    #code string has changed
+                            code = code_block.String    # code string has changed
                         try:
                             code_block.BackColor = -1
                             if bg_color:
@@ -424,7 +425,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                                 lexer = self.getlexer(code)
                                 undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
                                 if self.show_line_numbers(code_block):
-                                    code = code_block.String    #code string has changed
+                                    code = code_block.String    # code string has changed
                                 try:
                                     code_block.BackColor = -1
                                     if bg_color:
@@ -436,14 +437,14 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                                 finally:
                                     undomanager.leaveUndoContext()
 
-            # CURSOR INSIDE DRAW/IMPRESS SHAPE 
+            # CURSOR INSIDE DRAW/IMPRESS SHAPE
             elif selected_item.ImplementationName == "SvxUnoTextCursor":
                 # exit edit mode
                 self.dispatcher.executeDispatch(self.frame, ".uno:SelectObject", "", 0, ())
                 self.prepare_highlight()
                 return
 
-                ### OLD CODE, intended to highlight sub text, but api's too buggy'
+                # ### OLD CODE, intended to highlight sub text, but api's too buggy'
                 # # first exit edit mode, otherwise formatting is not shown (bug?)
                 # self.dispatcher.executeDispatch(self.frame, ".uno:SelectObject", "", 0, ())
                 # cursor = selected_item
@@ -479,7 +480,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         lexer = self.getlexer(code)
                         undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
                         if self.show_line_numbers(code_block):
-                            code = code_block.String    #code string has changed
+                            code = code_block.String    # code string has changed
                         try:
                             code_block.CellBackColor = -1
                             code_block.CharLocale = self.nolocale
@@ -550,7 +551,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             code = c.String
 
         # check for existing line numbering and its width
-        p = re.compile("^\s*[0-9]+[\W]*", re.MULTILINE)
+        p = re.compile(r"^\s*[0-9]+[\W]*", re.MULTILINE)
         try:
             lenno = min(len(f) for f in p.findall(code))
         except ValueError:

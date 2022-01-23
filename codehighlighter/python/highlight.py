@@ -361,11 +361,13 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     code_block = selected_item[0]
                     if code_block.TextFrame:
                         self.prepare_highlight(code_block.TextFrame)
+                        return
                     elif code_block.TextTable:
                         cellname = code_block.Cell.CellName
                         texttablecursor = code_block.TextTable.createCursorByCellName(cellname)
                         self.prepare_highlight(texttablecursor)
-                    return
+                        return
+
 
             # TEXT FRAME
             elif selected_item.ImplementationName == "SwXTextFrame":

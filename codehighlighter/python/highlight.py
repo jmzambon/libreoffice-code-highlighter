@@ -18,21 +18,19 @@
 
 # python standard
 import re
+import logging
 import traceback
 from math import log10
 
 # pygments
 import pygments
 from pygments import styles
-from pygments.lexers import get_all_lexers
-from pygments.lexers import get_lexer_by_name
-from pygments.lexers import guess_lexer
+from pygments.lexers import get_all_lexers, get_lexer_by_name, guess_lexer
 from pygments.styles import get_all_styles
 
 # uno
 import unohelper
-from com.sun.star.awt import Selection
-from com.sun.star.awt import XDialogEventHandler
+from com.sun.star.awt import Selection, XDialogEventHandler
 from com.sun.star.awt.FontSlant import NONE as SL_NONE, ITALIC as SL_ITALIC
 from com.sun.star.awt.FontWeight import NORMAL as W_NORMAL, BOLD as W_BOLD
 from com.sun.star.awt.MessageBoxType import ERRORBOX
@@ -45,6 +43,10 @@ from com.sun.star.task import XJobExecutor
 
 # internal
 import ch2_i18n
+
+
+LOGLEVEL = {0: logging.WARNING, 1: logging.INFO, 2: logging.DEBUG}
+logging.basicConfig(format="%(levelname)s [%(funcName)s::%(lineno)d] %(message)s")
 
 
 class UndoAction(unohelper.Base, XUndoAction):
@@ -114,26 +116,31 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             self.sm = ctx.ServiceManager
             self.desktop = self.create("com.sun.star.frame.Desktop")
             self.doc = self.desktop.getCurrentComponent()
-            self.frame = self.doc.CurrentController.Frame
-            self.dispatcher = self.create("com.sun.star.frame.DispatchHelper")
             self.cfg_access = self.create_cfg_access()
             self.options = self.load_options()
+            loglevel = LOGLEVEL.get(self.options["LogLevel"], 0)
+            logging.getLogger().setLevel(loglevel)
+            logging.debug(f"Code Highlihter started from {self.doc.Title}.")
+            logging.info(f"Loaded options = {self.options}.")
+            self.frame = self.doc.CurrentController.Frame
+            self.dispatcher = self.create("com.sun.star.frame.DispatchHelper")
             self.strings = ch2_i18n.getstrings(ctx)
             self.dialog = self.create_dialog()
             self.nolocale = Locale("zxx", "", "")
         except Exception:
-            traceback.print_exc()
+            logging.exception("")
 
     # XJobExecutor
     def trigger(self, arg):
-        # print(f"trigger arg: {arg}")
+        logging.debug(f"Code Highlighter triggered with argument '{arg}'.")
         try:
             getattr(self, 'do_'+arg)()
         except Exception:
-            traceback.print_exc()
+            logging.exception("")
 
     # XDialogEventHandler
     def callHandlerMethod(self, dialog, event, method):
+        logging.debug(f"Dialog handler action: '{method}'.")
         if method == "topage1":
             dialog.Model.Step = 1
             dialog.getControl('cb_lang').setFocus()
@@ -182,15 +189,19 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
     def create_dialog(self):
         # get_all_lexers() returns:
         # (longname, tuple of aliases, tuple of filename patterns, tuple of mimetypes)
+        logging.debug("Starting options dialog.")
         all_lexers = sorted((lex[0] for lex in get_all_lexers()), key=str.casefold)
         self.all_lexer_aliases = [lex[0].lower() for lex in get_all_lexers()]
         for lex in get_all_lexers():
             self.all_lexer_aliases.extend(list(lex[1]))
+        logging.debug("--> getting lexers ok.")
         self.all_styles = sorted(get_all_styles(), key=lambda x: (x != 'default', x.lower()))
+        logging.debug("--> getting styles ok.")
 
         dialog_provider = self.create("com.sun.star.awt.DialogProvider2")
         dialog = dialog_provider.createDialogWithHandler(
             "vnd.sun.star.extension://javahelps.codehighlighter/dialogs/CodeHighlighter2.xdl", self)
+        logging.debug("--> creating dialog ok.")
 
         # set localized strings
         controlnames = ("label_lang", "label_style", "check_col_bg", "check_linenb", "nb_line", "lbl_nb_start",
@@ -223,6 +234,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         nb_start.Value = self.options['LineNumberStart']
         nb_ratio.Value = self.options['LineNumberRatio']
         nb_sep.Text = self.options['LineNumberSeparator']
+        logging.debug("--> filling controls ok.")
 
         def getextver():
             pip = self.ctx.getByName("/singletons/com.sun.star.deployment.PackageInformationProvider")
@@ -233,6 +245,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             return ''
         dialog.Title = dialog.Title.format(getextver())
         pygments_ver.Text = pygments_ver.Text.format(pygments.__version__)
+        logging.debug("Dialog returned.")
 
         return dialog
 
@@ -246,6 +259,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         # 0: canceled, 1: OK
         # self.dialog.setVisible(True)
         if self.dialog.execute() == 0:
+            logging.debug("Dialog canceled.")
             return False
         lang = self.dialog.getControl('cb_lang').Text.strip() or 'automatic'
         style = self.dialog.getControl('cb_style').Text.strip() or 'default'
@@ -263,6 +277,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             return False
         self.save_options(Style=style, Language=lang, ColorizeBackground=colorize_bg, ShowLineNumbers=show_linenb,
                           LineNumberStart=nb_start, LineNumberRatio=nb_ratio, LineNumberSeparator=nb_sep)
+        logging.debug("Dialog validated and options saved.")
+        logging.info(f"Updated options = {self.options}.")
         return True
 
     def save_options(self, **kwargs):
@@ -297,18 +313,22 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         bg_color = style.background_color if self.options['ColorizeBackground'] else None
 
         self.doc.lockControllers()
+        logging.debug("Controllers locked.")
         undomanager = self.doc.UndoManager
         hascode = False
         try:
             # Get the selected item
             if selected_item is None:
                 selected_item = self.doc.CurrentSelection
+
             if not hasattr(selected_item, 'supportsService'):
                 self.msgbox(self.strings["errsel1"])
+                logging.debug("Invalid selection (1)")
                 return
 
             # TEXT SHAPES
             elif selected_item.ImplementationName == "com.sun.star.drawing.SvxShapeCollection":
+                logging.debug("Dealing with text shapes.")
                 for code_block in selected_item:
                     code = code_block.String
                     if code.strip():
@@ -318,6 +338,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         self.dispatcher.executeDispatch(self.frame, ".uno:SelectObject", "", 0, ())
                         undoaction = UndoAction(self.doc, code_block,
                                                 f"code highlight (lang: {lexer.name}, style: {stylename})")
+                        logging.debug("Custom undo action created.")
                         if self.show_line_numbers(code_block):
                             code = code_block.String    # code string has changed
                         cursor = code_block.createTextCursorByRange(code_block)
@@ -327,6 +348,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         # unlock controllers here to force left pane syncing in draw/impress
                         if self.doc.supportsService("com.sun.star.drawing.GenericDrawingDocument"):
                             self.doc.unlockControllers()
+                            logging.debug("Controllers unlocked.")
                         code_block.FillStyle = FS_NONE
                         if bg_color:
                             code_block.FillStyle = FS_SOLID
@@ -335,9 +357,11 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         self.doc.setModified(True)
                         undoaction.get_new_state()
                         undomanager.addUndoAction(undoaction)
+                        logging.debug("Custom undo action added.")
 
             # PLAIN TEXTS
             elif selected_item.ImplementationName == "SwXTextRanges":
+                logging.debug("Dealing with text ranges.")
                 for code_block in selected_item:
                     code = code_block.String
                     if code.strip():
@@ -368,9 +392,9 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         self.prepare_highlight(texttablecursor)
                         return
 
-
             # TEXT FRAME
             elif selected_item.ImplementationName == "SwXTextFrame":
+                logging.debug("Dealing with a text frame")
                 code_block = selected_item
                 code = code_block.String
                 if code.strip():
@@ -396,6 +420,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 rangename = selected_item.RangeName
                 if ':' not in rangename:
                     # only one cell
+                    logging.debug("Dealing with a single text table cell.")
                     code_block = table.getCellByName(rangename)
                     code = code_block.String
                     if code.strip():
@@ -416,6 +441,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                             undomanager.leaveUndoContext()
                 else:
                     # at least two cells
+                    logging.debug("Dealing with multiple text table cells.")
                     cellrange = table.getCellRangeByName(rangename)
                     nrows, ncols = len(cellrange.Data), len(cellrange.Data[0])
                     for row in range(nrows):
@@ -441,6 +467,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
 
             # CURSOR INSIDE DRAW/IMPRESS SHAPE
             elif selected_item.ImplementationName == "SvxUnoTextCursor":
+                logging.debug("Dealing with text shape in edit mode.")
                 # exit edit mode
                 self.dispatcher.executeDispatch(self.frame, ".uno:SelectObject", "", 0, ())
                 self.prepare_highlight()
@@ -472,6 +499,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
 
             # CALC CELL RANGE
             elif selected_item.ImplementationName in ("ScCellObj", "ScCellRangeObj", "ScCellRangesObj"):
+                logging.debug('Dealing with Calc cells.')
                 # exit edit mode if necessary
                 self.dispatcher.executeDispatch(self.frame, ".uno:Deselect", "", 0, ())
                 cells = selected_item.queryContentCells(CF_STRING).Cells
@@ -495,23 +523,27 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                             undomanager.leaveUndoContext()
 
             else:
+                logging.debug("Invalid selection (2).")
                 self.msgbox(self.strings["errsel1"])
                 return
 
             if not hascode:
+                logging.debug("Current selection contains no text.")
                 self.msgbox(self.strings["errsel2"])
 
         except AttributeError:
             self.msgbox(self.strings["errsel1"])
-            traceback.print_exc()
+            logging.exception("")
         except Exception:
             self.msgbox(traceback.format_exc())
         finally:
             if self.doc.hasControllersLocked():
                 self.doc.unlockControllers()
+                logging.debug("Controllers unlocked.")
 
     def highlight_code(self, code, cursor, lexer, style):
         # caching consecutive tokens with same token type
+        logging.debug(f"Starting code block highlighting (lexer: {lexer}, style: {style}).")
         lastval = ''
         lasttype = None
         for tok_type, tok_value in lexer.get_tokens(code):
@@ -531,12 +563,14 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         cursor.collapseToEnd()  # deselects the selected text
                 lastval = tok_value
                 lasttype = tok_type
+        logging.debug("Terminating code block highlighting.")
 
     def show_line_numbers(self, code_block, isplaintext=False):
         show_linenb = self.options['ShowLineNumbers']
         startnb = self.options["LineNumberStart"]
         ratio = self.options["LineNumberRatio"]
         sep = self.options["LineNumberSeparator"]  # allowed values: ".", ":" or ""
+        logging.debug(f"Starting code block numbering (show: {show_linenb}).")
         sep = sep.replace(r'\t', '\t')
         codecharheight = code_block.End.CharHeight
         nocharheight = round(codecharheight*ratio//50)/2   # round to 0.5
@@ -544,13 +578,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         c = code_block.Text.createTextCursor()
         code = c.Text.String
         if isplaintext:
-            # cursor could not be at start of paragraph with plain text
-            # selection. So let's move it to the full paragraphs.
-            c = code_block.Text.createTextCursorByRange(code_block)
-            c.gotoStartOfParagraph(False)
-            c.gotoRange(code_block.End, True)
-            c.gotoEndOfParagraph(True)
-            code = c.String
+            c, code = self.ensure_paragraphs(code_block)
 
         # check for existing line numbering and its width
         p = re.compile(r"^\s*[0-9]+[\W]*", re.MULTILINE)
@@ -590,9 +618,12 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         elif lenno:
             hide_numbering()
             res = True
+        logging.debug("Terminating code block numbering.")
         return res
 
     def ensure_paragraphs(self, selected_code):
+        # cursor could not be at start of paragraph with plain text
+        # selection. So let's move it to the full paragraphs.
         c = selected_code.Text.createTextCursorByRange(selected_code)
         c.gotoStartOfParagraph(False)
         c.gotoRange(selected_code.End, True)

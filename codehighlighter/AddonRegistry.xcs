@@ -9,6 +9,7 @@
       <prop oor:name="LineNumberStart" oor:type="xs:long"/>
       <prop oor:name="LineNumberRatio" oor:type="xs:short"/>
       <prop oor:name="LineNumberSeparator" oor:type="xs:string"/>
+      <prop oor:name="LogLevel" oor:type="xs:short"/>
     </group>
   </component>
 </oor:component-schema>

@@ -126,7 +126,6 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             self.frame = self.doc.CurrentController.Frame
             self.dispatcher = self.create("com.sun.star.frame.DispatchHelper")
             self.strings = ch2_i18n.getstrings(ctx)
-            self.dialog = self.create_dialog()
             self.nolocale = Locale("zxx", "", "")
         except Exception:
             logging.exception("")
@@ -258,17 +257,18 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
     def choose_options(self):
         # get options choice
         # 0: canceled, 1: OK
-        # self.dialog.setVisible(True)
-        if self.dialog.execute() == 0:
+        # dialog.setVisible(True)
+        dialog = self.create_dialog()
+        if dialog.execute() == 0:
             logging.debug("Dialog canceled.")
             return False
-        lang = self.dialog.getControl('cb_lang').Text.strip() or 'automatic'
-        style = self.dialog.getControl('cb_style').Text.strip() or 'default'
-        colorize_bg = self.dialog.getControl('check_col_bg').State
-        show_linenb = self.dialog.getControl('check_linenb').State
-        nb_start = int(self.dialog.getControl('nb_start').Value)
-        nb_ratio = int(self.dialog.getControl('nb_ratio').Value)
-        nb_sep = self.dialog.getControl('nb_sep').Text
+        lang = dialog.getControl('cb_lang').Text.strip() or 'automatic'
+        style = dialog.getControl('cb_style').Text.strip() or 'default'
+        colorize_bg = dialog.getControl('check_col_bg').State
+        show_linenb = dialog.getControl('check_linenb').State
+        nb_start = int(dialog.getControl('nb_start').Value)
+        nb_ratio = int(dialog.getControl('nb_ratio').Value)
+        nb_sep = dialog.getControl('nb_sep').Text
 
         if lang != 'automatic' and lang.lower() not in self.all_lexer_aliases:
             self.msgbox(self.strings["errlang"])
@@ -313,8 +313,9 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         style = styles.get_style_by_name(stylename)
         bg_color = style.background_color if self.options['ColorizeBackground'] else None
 
-        self.doc.lockControllers()
-        logging.debug("Controllers locked.")
+        if not self.doc.hasControllersLocked():
+            self.doc.lockControllers()
+            logging.debug("Controllers locked.")
         undomanager = self.doc.UndoManager
         hascode = False
         try:

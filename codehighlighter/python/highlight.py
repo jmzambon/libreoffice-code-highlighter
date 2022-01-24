@@ -121,6 +121,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             loglevel = LOGLEVEL.get(self.options["LogLevel"], 0)
             logging.getLogger().setLevel(loglevel)
             logging.debug(f"Code Highlihter started from {self.doc.Title}.")
+            logging.info(f"Using Pygments version {pygments.__version__}.")
             logging.info(f"Loaded options = {self.options}.")
             self.frame = self.doc.CurrentController.Frame
             self.dispatcher = self.create("com.sun.star.frame.DispatchHelper")

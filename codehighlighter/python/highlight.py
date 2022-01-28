@@ -1,7 +1,7 @@
 # Code Highligher 2 is a LibreOffice extension to highlight code snippets
 # over 350 languages.
 
-# Copyright (C) 2017  Gobinath
+# Copyright (C) 2017  Gobinath, 2022 jmzambon
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -50,7 +50,8 @@ logger = logging.getLogger("codehighlighter")
 formatter = logging.Formatter("%(levelname)s [%(funcName)s::%(lineno)d] %(message)s")
 consolehandler = logging.StreamHandler()
 consolehandler.setFormatter(formatter)
-userpath = uno.getComponentContext().ServiceManager.createInstance("com.sun.star.util.PathSubstitution").substituteVariables("$(user)", True)
+userpath = uno.getComponentContext().ServiceManager.createInstance(
+                "com.sun.star.util.PathSubstitution").substituteVariables("$(user)", True)
 logfile = os.path.join(uno.fileUrlToSystemPath(userpath), "codehighlighter.log")
 filehandler = logging.FileHandler(logfile, mode="w", delay=True)
 filehandler.setFormatter(formatter)
@@ -64,7 +65,6 @@ class UndoAction(unohelper.Base, XUndoAction):
     def __init__(self, doc, textbox, title):
         self.doc = doc
         self.textbox = textbox
-        self.Title = title
         self.old_portions = None
         self.old_bg = None
         self.new_portions = None
@@ -72,7 +72,10 @@ class UndoAction(unohelper.Base, XUndoAction):
         self.charprops = ("CharColor", "CharLocale", "CharPosture", "CharHeight", "CharWeight")
         self.bgprops = ("FillColor", "FillStyle")
         self.get_old_state()
+        # XUndoAction attribute
+        self.Title = title
 
+    # XUndoAction
     def undo(self):
         self.textbox.setString(self.old_text)
         self._format(self.old_portions, self.old_bg)
@@ -81,6 +84,7 @@ class UndoAction(unohelper.Base, XUndoAction):
         self.textbox.setString(self.new_text)
         self._format(self.new_portions, self.new_bg)
 
+    # public
     def get_old_state(self):
         self.old_bg = self.textbox.getPropertyValues(self.bgprops)
         self.old_text = self.textbox.String
@@ -91,6 +95,7 @@ class UndoAction(unohelper.Base, XUndoAction):
         self.new_text = self.textbox.String
         self.new_portions = self._extract_portions()
 
+    # private
     def _extract_portions(self):
         textportions = []
         for para in self.textbox:

@@ -75,7 +75,7 @@ class UndoAction(unohelper.Base, XUndoAction):
         # XUndoAction attribute
         self.Title = title
 
-    # XUndoAction
+    # XUndoAction (https://www.openoffice.org/api/docs/common/ref/com/sun/star/document/XUndoAction.html)
     def undo(self):
         self.textbox.setString(self.old_text)
         self._format(self.old_portions, self.old_bg)
@@ -86,11 +86,17 @@ class UndoAction(unohelper.Base, XUndoAction):
 
     # public
     def get_old_state(self):
+        '''Gather text formattings before code changes.
+        Will be used by <undo> to restore old state.'''
+
         self.old_bg = self.textbox.getPropertyValues(self.bgprops)
         self.old_text = self.textbox.String
         self.old_portions = self._extract_portions()
 
     def get_new_state(self):
+        '''Gather text formattings after code changes.
+        Will be used by <redo> to applay new state again.'''
+
         self.new_bg = self.textbox.getPropertyValues(self.bgprops)
         self.new_text = self.textbox.String
         self.new_portions = self._extract_portions()
@@ -142,7 +148,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         except Exception:
             logger.exception("")
 
-    # XJobExecutor
+    # XJobExecutor (https://www.openoffice.org/api/docs/common/ref/com/sun/star/task/XJobExecutor.html)
     def trigger(self, arg):
         logger.debug(f"Code Highlighter triggered with argument '{arg}'.")
         try:
@@ -150,7 +156,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         except Exception:
             logger.exception("")
 
-    # XDialogEventHandler
+    # XDialogEventHandler (http://www.openoffice.org/api/docs/common/ref/com/sun/star/awt/XDialogEventHandler.html)
     def callHandlerMethod(self, dialog, event, method):
         logger.debug(f"Dialog handler action: '{method}'.")
         if method == "topage1":
@@ -168,35 +174,30 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
 
     # main functions
     def do_highlight(self):
+        '''Open option dialog and start code highlighting.'''
         if self.choose_options():
             self.prepare_highlight()
 
     def do_highlight_previous(self):
+        '''Start code highlighting with current options as default.'''
         self.prepare_highlight()
 
     # private functions
     def create(self, service):
+        '''Instanciate UNO services'''
         return self.sm.createInstance(service)
 
     def msgbox(self, message, boxtype=ERRORBOX, title="Error"):
-        frame = self.desktop.ActiveFrame
-        if frame.ActiveFrame:
-            # top window is a subdocument
-            frame = frame.ActiveFrame
-        win = frame.ContainerWindow
+        ''' Simple UNO message box for user notifications.'''
+        win = self.frame.ContainerWindow
         box = win.Toolkit.createMessageBox(win, boxtype, 1, title, message)
         return box.execute()
 
     def to_int(self, hex_str):
+        '''Convert hexadecimal color representation into decimal integer.'''
         if hex_str:
             return int(hex_str[-6:], 16)
         return 0
-
-    def create_cfg_access(self):
-        cfg = self.create('com.sun.star.configuration.ConfigurationProvider')
-        prop = PropertyValue('nodepath', 0, '/ooo.ext.code-highlighter.Registry/Settings', 0)
-        cfg_access = cfg.createInstanceWithArguments('com.sun.star.configuration.ConfigurationUpdateAccess', (prop,))
-        return cfg_access
 
     def setlogger(self):
         loglevel = LOGLEVEL.get(self.options["LogLevel"], 0)
@@ -208,7 +209,25 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             logger.removeHandler(consolehandler)
             logger.addHandler(filehandler)
 
+    def create_cfg_access(self):
+        '''
+        Return an updatable object pointing to the
+        codehighlighter node in LO registry.
+        '''
+
+        cfg = self.create('com.sun.star.configuration.ConfigurationProvider')
+        prop = PropertyValue('nodepath', 0, '/ooo.ext.code-highlighter.Registry/Settings', 0)
+        cfg_access = cfg.createInstanceWithArguments('com.sun.star.configuration.ConfigurationUpdateAccess', (prop,))
+        return cfg_access
+
+    def load_options(self):
+        properties = self.cfg_access.ElementNames
+        values = self.cfg_access.getPropertyValues(properties)
+        return dict(zip(properties, values))
+
     def create_dialog(self):
+        '''Load, populate and return options dialog.'''
+
         # get_all_lexers() returns:
         # (longname, tuple of aliases, tuple of filename patterns, tuple of mimetypes)
         logger.debug("Starting options dialog.")
@@ -271,14 +290,12 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
 
         return dialog
 
-    def load_options(self):
-        properties = self.cfg_access.ElementNames
-        values = self.cfg_access.getPropertyValues(properties)
-        return dict(zip(properties, values))
-
     def choose_options(self):
-        # get options choice
-        # 0: canceled, 1: OK
+        '''
+        Get options choice.
+        Dialog return values: 0 = Canceled, 1 = OK
+        '''
+
         # dialog.setVisible(True)
         dialog = self.create_dialog()
         if dialog.execute() == 0:
@@ -313,7 +330,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         lang = self.options['Language']
         if lang == 'automatic':
             lexer = guess_lexer(code)
-            # print(f'lexer name = {lexer.name}')
+            logger.info(f'Automatic lexer choice : {lexer.name}')
         else:
             try:
                 lexer = get_lexer_by_name(lang)
@@ -331,6 +348,17 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         return lexer
 
     def prepare_highlight(self, selected_item=None):
+        '''
+        Check if selection is valid and contains text.
+        If there is no selection but cursor is inside a text frame or
+        a text table cell, and that this frame or cell contains text,
+        selection is extended to the whole container.
+        If cursor is inside a text shape or a Calc cell, selection is extended
+        to the whole container in any case.
+        If selection contains only part of paragraphs, selection is
+        extended to the entire paragraphs.
+        '''
+
         stylename = self.options['Style']
         style = styles.get_style_by_name(stylename)
         bg_color = style.background_color if self.options['ColorizeBackground'] else None
@@ -635,7 +663,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 res = True
             else:
                 # numbering already exists, but let's replace it anyway,
-                # as new settings can have been defined.
+                # as it may differ from current settings.
                 hide_numbering()
                 show_numbering()
                 res = True
@@ -646,6 +674,10 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         return res
 
     def ensure_paragraphs(self, selected_code):
+        ''' Ensure the selection does not contains part of paragraphs.
+        If so, cursor is extended to the entire paragraphs.
+        '''
+
         # cursor could not be at start of paragraph with plain text
         # selection. So let's move it to the full paragraphs.
         c = selected_code.Text.createTextCursorByRange(selected_code)

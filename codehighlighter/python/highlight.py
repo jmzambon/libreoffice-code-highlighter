@@ -39,6 +39,7 @@ from com.sun.star.drawing.FillStyle import NONE as FS_NONE, SOLID as FS_SOLID
 from com.sun.star.lang import Locale
 from com.sun.star.sheet.CellFlags import STRING as CF_STRING
 from com.sun.star.task import XJobExecutor
+from com.sun.star.uno import RuntimeException
 
 # internal
 import ch2_i18n
@@ -46,17 +47,20 @@ import ch2_i18n
 # prepare logger
 import os.path
 import logging
+LOGLEVEL = {0: logging.WARNING, 1: logging.INFO, 2: logging.DEBUG}
 logger = logging.getLogger("codehighlighter")
 formatter = logging.Formatter("%(levelname)s [%(funcName)s::%(lineno)d] %(message)s")
 consolehandler = logging.StreamHandler()
 consolehandler.setFormatter(formatter)
-userpath = uno.getComponentContext().ServiceManager.createInstance(
-                "com.sun.star.util.PathSubstitution").substituteVariables("$(user)", True)
-logfile = os.path.join(uno.fileUrlToSystemPath(userpath), "codehighlighter.log")
-filehandler = logging.FileHandler(logfile, mode="w", delay=True)
-filehandler.setFormatter(formatter)
-LOGLEVEL = {0: logging.WARNING, 1: logging.INFO, 2: logging.DEBUG}
-
+try:
+    userpath = uno.getComponentContext().ServiceManager.createInstance(
+                    "com.sun.star.util.PathSubstitution").substituteVariables("$(user)", True)
+    logfile = os.path.join(uno.fileUrlToSystemPath(userpath), "codehighlighter.log")
+    filehandler = logging.FileHandler(logfile, mode="w", delay=True)
+    filehandler.setFormatter(formatter)
+except RuntimeException:
+    # At extension installation, there is no context available, just ignore it. 
+    pass
 
 class UndoAction(unohelper.Base, XUndoAction):
     ''' Add undo/redo action for highlighting not catched by the system,

@@ -4,7 +4,7 @@
     <group oor:name="Settings">
       <prop oor:name="Language" oor:type="xs:string"/>
       <prop oor:name="Style" oor:type="xs:string"/>
-      <prop oor:name="ColorizeBackground" oor:type="xs:short"/>
+      <prop oor:name="ColorizeBackground" oor:type="xs:string"/>
       <prop oor:name="ShowLineNumbers" oor:type="xs:short"/>
       <prop oor:name="LineNumberStart" oor:type="xs:long"/>
       <prop oor:name="LineNumberRatio" oor:type="xs:short"/>

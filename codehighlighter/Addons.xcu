@@ -30,19 +30,21 @@
                     <prop oor:name="MergeFallback">
                         <value>AddPath</value>
                     </prop>
+                    <prop oor:name="MergeContext">
+                        <value>
+                            com.sun.star.text.TextDocument,com.sun.star.sdb.TextReportDesign,com.sun.star.text.WebDocument,
+                            com.sun.star.xforms.XMLFormDocument,com.sun.star.text.GlobalDocument,com.sun.star.sdb.FormDesign,
+                            com.sun.star.sheet.SpreadsheetDocument,com.sun.star.drawing.DrawingDocument,
+                            com.sun.star.presentation.PresentationDocument,com.sun.star.sdb.OfficeDatabaseDocument
+                        </value>
+                    </prop>
                     <node oor:name="MenuItems">
                         <node oor:name="sep" oor:op="replace">
-                            <prop oor:name="Context" oor:type="xs:string">
-                                <value>com.sun.star.text.TextDocument,com.sun.star.sdb.TextReportDesign,com.sun.star.text.WebDocument,com.sun.star.xforms.XMLFormDocument,com.sun.star.text.GlobalDocument,com.sun.star.sdb.FormDesign,com.sun.star.sheet.SpreadsheetDocument,com.sun.star.drawing.DrawingDocument,com.sun.star.presentation.PresentationDocument,com.sun.star.sdb.OfficeDatabaseDocument</value>
-                            </prop>
                             <prop oor:name="URL" oor:type="xs:string">
                                 <value>private:separator</value>
                             </prop>
                         </node>
                         <node oor:name="hl_dialog" oor:op="replace">
-                            <prop oor:name="Context" oor:type="xs:string">
-                                <value>com.sun.star.text.TextDocument,com.sun.star.sdb.TextReportDesign,com.sun.star.text.WebDocument,com.sun.star.xforms.XMLFormDocument,com.sun.star.text.GlobalDocument,com.sun.star.sdb.FormDesign,com.sun.star.sheet.SpreadsheetDocument,com.sun.star.drawing.DrawingDocument,com.sun.star.presentation.PresentationDocument,com.sun.star.sdb.OfficeDatabaseDocument</value>
-                            </prop>
                             <prop oor:name="Title" oor:type="xs:string">
                                 <value xml:lang="en">Highlight Code</value>
                                 <value xml:lang="fr">Colorer le code</value>
@@ -55,9 +57,6 @@
                             </prop>
                         </node>
                         <node oor:name="hl_previous_settings" oor:op="replace">
-                            <prop oor:name="Context" oor:type="xs:string">
-                                <value>com.sun.star.text.TextDocument,com.sun.star.sdb.TextReportDesign,com.sun.star.text.WebDocument,com.sun.star.xforms.XMLFormDocument,com.sun.star.text.GlobalDocument,com.sun.star.sdb.FormDesign,com.sun.star.sheet.SpreadsheetDocument,com.sun.star.drawing.DrawingDocument,com.sun.star.presentation.PresentationDocument,com.sun.star.sdb.OfficeDatabaseDocument</value>
-                            </prop>
                             <prop oor:name="Title" oor:type="xs:string">
                                 <value xml:lang="en">Highlight Code (previous settings)</value>
                                 <value xml:lang="fr">Colorer le code (choix précédents)</value>

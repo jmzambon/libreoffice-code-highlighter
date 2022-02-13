@@ -40,7 +40,16 @@ If you have downloaded the `codehighlighter2.oxt.zip` file from GitHub releases,
 - Not all language aliases that are valide names for Code Highlighter 2 appear in the option dialog: if you don't find a language, try anyway to type its name in the combobox (try for example with "R" or with "Pascal").  
 - Click the "More..." button to access line numbers options.
 
-#### Screenshots
+#### General behaviour
+Highlighting is applied to the selected object, that can be plain text, text frame, text shape, text table cell or calc cell.
+
+When cursor is inside a text shape or a Calc cell, highlighting is applied to the whole shape or cell even if only a part of the text is selected.
+
+When cursor is inside a text frame or a text table cell, highlighting is only applied to the selected text if any, otherwise to the whole frame or cell.
+
+When highlighting applies to the selected text, it formats the entire paragraphs, even if selection starts after the paragraph start or ends before paragraph end.
+
+## Screenshots
 *Menu items (Writer)*
 
 ![Menu](screenshots/code-highlighter-menu.png?raw=true "Menu")

@@ -7,7 +7,7 @@
     <prop oor:name="Style" oor:type="xs:string">
       <value>default</value>
     </prop>
-    <prop oor:name="ColorizeBackground" oor:type="xs:short">
+    <prop oor:name="ColourizeBackground" oor:type="xs:short">
       <value>1</value>
     </prop>
     <prop oor:name="ShowLineNumbers" oor:type="xs:short">

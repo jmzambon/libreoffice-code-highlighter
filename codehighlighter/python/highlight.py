@@ -274,7 +274,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             cb_style.Text = style
         cb_style.addItems(self.all_styles, 0)
 
-        check_col_bg.State = self.options['ColorizeBackground']
+        check_col_bg.State = self.options['ColourizeBackground']
         check_linenb.State = self.options['ShowLineNumbers']
         nb_start.Value = self.options['LineNumberStart']
         nb_ratio.Value = self.options['LineNumberRatio']
@@ -319,7 +319,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         if style not in self.all_styles:
             self.msgbox(self.strings["errstyle"])
             return False
-        self.save_options(Style=style, Language=lang, ColorizeBackground=colorize_bg, ShowLineNumbers=show_linenb,
+        self.save_options(Style=style, Language=lang, ColourizeBackground=colorize_bg, ShowLineNumbers=show_linenb,
                           LineNumberStart=nb_start, LineNumberRatio=nb_ratio, LineNumberSeparator=nb_sep)
         logger.debug("Dialog validated and options saved.")
         logger.info(f"Updated options = {self.options}.")
@@ -365,7 +365,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
 
         stylename = self.options['Style']
         style = styles.get_style_by_name(stylename)
-        bg_color = style.background_color if self.options['ColorizeBackground'] else None
+        bg_color = style.background_color if self.options['ColourizeBackground'] else None
 
         if not self.doc.hasControllersLocked():
             self.doc.lockControllers()

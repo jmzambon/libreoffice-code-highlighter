@@ -59,12 +59,15 @@ try:
     filehandler = logging.FileHandler(logfile, mode="w", delay=True)
     filehandler.setFormatter(formatter)
 except RuntimeException:
-    # At extension installation, there is no context available, just ignore it. 
+    # At installation time, no context is available -> just ignore it.
     pass
 
+
 class UndoAction(unohelper.Base, XUndoAction):
-    ''' Add undo/redo action for highlighting not catched by the system,
-        i.e. when applied on textbox objects.'''
+    '''
+    Add undo/redo action for highlighting operations not catched by the system,
+    i.e. when applied on textbox objects.
+    '''
 
     def __init__(self, doc, textbox, title):
         self.doc = doc
@@ -90,16 +93,20 @@ class UndoAction(unohelper.Base, XUndoAction):
 
     # public
     def get_old_state(self):
-        '''Gather text formattings before code changes.
-        Will be used by <undo> to restore old state.'''
+        '''
+        Gather text formattings before code highlighting.
+        Will be used by <undo> to restore old state.
+        '''
 
         self.old_bg = self.textbox.getPropertyValues(self.bgprops)
         self.old_text = self.textbox.String
         self.old_portions = self._extract_portions()
 
     def get_new_state(self):
-        '''Gather text formattings after code changes.
-        Will be used by <redo> to applay new state again.'''
+        '''
+        Gather text formattings after code highlighting.
+        Will be used by <redo> to apply new state again.
+        '''
 
         self.new_bg = self.textbox.getPropertyValues(self.bgprops)
         self.new_text = self.textbox.String
@@ -179,26 +186,31 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
     # main functions
     def do_highlight(self):
         '''Open option dialog and start code highlighting.'''
+
         if self.choose_options():
             self.prepare_highlight()
 
     def do_highlight_previous(self):
         '''Start code highlighting with current options as default.'''
+
         self.prepare_highlight()
 
     # private functions
     def create(self, service):
         '''Instanciate UNO services'''
+
         return self.sm.createInstance(service)
 
     def msgbox(self, message, boxtype=ERRORBOX, title="Error"):
-        ''' Simple UNO message box for user notifications.'''
+        '''Simple UNO message box for notifications at user.'''
+
         win = self.frame.ContainerWindow
         box = win.Toolkit.createMessageBox(win, boxtype, 1, title, message)
         return box.execute()
 
     def to_int(self, hex_str):
         '''Convert hexadecimal color representation into decimal integer.'''
+
         if hex_str:
             return int(hex_str[-6:], 16)
         return 0
@@ -214,10 +226,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             logger.addHandler(filehandler)
 
     def create_cfg_access(self):
-        '''
-        Return an updatable object pointing to the
-        codehighlighter node in LO registry.
-        '''
+        '''Return an updatable instance of the codehighlighter node in LO registry. '''
 
         cfg = self.create('com.sun.star.configuration.ConfigurationProvider')
         prop = PropertyValue('nodepath', 0, '/ooo.ext.code-highlighter.Registry/Settings', 0)
@@ -232,8 +241,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
     def create_dialog(self):
         '''Load, populate and return options dialog.'''
 
-        # get_all_lexers() returns:
-        # (longname, tuple of aliases, tuple of filename patterns, tuple of mimetypes)
+        # get_all_lexers() returns: (longname, tuple of aliases, tuple of filename patterns, tuple of mimetypes)
         logger.debug("Starting options dialog.")
         all_lexers = sorted((lex[0] for lex in get_all_lexers()), key=str.casefold)
         self.all_lexer_aliases = [lex[0].lower() for lex in get_all_lexers()]
@@ -625,7 +633,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         show_linenb = self.options['ShowLineNumbers']
         startnb = self.options["LineNumberStart"]
         ratio = self.options["LineNumberRatio"]
-        sep = self.options["LineNumberSeparator"]  # allowed values: ".", ":" or ""
+        sep = self.options["LineNumberSeparator"]
         logger.debug(f"Starting code block numbering (show: {show_linenb}).")
         sep = sep.replace(r'\t', '\t')
         codecharheight = code_block.End.CharHeight
@@ -667,7 +675,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 res = True
             else:
                 # numbering already exists, but let's replace it anyway,
-                # as it may differ from current settings.
+                # as its format may differ from current settings.
                 hide_numbering()
                 show_numbering()
                 res = True
@@ -678,12 +686,10 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         return res
 
     def ensure_paragraphs(self, selected_code):
-        ''' Ensure the selection does not contains part of paragraphs.
-        If so, cursor is extended to the entire paragraphs.
-        '''
+        '''Ensure the selection does not contains part of paragraphs.'''
 
-        # cursor could not be at start of paragraph with plain text
-        # selection. So let's move it to the full paragraphs.
+        # Cursor could start or end in the middle of a code line, when plain text selected.
+        # So let's expand it to the entire paragraphs.
         c = selected_code.Text.createTextCursorByRange(selected_code)
         c.gotoStartOfParagraph(False)
         c.gotoRange(selected_code.End, True)
@@ -697,7 +703,7 @@ g_ImplementationHelper.addImplementation(CodeHighlighter, "ooo.ext.code-highligh
 
 
 # exposed functions for development stages only
-# uncomment corresponding entry in manifest.xml to add them as framework scripts
+# uncomment corresponding entry in ../META_INF/manifest.xml to add them as framework scripts
 def highlight(event=None):
     ctx = XSCRIPTCONTEXT.getComponentContext()
     highlighter = CodeHighlighter(ctx)

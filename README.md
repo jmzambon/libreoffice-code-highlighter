@@ -41,6 +41,7 @@ If you have downloaded the `codehighlighter2.oxt.zip` file from GitHub releases,
 - Multiselection is supported: you can select several code snippets at the same time, even from different languages (choose "automatic" in this last case).
 - Not all language aliases that are valide names for Code Highlighter 2 appear in the option dialog: if you don't find a language, try anyway to type its name in the combobox (try for example with "R" or with "Pascal").  
 - Click the "More..." button to access line numbers options.
+- Uncheck line numbering option to remove unwanted line numbers, due for example to copy-pasted code. 
 
 #### General behaviour
 - Highlighting is applied to the selected object, that can be plain text, text frame, text shape, text table cell or calc cell.

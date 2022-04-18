@@ -6,7 +6,9 @@
     <version value="2.2.3" />
 
     <update-download>
-        <src xlink:href="https://github.com/jmzambon/libreoffice-code-highlighter/releases/download/v2.2.3/codehighlighter2.oxt" />
+        <!-- direct access to release binary seems broken
+        <src xlink:href="https://github.com/jmzambon/libreoffice-code-highlighter/releases/download/v2.2.3/codehighlighter2.oxt" /> -->
+        <src xlink:href="https://github.com/jmzambon/libreoffice-code-highlighter/raw/prov2.2.3/codehighlighter2.oxt" />
     </update-download>
 
     <release-notes>

@@ -32,7 +32,7 @@ If you have downloaded the `codehighlighter2.oxt.zip` file from GitHub releases,
   - **Calc**: either in  cell or in a text box
   - **Impress** and **Draw**: in a text box
 - Select the objetc or the text containing the code snippet.
-- *Tools -> Highlight Code*
+- *Format -> Highlight Code*
   - in the dialog: select the language, the style and side parameters if needed
 - Alternatively *Tools -> Highlight Code (previous settings)*
   - does not open a dialog, but applies previous settings (persistent also between restarts of LO)

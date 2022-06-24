@@ -45,6 +45,7 @@ If you have downloaded the `codehighlighter2.oxt.zip` file from GitHub releases,
 
 #### General behaviour
 - Highlighting is applied to the selected object, that can be plain text, text frame, text shape, text table cell or calc cell.
+- Colors are hard-formatted for each token, parsed according to the choosen Pygments lexer (aka Language).
 - When cursor is inside a text shape or a Calc cell, highlighting is applied to the whole shape or cell even if only a part of the text is selected.
 - When cursor is inside a text frame or a text table cell, highlighting is only applied to the selected text if any, otherwise to the whole frame or cell.
 - When highlighting applies to the selected text, it formats the entire paragraphs, even if selection starts after the paragraph start or ends before paragraph end.

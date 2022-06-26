@@ -34,6 +34,7 @@ from com.sun.star.awt.FontSlant import NONE as SL_NONE, ITALIC as SL_ITALIC
 from com.sun.star.awt.FontWeight import NORMAL as W_NORMAL, BOLD as W_BOLD
 from com.sun.star.awt.MessageBoxType import ERRORBOX
 from com.sun.star.beans import PropertyValue
+from com.sun.star.container import ElementExistException
 from com.sun.star.document import XUndoAction
 from com.sun.star.drawing.FillStyle import NONE as FS_NONE, SOLID as FS_SOLID
 from com.sun.star.lang import Locale
@@ -257,8 +258,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         logger.debug("--> creating dialog ok.")
 
         # set localized strings
-        controlnames = ("label_lang", "label_style", "check_col_bg", "check_linenb", "nb_line", "lbl_nb_start",
-                        "lbl_nb_ratio", "lbl_nb_sep", "pygments_ver", "topage1", "topage2")
+        controlnames = ("label_lang", "label_style", "check_col_bg", "check_charstyles", "check_linenb", "nb_line",
+                        "lbl_nb_start", "lbl_nb_ratio", "lbl_nb_sep", "pygments_ver", "topage1", "topage2")
         for controlname in controlnames:
             dialog.getControl(controlname).Model.setPropertyValues(("Label", "HelpText"), self.strings[controlname])
         # dialog.getControl("nb_sep").Model.HelpText = self.strings["nb_sep"][1]
@@ -266,6 +267,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         cb_lang = dialog.getControl('cb_lang')
         cb_style = dialog.getControl('cb_style')
         check_col_bg = dialog.getControl('check_col_bg')
+        check_charstyles = dialog.getControl('check_charstyles')
         check_linenb = dialog.getControl('check_linenb')
         nb_start = dialog.getControl('nb_start')
         nb_ratio = dialog.getControl('nb_ratio')
@@ -283,6 +285,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         cb_style.addItems(self.all_styles, 0)
 
         check_col_bg.State = self.options['ColourizeBackground']
+        check_charstyles.State = self.options['UseCharStyles']
         check_linenb.State = self.options['ShowLineNumbers']
         nb_start.Value = self.options['LineNumberStart']
         nb_ratio.Value = self.options['LineNumberRatio']
@@ -316,6 +319,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         lang = dialog.getControl('cb_lang').Text.strip() or 'automatic'
         style = dialog.getControl('cb_style').Text.strip() or 'default'
         colorize_bg = dialog.getControl('check_col_bg').State
+        use_charstyles = dialog.getControl('check_charstyles').State
         show_linenb = dialog.getControl('check_linenb').State
         nb_start = int(dialog.getControl('nb_start').Value)
         nb_ratio = int(dialog.getControl('nb_ratio').Value)
@@ -328,7 +332,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             self.msgbox(self.strings["errstyle"])
             return False
         self.save_options(Style=style, Language=lang, ColourizeBackground=colorize_bg, ShowLineNumbers=show_linenb,
-                          LineNumberStart=nb_start, LineNumberRatio=nb_ratio, LineNumberSeparator=nb_sep)
+                          LineNumberStart=nb_start, LineNumberRatio=nb_ratio, LineNumberSeparator=nb_sep,
+                          UseCharStyles=use_charstyles)
         logger.debug("Dialog validated and options saved.")
         logger.info(f"Updated options = {self.options}.")
         return True
@@ -358,6 +363,45 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         # prevent offset color if selection start with empty line
         lexer.stripnl = False
         return lexer
+
+    def createdoccharstyles(self, style):
+        stylefamilies = self.doc.StyleFamilies
+        charstyles = stylefamilies.CharacterStyles
+        test = []
+        for ttype in sorted(style.styles.keys()):
+            newcharstyle = self.doc.createInstance("com.sun.star.style.CharacterStyle")
+            ttypename = str(ttype).replace('Token', 'ch2_' + style.__name__)
+            if '.' in ttypename:
+                parent = ttypename.rsplit('.', 1)[0]
+                if parent not in charstyles:
+                    newcs = self.doc.createInstance("com.sun.star.style.CharacterStyle")
+                    newcs.ParentStyle = parent.rsplit('.', 1)[0]
+                    charstyles.insertByName(parent, newcs)
+                newcharstyle.ParentStyle = parent
+            for d in style.styles.get(ttype, '').split():
+                if d == "noinherit":
+                    break
+                elif d == 'italic':
+                    newcharstyle.CharPosture = SL_ITALIC
+                elif d == 'noitalic':
+                    newcharstyle.CharPosture = SL_NONE
+                elif d == 'bold':
+                    newcharstyle.CharWeight = W_BOLD
+                elif d == 'nobold':
+                    newcharstyle.CharWeight = W_NORMAL
+                elif d in ('underline', 'nounderline', 'roman', 'sans', 'mono'):
+                    pass
+                elif d.startswith('bg:'):
+                    pass
+                elif d.startswith('border:'):
+                    pass
+                else:
+                    # Pygments makes the hard job here
+                    newcharstyle.CharColor = self.to_int(style._styles[ttype][0])
+            try:
+                charstyles.insertByName(ttypename, newcharstyle)
+            except ElementExistException:
+                pass
 
     def prepare_highlight(self, selected_item=None):
         '''
@@ -390,8 +434,15 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 logger.debug("Invalid selection (1)")
                 return
 
+            if self.options["UseCharStyles"]:
+                if (selected_item.ImplementationName != "com.sun.star.drawing.SvxShapeCollection"
+                    and 'CharacterStyles' in self.doc.StyleFamilies):
+                    self.createdoccharstyles(style)
+                else:
+                    self.options["UseCharStyles"] = False
+
             # TEXT SHAPES
-            elif selected_item.ImplementationName == "com.sun.star.drawing.SvxShapeCollection":
+            if selected_item.ImplementationName == "com.sun.star.drawing.SvxShapeCollection":
                 logger.debug("Dealing with text shapes.")
                 for code_block in selected_item:
                     code = code_block.String
@@ -617,10 +668,13 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 if lastval:
                     cursor.goRight(len(lastval), True)  # selects the token's text
                     try:
-                        tok_style = style.style_for_token(lasttype)
-                        cursor.CharColor = self.to_int(tok_style['color'])
-                        cursor.CharWeight = W_BOLD if tok_style['bold'] else W_NORMAL
-                        cursor.CharPosture = SL_ITALIC if tok_style['italic'] else SL_NONE
+                        if self.options["UseCharStyles"]:
+                            cursor.CharStyleName = str(lasttype).replace('Token', 'ch2_' + style.__name__)
+                        else:
+                            tok_style = style.style_for_token(lasttype)
+                            cursor.CharColor = self.to_int(tok_style['color'])
+                            cursor.CharWeight = W_BOLD if tok_style['bold'] else W_NORMAL
+                            cursor.CharPosture = SL_ITALIC if tok_style['italic'] else SL_NONE
                     except Exception:
                         pass
                     finally:

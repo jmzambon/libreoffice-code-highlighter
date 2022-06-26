@@ -1,8 +1,9 @@
 CH2_STRINGS = {"en": {    # dialog controls (label text + help text)
                       "label_lang": ("Language", ""),
                       "label_style": ("Style", ""),
+                      "check_charstyles": ("Use character styles in Writer", "When possible, code highlighting is based on character styles."),
                       "check_col_bg": ("Set background color", "Use the background color provided by the style."),
-                      "check_linenb": ("Line numbering", "Active or deactivate line numbers."),
+                      "check_linenb": ("Add line numbering", "Active or deactivate line numbers."),
                       "nb_line": ("Line numbering", ""),
                       "lbl_nb_start": ("Start at", ""),
                       "lbl_nb_ratio": ("Height (%)", ""),
@@ -21,8 +22,9 @@ CH2_STRINGS = {"en": {    # dialog controls (label text + help text)
                "fr": {    # contrôles de dilaogue (texte + texte d'aide)
                       "label_lang": ("Langage", ""),
                       "label_style": ("Style", ""),
+                      "check_charstyles": ("Utiliser les styles de caractère dans Writer", "Si possible, le code ser colorisé sur base des styles de caractère."),
                       "check_col_bg": ("Utiliser la couleur de fond", "Utiliser l'arrière-plan fourni par le style."),
-                      "check_linenb": ("Numérotation des lignes", "Affiche ou masque les numéros de ligne."),
+                      "check_linenb": ("Numéroter les lignes", "Affiche ou masque les numéros de ligne."),
                       "nb_line": ("Numéros de ligne", ""),
                       "lbl_nb_start": ("Démarrer à", ""),
                       "lbl_nb_ratio": ("Taille (%)", ""),

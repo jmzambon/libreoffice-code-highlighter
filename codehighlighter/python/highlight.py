@@ -369,10 +369,13 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
     def createdoccharstyles(self, style):
         stylefamilies = self.doc.StyleFamilies
         charstyles = stylefamilies.CharacterStyles
-        test = []
         for ttype in sorted(style.styles.keys()):
             newcharstyle = self.doc.createInstance("com.sun.star.style.CharacterStyle")
             ttypename = str(ttype).replace('Token', 'ch2_' + style.__name__)
+            try:
+                charstyles.insertByName(ttypename, newcharstyle)
+            except ElementExistException:
+                pass
             if '.' in ttypename:
                 parent = ttypename.rsplit('.', 1)[0]
                 if parent not in charstyles:
@@ -400,10 +403,13 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 else:
                     # Pygments makes the hard job here
                     newcharstyle.CharColor = self.to_int(style._styles[ttype][0])
-            try:
-                charstyles.insertByName(ttypename, newcharstyle)
-            except ElementExistException:
-                pass
+
+    def cleancharstyles(self):
+        stylefamilies = self.doc.StyleFamilies
+        charstyles = stylefamilies.CharacterStyles
+        for cs in charstyles.ElementNames:
+            if cs.startswith('ch2_') and not charstyles.getByName(cs).isInUse():
+                charstyles.removeByName(cs)
 
     def prepare_highlight(self, selected_item=None):
         '''
@@ -648,12 +654,14 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 logger.debug("Current selection contains no text.")
                 self.msgbox(self.strings["errsel2"])
 
+
         except AttributeError:
             self.msgbox(self.strings["errsel1"])
             logger.exception("")
         except Exception:
             self.msgbox(traceback.format_exc())
         finally:
+            self.cleancharstyles()
             if self.doc.hasControllersLocked():
                 self.doc.unlockControllers()
                 logger.debug("Controllers unlocked.")

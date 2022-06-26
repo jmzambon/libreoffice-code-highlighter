@@ -147,6 +147,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             self.sm = ctx.ServiceManager
             self.desktop = self.create("com.sun.star.frame.Desktop")
             self.doc = self.desktop.getCurrentComponent()
+            self.charstylesavailable = 'CharacterStyles' in self.doc.StyleFamilies
             self.cfg_access = self.create_cfg_access()
             self.options = self.load_options()
             self.setlogger()
@@ -267,8 +268,9 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         cb_lang = dialog.getControl('cb_lang')
         cb_style = dialog.getControl('cb_style')
         check_col_bg = dialog.getControl('check_col_bg')
-        check_charstyles = dialog.getControl('check_charstyles')
         check_linenb = dialog.getControl('check_linenb')
+        check_charstyles = dialog.getControl('check_charstyles')
+        check_charstyles.setEnable(self.charstylesavailable)
         nb_start = dialog.getControl('nb_start')
         nb_ratio = dialog.getControl('nb_ratio')
         nb_sep = dialog.getControl('nb_sep')
@@ -435,8 +437,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 return
 
             if self.options["UseCharStyles"]:
-                if (selected_item.ImplementationName != "com.sun.star.drawing.SvxShapeCollection"
-                    and 'CharacterStyles' in self.doc.StyleFamilies):
+                if (self.charstylesavailable and
+                    selected_item.ImplementationName != "com.sun.star.drawing.SvxShapeCollection"):
                     self.createdoccharstyles(style)
                 else:
                     self.options["UseCharStyles"] = False

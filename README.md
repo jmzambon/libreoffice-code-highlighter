@@ -17,7 +17,7 @@ Install libreoffice-script-provider-python
 sudo apt-get install libreoffice-script-provider-python
 ```
 The above command is for Ubuntu and its derivatives. Other Linux users, may not need this package.
-If you encounter any problems after installing the extension, please check whether you have this or similar pacakge.
+If you encounter any problems after installing the extension, please check whether you have this or similar package.
 
 ### Install Extension
 Open LibreOffice, go to `Tools` -> `Extension Manager...` and add the extension `codehighlighter2.oxt`
@@ -31,7 +31,7 @@ If you have downloaded the `codehighlighter2.oxt.zip` file from GitHub releases,
   - **Writer**: either in a text frame (preferred option), in a text box, in a table cell or even as plain text
   - **Calc**: either in  cell or in a text box
   - **Impress** and **Draw**: in a text box
-- Select the objetc or the text containing the code snippet.
+- Select the object or the text containing the code snippet.
 - *Format -> Highlight Code*
   - in the dialog: select the language, the style and side parameters if needed
 - Alternatively *Tools -> Highlight Code (previous settings)*
@@ -39,7 +39,7 @@ If you have downloaded the `codehighlighter2.oxt.zip` file from GitHub releases,
 
 #### Tips
 - Multiselection is supported: you can select several code snippets at the same time, even from different languages (choose "automatic" in this last case).
-- Not all language aliases that are valide names for Code Highlighter 2 appear in the option dialog: if you don't find a language, try anyway to type its name in the combobox (try for example with "R" or with "Pascal").  
+- Not all language aliases that are valid names for Code Highlighter 2 appear in the option dialog: if you don't find a language, try anyway to type its name in the combobox (try for example with "R" or with "Pascal").  
 - Click the "More..." button to access line numbers options.
 - Uncheck line numbering option to remove unwanted line numbers, due for example to copy-pasted code. 
 

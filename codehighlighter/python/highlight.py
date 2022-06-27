@@ -442,12 +442,10 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 logger.debug("Invalid selection (1)")
                 return
 
-            if self.options["UseCharStyles"]:
-                if (self.charstylesavailable and
-                    selected_item.ImplementationName != "com.sun.star.drawing.SvxShapeCollection"):
-                    self.createdoccharstyles(style)
-                else:
-                    self.options["UseCharStyles"] = False
+            # cancel the use of character styles if context is not relevant
+            if (not self.charstylesavailable or
+                selected_item.ImplementationName == "com.sun.star.drawing.SvxShapeCollection"):
+                self.options["UseCharStyles"] = False
 
             # TEXT SHAPES
             if selected_item.ImplementationName == "com.sun.star.drawing.SvxShapeCollection":
@@ -654,19 +652,21 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 logger.debug("Current selection contains no text.")
                 self.msgbox(self.strings["errsel2"])
 
-
         except AttributeError:
             self.msgbox(self.strings["errsel1"])
             logger.exception("")
         except Exception:
             self.msgbox(traceback.format_exc())
         finally:
-            self.cleancharstyles()
             if self.doc.hasControllersLocked():
                 self.doc.unlockControllers()
                 logger.debug("Controllers unlocked.")
 
     def highlight_code(self, code, cursor, lexer, style):
+        # create character styles if requested
+        # (this happens here to stay synched with undo context)
+        if self.options["UseCharStyles"]:
+            self.createdoccharstyles(style)
         # caching consecutive tokens with same token type
         logger.debug(f"Starting code block highlighting (lexer: {lexer}, style: {style}).")
         lastval = ''
@@ -691,6 +691,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         cursor.collapseToEnd()  # deselects the selected text
                 lastval = tok_value
                 lasttype = tok_type
+        self.cleancharstyles()
         logger.debug("Terminating code block highlighting.")
 
     def show_line_numbers(self, code_block, isplaintext=False):

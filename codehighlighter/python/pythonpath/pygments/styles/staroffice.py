@@ -2,7 +2,7 @@ from pygments.style import Style
 from pygments.token import Keyword, Name, Comment, String, Error, \
      Number, Operator, Generic
 
-class StarOfficeStyle(Style):
+class StarofficeStyle(Style):
     default_style = ""
     styles = {
         Comment:                '#808080',   # Gray

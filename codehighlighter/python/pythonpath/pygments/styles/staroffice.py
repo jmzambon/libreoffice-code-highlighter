@@ -6,10 +6,10 @@ class StarofficeStyle(Style):
     default_style = ""
     styles = {
         Comment:                '#808080',   # Gray
-        Keyword:                '#0000FF',   # Blue
+        Error:                  '#800000',   # Red
+        Keyword:                '#000080',   # Blue
         Name:                   '#008000',   # Green
-        Name.Function:          '#008000',   # Green
-        Name.Class:             '#008000',   # Green
-        Number:                 '#FF0000',   # Red
-        String:                 '#FF0000'    # Red
+        Number:                 '#FF0000',   # Lightred
+        Operator:               '#000080',   # Blue
+        String:                 '#FF0000',   # Lightred
     }

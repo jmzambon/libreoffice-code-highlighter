@@ -382,8 +382,6 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 if parent not in charstyles:
                     addstyle(ttype.parent)
                 newcharstyle.ParentStyle = parent
-            if ttypename == CHARSTYLEID + style.__name__:
-                newcharstyle.CharColor = self.to_int(style.default_style)
             for d in style.styles.get(ttype, '').split():
                 if d == "noinherit":
                     break
@@ -405,12 +403,6 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     # let's Pygments make the hard job here
                     tok_style = style.style_for_token(ttype)
                     newcharstyle.CharColor = self.to_int(tok_style["color"])
-                    # print(f"{ttypename} {newcharstyle.CharColor}")
-                    # print(f"{style._styles[ttype][0]}")
-
-        stylefamilies = self.doc.StyleFamilies
-        charstyles = stylefamilies.CharacterStyles
-        print("---")
         for ttype in sorted(style.styles.keys()):
             addstyle(ttype)
 

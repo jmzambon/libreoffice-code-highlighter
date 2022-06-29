@@ -64,6 +64,9 @@ except RuntimeException:
     pass
 
 
+CHARSTYLEID = "ch2_"
+
+
 class UndoAction(unohelper.Base, XUndoAction):
     '''
     Add undo/redo action for highlighting operations not catched by the system,
@@ -367,22 +370,20 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         return lexer
 
     def createdoccharstyles(self, style):
-        stylefamilies = self.doc.StyleFamilies
-        charstyles = stylefamilies.CharacterStyles
-        for ttype in sorted(style.styles.keys()):
+        def addstyle(ttype):
             newcharstyle = self.doc.createInstance("com.sun.star.style.CharacterStyle")
-            ttypename = str(ttype).replace('Token', 'ch2_' + style.__name__)
+            ttypename = str(ttype).replace('Token', CHARSTYLEID + style.__name__)
             try:
                 charstyles.insertByName(ttypename, newcharstyle)
             except ElementExistException:
-                pass
-            if '.' in ttypename:
+                return
+            if ttype.parent is not None:
                 parent = ttypename.rsplit('.', 1)[0]
                 if parent not in charstyles:
-                    newcs = self.doc.createInstance("com.sun.star.style.CharacterStyle")
-                    newcs.ParentStyle = parent.rsplit('.', 1)[0]
-                    charstyles.insertByName(parent, newcs)
+                    addstyle(ttype.parent)
                 newcharstyle.ParentStyle = parent
+            if ttypename == CHARSTYLEID + style.__name__:
+                newcharstyle.CharColor = self.to_int(style.default_style)
             for d in style.styles.get(ttype, '').split():
                 if d == "noinherit":
                     break
@@ -400,15 +401,24 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     pass
                 elif d.startswith('border:'):
                     pass
-                else:
-                    # Pygments makes the hard job here
-                    newcharstyle.CharColor = self.to_int(style._styles[ttype][0])
+                elif d:
+                    # let's Pygments make the hard job here
+                    tok_style = style.style_for_token(ttype)
+                    newcharstyle.CharColor = self.to_int(tok_style["color"])
+                    # print(f"{ttypename} {newcharstyle.CharColor}")
+                    # print(f"{style._styles[ttype][0]}")
+
+        stylefamilies = self.doc.StyleFamilies
+        charstyles = stylefamilies.CharacterStyles
+        print("---")
+        for ttype in sorted(style.styles.keys()):
+            addstyle(ttype)
 
     def cleancharstyles(self):
         stylefamilies = self.doc.StyleFamilies
         charstyles = stylefamilies.CharacterStyles
         for cs in charstyles.ElementNames:
-            if cs.startswith('ch2_') and not charstyles.getByName(cs).isInUse():
+            if cs.startswith(CHARSTYLEID) and not charstyles.getByName(cs).isInUse():
                 charstyles.removeByName(cs)
 
     def prepare_highlight(self, selected_item=None):
@@ -679,7 +689,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     cursor.goRight(len(lastval), True)  # selects the token's text
                     try:
                         if self.options["UseCharStyles"]:
-                            cursor.CharStyleName = str(lasttype).replace('Token', 'ch2_' + style.__name__)
+                            cursor.CharStyleName = str(lasttype).replace('Token', CHARSTYLEID + style.__name__)
                         else:
                             tok_style = style.style_for_token(lasttype)
                             cursor.CharColor = self.to_int(tok_style['color'])

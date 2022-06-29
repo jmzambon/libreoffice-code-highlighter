@@ -403,6 +403,9 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     # let's Pygments make the hard job here
                     tok_style = style.style_for_token(ttype)
                     newcharstyle.CharColor = self.to_int(tok_style["color"])
+
+        stylefamilies = self.doc.StyleFamilies
+        charstyles = stylefamilies.CharacterStyles
         for ttype in sorted(style.styles.keys()):
             addstyle(ttype)
 

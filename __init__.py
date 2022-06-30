@@ -58,8 +58,6 @@ STYLE_MAP = {
     'dracula': 'dracula::DraculaStyle',
     'one-dark': 'onedark::OneDarkStyle',
     'lilypond' : 'lilypond::LilyPondStyle',
-    'libreoffice-classic': 'libreoffice::LibreOfficeStyle',
-    'libreoffice-dark': 'libreoffice::LibreOfficeDarkStyle',
 }
 
 

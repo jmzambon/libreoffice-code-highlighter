@@ -150,7 +150,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             self.sm = ctx.ServiceManager
             self.desktop = self.create("com.sun.star.frame.Desktop")
             self.doc = self.desktop.getCurrentComponent()
-            self.charstylesavailable = 'CharacterStyles' in self.doc.StyleFamilies
+            self.charstylesavailable = ('CharacterStyles' in self.doc.StyleFamilies and
+                not self.doc.CurrentSelection.ImplementationName == "com.sun.star.drawing.SvxShapeCollection")
             self.cfg_access = self.create_cfg_access()
             self.options = self.load_options()
             self.setlogger()
@@ -448,8 +449,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 return
 
             # cancel the use of character styles if context is not relevant
-            if (not self.charstylesavailable or
-                selected_item.ImplementationName == "com.sun.star.drawing.SvxShapeCollection"):
+            if not self.charstylesavailable:
                 self.options["UseCharStyles"] = False
 
             # TEXT SHAPES
@@ -696,7 +696,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         cursor.collapseToEnd()  # deselects the selected text
                 lastval = tok_value
                 lasttype = tok_type
-        self.cleancharstyles()
+        if self.options["UseCharStyles"]:
+            self.cleancharstyles()
         logger.debug("Terminating code block highlighting.")
 
     def show_line_numbers(self, code_block, isplaintext=False):

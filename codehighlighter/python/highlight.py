@@ -249,9 +249,12 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
 
         # get_all_lexers() returns: (longname, tuple of aliases, tuple of filename patterns, tuple of mimetypes)
         logger.debug("Starting options dialog.")
-        all_lexers = sorted((lex[0] for lex in get_all_lexers()), key=str.casefold)
-        self.all_lexer_aliases = [lex[0].lower() for lex in get_all_lexers()]
-        for lex in get_all_lexers():
+        _all_lexers = list(get_all_lexers())
+        # let's add a convenient shortcut to VB.net lexer for LOBasic
+        _all_lexers.append(("LibreOffice Basic", (), (), ()))
+        all_lexers = sorted((lex[0] for lex in _all_lexers), key=str.casefold)
+        self.all_lexer_aliases = [lex[0].lower() for lex in _all_lexers]
+        for lex in _all_lexers:
             self.all_lexer_aliases.extend(list(lex[1]))
         logger.debug("--> getting lexers ok.")
         self.all_styles = sorted(get_all_styles(), key=lambda x: (x != 'default', x.lower()))
@@ -355,6 +358,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             lexer = guess_lexer(code)
             logger.info(f'Automatic lexer choice : {lexer.name}')
         else:
+            if lang == 'LibreOffice Basic':
+                lang = "VB.net"
             try:
                 lexer = get_lexer_by_name(lang)
             except pygments.util.ClassNotFound:

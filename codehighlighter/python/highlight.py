@@ -258,7 +258,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         for lex in _all_lexers:
             self.all_lexer_aliases.extend(list(lex[1]))
         logger.debug("--> getting lexers ok.")
-        self.all_styles = sorted(get_all_styles(), key=lambda x: (x != 'default', x.lower()))
+        self.all_styles = sorted(get_all_styles(), key=lambda x: (x != 'default', x.casefold()))
         logger.debug("--> getting styles ok.")
 
         dialog_provider = self.create("com.sun.star.awt.DialogProvider2")
@@ -408,16 +408,19 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 elif d in ('roman', 'sans', 'mono'):
                     pass
                 elif d.startswith('bg:'):
-                    # reset any direct formatting
-                    newcharstyle.CharBackColor = -1
                     # let's Pygments make the hard job here
                     if tok_style["bgcolor"]:
                         newcharstyle.CharBackColor = self.to_int(tok_style["bgcolor"])
+                    else:
+                        newcharstyle.CharBackColor = -1
                 elif d.startswith('border:'):
                     pass
                 elif d:
                     # let's Pygments make the hard job here
-                    newcharstyle.CharColor = self.to_int(tok_style["color"])
+                    if tok_style["color"]:
+                        newcharstyle.CharColor = self.to_int(tok_style["color"])
+                    else:
+                        newcharstyle.CharColor = -1
 
         stylefamilies = self.doc.StyleFamilies
         charstyles = stylefamilies.CharacterStyles
@@ -698,6 +701,11 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     cursor.goRight(len(lastval), True)  # selects the token's text
                     try:
                         if self.options["UseCharStyles"]:
+                            cursor.CharColor = -1
+                            cursor.CharBackColor = -1
+                            cursor.CharWeight = W_NORMAL
+                            cursor.CharPosture = SL_NONE
+                            cursor.CharUnderline = UL_NONE
                             cursor.CharStyleName = str(lasttype).replace('Token', CHARSTYLEID + style.__name__)
                         else:
                             tok_style = style.style_for_token(lasttype)
@@ -706,7 +714,9 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                             cursor.CharPosture = SL_ITALIC if tok_style['italic'] else SL_NONE
                             cursor.CharUnderline = UL_SINGLE if tok_style['underline'] else UL_NONE
                             if tok_style["bgcolor"]:
-                                cursor.CharBackColor = self.to_int(tok_style["bgcolor"]) 
+                                cursor.CharBackColor = self.to_int(tok_style["bgcolor"])
+                            else:
+                                cursor.CharBackColor = -1
                     except Exception:
                         pass
                     finally:

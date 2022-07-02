@@ -30,8 +30,9 @@ from pygments.styles import get_all_styles
 # uno
 import uno, unohelper
 from com.sun.star.awt import Selection, XDialogEventHandler
-from com.sun.star.awt.FontSlant import NONE as SL_NONE, ITALIC as SL_ITALIC
 from com.sun.star.awt.FontWeight import NORMAL as W_NORMAL, BOLD as W_BOLD
+from com.sun.star.awt.FontSlant import NONE as SL_NONE, ITALIC as SL_ITALIC
+from com.sun.star.awt.FontUnderline import NONE as UL_NONE, SINGLE as UL_SINGLE
 from com.sun.star.awt.MessageBoxType import ERRORBOX
 from com.sun.star.beans import PropertyValue
 from com.sun.star.container import ElementExistException
@@ -389,6 +390,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     addstyle(ttype.parent)
                 newcharstyle.ParentStyle = parent
             for d in style.styles.get(ttype, '').split():
+                tok_style = style.style_for_token(ttype)
                 if d == "noinherit":
                     break
                 elif d == 'italic':
@@ -399,15 +401,22 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     newcharstyle.CharWeight = W_BOLD
                 elif d == 'nobold':
                     newcharstyle.CharWeight = W_NORMAL
-                elif d in ('underline', 'nounderline', 'roman', 'sans', 'mono'):
+                elif d == 'underline':
+                    newcharstyle.CharUnderline = UL_SINGLE
+                elif d == 'nounderline':
+                    newcharstyle.CharUnderline = UL_NONE
+                elif d in ('roman', 'sans', 'mono'):
                     pass
                 elif d.startswith('bg:'):
-                    pass
+                    # let's Pygments make the hard job here
+                    if tok_style["bgcolor"]:
+                        newcharstyle.CharBackColor = self.to_int(tok_style["bgcolor"])
+                    else:
+                        newcharstyle.CharBackColor = -1
                 elif d.startswith('border:'):
                     pass
                 elif d:
                     # let's Pygments make the hard job here
-                    tok_style = style.style_for_token(ttype)
                     newcharstyle.CharColor = self.to_int(tok_style["color"])
 
         stylefamilies = self.doc.StyleFamilies
@@ -695,6 +704,9 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                             cursor.CharColor = self.to_int(tok_style['color'])
                             cursor.CharWeight = W_BOLD if tok_style['bold'] else W_NORMAL
                             cursor.CharPosture = SL_ITALIC if tok_style['italic'] else SL_NONE
+                            cursor.CharUnderline = UL_SINGLE if tok_style['underline'] else UL_NONE
+                            if tok_style["bgcolor"]:
+                                cursor.CharBackColor = self.to_int(tok_style["bgcolor"]) 
                     except Exception:
                         pass
                     finally:

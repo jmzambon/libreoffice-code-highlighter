@@ -376,7 +376,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         lexer.stripnl = False
         return lexer
 
-    def createdoccharstyles(self, style):
+    def createcharstyles(self, style):
         def addstyle(ttype):
             newcharstyle = self.doc.createInstance("com.sun.star.style.CharacterStyle")
             ttypename = str(ttype).replace('Token', CHARSTYLEID + style.__name__)
@@ -408,11 +408,11 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 elif d in ('roman', 'sans', 'mono'):
                     pass
                 elif d.startswith('bg:'):
+                    # reset any direct formatting
+                    newcharstyle.CharBackColor = -1
                     # let's Pygments make the hard job here
                     if tok_style["bgcolor"]:
                         newcharstyle.CharBackColor = self.to_int(tok_style["bgcolor"])
-                    else:
-                        newcharstyle.CharBackColor = -1
                 elif d.startswith('border:'):
                     pass
                 elif d:
@@ -685,7 +685,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         # create character styles if requested
         # (this happens here to stay synched with undo context)
         if self.options["UseCharStyles"]:
-            self.createdoccharstyles(style)
+            self.createcharstyles(style)
         # caching consecutive tokens with same token type
         logger.debug(f"Starting code block highlighting (lexer: {lexer}, style: {style}).")
         lastval = ''

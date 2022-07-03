@@ -244,6 +244,10 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         values = self.cfg_access.getPropertyValues(properties)
         return dict(zip(properties, values))
 
+    def getallstyles(self):
+        all_styles = list(get_all_styles()) + ['libreoffice-classic', 'libreoffice-dark']
+        return sorted(all_styles, key=lambda x: (x != 'default', x.casefold()))
+
     def create_dialog(self):
         '''Load, populate and return options dialog.'''
 
@@ -257,7 +261,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         for lex in _all_lexers:
             self.all_lexer_aliases.extend(list(lex[1]))
         logger.debug("--> getting lexers ok.")
-        self.all_styles = sorted(get_all_styles(), key=lambda x: (x != 'default', x.casefold()))
+        self.all_styles = self.getallstyles()
         logger.debug("--> getting styles ok.")
 
         dialog_provider = self.create("com.sun.star.awt.DialogProvider2")
@@ -432,6 +436,14 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         except AttributeError:
             pass
 
+    def getstylebyname(self, name):
+        if name.startswith('libreoffice'):
+            from customstyles import libreoffice
+            libostyles = {'libreoffice-classic': 'LibreOfficeStyle', 'libreoffice-dark': 'LibreOfficeDarkStyle'}
+            return getattr(libreoffice, libostyles[name])
+        else:
+            return get_style_by_name(stylename)
+
     def prepare_highlight(self, selected_item=None):
         '''
         Check if selection is valid and contains text.
@@ -445,7 +457,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         '''
 
         stylename = self.options['Style']
-        style = get_style_by_name(stylename)
+        style = self.getstylebyname(stylename)
         bg_color = style.background_color if self.options['ColourizeBackground'] else None
 
         if not self.doc.hasControllersLocked():

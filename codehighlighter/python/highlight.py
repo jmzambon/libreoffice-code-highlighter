@@ -23,9 +23,8 @@ from math import log10
 
 # pygments
 import pygments
-from pygments import styles
 from pygments.lexers import get_all_lexers, get_lexer_by_name, guess_lexer
-from pygments.styles import get_all_styles
+from pygments.styles import get_all_styles, get_style_by_name
 
 # uno
 import uno, unohelper
@@ -376,10 +375,10 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         lexer.stripnl = False
         return lexer
 
-    def createcharstyles(self, style):
+    def createcharstyles(self, style, styleprefix):
         def addstyle(ttype):
             newcharstyle = self.doc.createInstance("com.sun.star.style.CharacterStyle")
-            ttypename = str(ttype).replace('Token', CHARSTYLEID + style.__name__)
+            ttypename = str(ttype).replace('Token', styleprefix)
             try:
                 charstyles.insertByName(ttypename, newcharstyle)
             except ElementExistException:
@@ -411,16 +410,12 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     # let's Pygments make the hard job here
                     if tok_style["bgcolor"]:
                         newcharstyle.CharBackColor = self.to_int(tok_style["bgcolor"])
-                    else:
-                        newcharstyle.CharBackColor = -1
                 elif d.startswith('border:'):
                     pass
                 elif d:
                     # let's Pygments make the hard job here
                     if tok_style["color"]:
                         newcharstyle.CharColor = self.to_int(tok_style["color"])
-                    else:
-                        newcharstyle.CharColor = -1
 
         stylefamilies = self.doc.StyleFamilies
         charstyles = stylefamilies.CharacterStyles
@@ -428,11 +423,14 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             addstyle(ttype)
 
     def cleancharstyles(self):
-        stylefamilies = self.doc.StyleFamilies
-        charstyles = stylefamilies.CharacterStyles
-        for cs in charstyles.ElementNames:
-            if cs.startswith(CHARSTYLEID) and not charstyles.getByName(cs).isInUse():
-                charstyles.removeByName(cs)
+        try:
+            stylefamilies = self.doc.StyleFamilies
+            charstyles = stylefamilies.CharacterStyles
+            for cs in charstyles.ElementNames:
+                if cs.startswith(CHARSTYLEID) and not charstyles.getByName(cs).isInUse():
+                    charstyles.removeByName(cs)
+        except AttributeError:
+            pass
 
     def prepare_highlight(self, selected_item=None):
         '''
@@ -447,7 +445,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         '''
 
         stylename = self.options['Style']
-        style = styles.get_style_by_name(stylename)
+        style = get_style_by_name(stylename)
         bg_color = style.background_color if self.options['ColourizeBackground'] else None
 
         if not self.doc.hasControllersLocked():
@@ -685,10 +683,19 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 logger.debug("Controllers unlocked.")
 
     def highlight_code(self, code, cursor, lexer, style):
+        # clean up any previous formatting
+        cursor.goRight(len(code), True)
+        cursor.setPropertiesToDefault(("CharColor", "CharBackColor", "CharWeight",
+                "CharPosture", "CharUnderline"))
+        if self.charstylesavailable:
+            cursor.setPropertiesToDefault(("CharStyleName", "CharStyleNames"))
+        cursor.collapseToStart()
+
         # create character styles if requested
         # (this happens here to stay synched with undo context)
         if self.options["UseCharStyles"]:
-            self.createcharstyles(style)
+            styleprefix = CHARSTYLEID + style.__name__.lower()[:-5]
+            self.createcharstyles(style, styleprefix)
         # caching consecutive tokens with same token type
         logger.debug(f"Starting code block highlighting (lexer: {lexer}, style: {style}).")
         lastval = ''
@@ -701,12 +708,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     cursor.goRight(len(lastval), True)  # selects the token's text
                     try:
                         if self.options["UseCharStyles"]:
-                            cursor.CharColor = -1
-                            cursor.CharBackColor = -1
-                            cursor.CharWeight = W_NORMAL
-                            cursor.CharPosture = SL_NONE
-                            cursor.CharUnderline = UL_NONE
-                            cursor.CharStyleName = str(lasttype).replace('Token', CHARSTYLEID + style.__name__)
+                            cursor.CharStyleName = str(lasttype).replace('Token', styleprefix)
                         else:
                             tok_style = style.style_for_token(lasttype)
                             cursor.CharColor = self.to_int(tok_style['color'])
@@ -723,8 +725,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         cursor.collapseToEnd()  # deselects the selected text
                 lastval = tok_value
                 lasttype = tok_type
-        if self.options["UseCharStyles"]:
-            self.cleancharstyles()
+        self.cleancharstyles()
         logger.debug("Terminating code block highlighting.")
 
     def show_line_numbers(self, code_block, isplaintext=False):

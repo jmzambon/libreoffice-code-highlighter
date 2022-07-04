@@ -524,9 +524,16 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                             undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
                             self.show_line_numbers(code_block, isplaintext=True)
                             cursor, code = self.ensure_paragraphs(code_block)
-                            cursor.ParaBackColor = -1
+                            # ParaBackColor does not work anymore, and new FillProperties isn't available from API
+                            # see https://bugs.documentfoundation.org/show_bug.cgi?id=99125
+                            # so let's use the dispatcher as workaround
+                            # cursor.ParaBackColor = -1
+                            prop = PropertyValue(Name="BackgroundColor", Value=-1)
+                            self.dispatcher.executeDispatch(self.frame, ".uno:BackgroundColor", "", 0, (prop,))
                             if bg_color:
-                                cursor.ParaBackColor = self.to_int(bg_color)
+                                # cursor.ParaBackColor = self.to_int(bg_color)
+                                prop = PropertyValue(Name="BackgroundColor", Value=self.to_int(bg_color))
+                                self.dispatcher.executeDispatch(self.frame, ".uno:BackgroundColor", "", 0, (prop,))
                             cursor.CharLocale = self.nolocale
                             self.doc.CurrentController.select(cursor)
                             cursor.collapseToStart()

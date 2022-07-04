@@ -442,7 +442,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             libostyles = {'libreoffice-classic': 'LibreOfficeStyle', 'libreoffice-dark': 'LibreOfficeDarkStyle'}
             return getattr(libreoffice, libostyles[name])
         else:
-            return get_style_by_name(stylename)
+            return get_style_by_name(name)
 
     def prepare_highlight(self, selected_item=None):
         '''

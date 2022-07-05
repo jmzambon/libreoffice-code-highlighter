@@ -22,8 +22,7 @@ If you encounter any problems after installing the extension, please check wheth
 ### Install Extension
 Open LibreOffice, go to `Tools` -> `Extension Manager...` and add the extension `codehighlighter2.oxt`
 
-You can download the extension either from the official LibreOffice extensions page or from [releases](https://github.com/jmzambon/libreoffice-code-highlighter/releases).
-If you have downloaded the `codehighlighter2.oxt.zip` file from GitHub releases, extract it before adding to the LibreOffice.
+You can download the extension either from the official LibreOffice extensions page or from the [Github repository](https://github.com/jmzambon/libreoffice-code-highlighter) (_codehighlighter2.oxt_ file).
 
 ## USAGE
 - Open a LibreOffice document.

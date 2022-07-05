@@ -270,8 +270,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         logger.debug("--> creating dialog ok.")
 
         # set localized strings
-        controlnames = ("label_lang", "label_style", "check_col_bg", "check_charstyles", "check_linenb", "nb_line",
-                        "lbl_nb_start", "lbl_nb_ratio", "lbl_nb_sep", "pygments_ver", "topage1", "topage2")
+        controlnames = ("label_lang", "label_style", "check_col_bg", "check_charstyles", "check_linenb", "nb_line", "cs_line",
+                        "lbl_nb_start", "lbl_nb_ratio", "lbl_nb_sep", "lbl_styleprefix", "pygments_ver", "topage1", "topage2")
         for controlname in controlnames:
             dialog.getControl(controlname).Model.setPropertyValues(("Label", "HelpText"), self.strings[controlname])
         # dialog.getControl("nb_sep").Model.HelpText = self.strings["nb_sep"][1]
@@ -285,6 +285,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         nb_start = dialog.getControl('nb_start')
         nb_ratio = dialog.getControl('nb_ratio')
         nb_sep = dialog.getControl('nb_sep')
+        cs_prefix = dialog.getControl('cs_prefix')
         pygments_ver = dialog.getControl('pygments_ver')
 
         cb_lang.Text = self.options['Language']
@@ -303,6 +304,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         nb_start.Value = self.options['LineNumberStart']
         nb_ratio.Value = self.options['LineNumberRatio']
         nb_sep.Text = self.options['LineNumberSeparator']
+        cs_prefix.Text = self.options['CharStylePrefix']
         logger.debug("--> filling controls ok.")
 
         def getextver():
@@ -337,6 +339,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         nb_start = int(dialog.getControl('nb_start').Value)
         nb_ratio = int(dialog.getControl('nb_ratio').Value)
         nb_sep = dialog.getControl('nb_sep').Text
+        cs_prefix = dialog.getControl('cs_prefix').Text
 
         if lang != 'automatic' and lang.lower() not in self.all_lexer_aliases:
             self.msgbox(self.strings["errlang"])
@@ -346,7 +349,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             return False
         self.save_options(Style=style, Language=lang, ColourizeBackground=colorize_bg, ShowLineNumbers=show_linenb,
                           LineNumberStart=nb_start, LineNumberRatio=nb_ratio, LineNumberSeparator=nb_sep,
-                          UseCharStyles=use_charstyles)
+                          UseCharStyles=use_charstyles, CharStylePrefix=cs_prefix)
         logger.debug("Dialog validated and options saved.")
         logger.info(f"Updated options = {self.options}.")
         return True
@@ -386,7 +389,13 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             try:
                 charstyles.insertByName(ttypename, newcharstyle)
             except ElementExistException:
-                return
+                # redefine style only if user has given his own generic prefix
+                if self.options["CharStylePrefix"].strip():
+                    newcharstyle = charstyles.getByName(ttypename)
+                    newcharstyle.setPropertiesToDefault(("CharColor", "CharBackColor",
+                        "CharWeight", "CharPosture", "CharUnderline"))
+                else:
+                    return
             if ttype.parent is not None:
                 parent = ttypename.rsplit('.', 1)[0]
                 if parent not in charstyles:
@@ -713,7 +722,9 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         # create character styles if requested
         # (this happens here to stay synched with undo context)
         if self.options["UseCharStyles"]:
-            styleprefix = CHARSTYLEID + style.__name__.lower()[:-5]
+            styleprefix = self.options["CharStylePrefix"].strip()
+            if styleprefix == "":
+                styleprefix = CHARSTYLEID + style.__name__.lower()[:-5]
             self.createcharstyles(style, styleprefix)
         # caching consecutive tokens with same token type
         logger.debug(f"Starting code block highlighting (lexer: {lexer}, style: {style}).")

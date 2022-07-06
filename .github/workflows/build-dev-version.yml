@@ -1,0 +1,39 @@
+name: Build Dev Version Extension
+
+on: [workflow_dispatch]
+# release:
+#   types: [published]
+
+jobs:
+  zip-files:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Enable development framework scripts
+        run: |
+          sed -i "s/<!-- //" ${{ github.workspace }}/codehighlighter/META-INF/manifest.xml
+          # cat ${{ github.workspace }}/codehighlighter/META-INF/manifest.xml
+          # echo
+
+      - name: Update version to development
+        run: |
+          sed -i '/<version value/ s/"\/>/-Dev"\/>/' ${{ github.workspace }}/codehighlighter/description.xml
+          # cat ${{ github.workspace }}/codehighlighter/description.xml
+          # echo
+          
+      - name: Zip repo
+        # uses: papeloto/action-zip@v1
+        uses: vimtor/action-zip@v1
+        with:
+          files: codehighlighter/
+          # recursive: false
+          dest: codehighlighter2-dev.zip
+          
+      - name: Rename zip to extension
+        run: mv codehighlighter2-dev.zip codehighlighter2-dev.oxt
+                    
+      - uses: actions/upload-artifact@v1
+        with:
+         name: codehighlighter2-dev.oxt
+         path: ${{ github.workspace }}/codehighlighter2-dev.oxt

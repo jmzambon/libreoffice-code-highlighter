@@ -439,6 +439,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         try:
             stylefamilies = self.doc.StyleFamilies
             charstyles = stylefamilies.CharacterStyles
+            print(styleprefix)
             for cs in charstyles.ElementNames:
                 if cs == styleprefix or cs.startswith(f'{styleprefix}.'):
                     if not charstyles.getByName(cs).isInUse():
@@ -723,9 +724,9 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         # create character styles if requested
         # (this happens here to stay synched with undo context)
         styleprefix = self.options["CharStylePrefix"].strip()
+        if styleprefix == "":
+            styleprefix = CHARSTYLEID + style.__name__.lower()[:-5]
         if self.options["UseCharStyles"]:
-            if styleprefix == "":
-                styleprefix = CHARSTYLEID + style.__name__.lower()[:-5]
             self.createcharstyles(style, styleprefix)
         # caching consecutive tokens with same token type
         logger.debug(f"Starting code block highlighting (lexer: {lexer}, style: {style}).")

@@ -805,10 +805,11 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
 
     def ensure_paragraphs(self, selected_code):
         '''Ensure the selection does not contains part of paragraphs.'''
-
         # Cursor could start or end in the middle of a code line, when plain text selected.
         # So let's expand it to the entire paragraphs.
         c = selected_code.Text.createTextCursorByRange(selected_code)
+        if '\n' not in selected_code.String:
+            return c, c.String    # inline snippet, abort expansion
         c.gotoStartOfParagraph(False)
         c.gotoRange(selected_code.End, True)
         c.gotoEndOfParagraph(True)

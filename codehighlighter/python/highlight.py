@@ -435,13 +435,14 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         for ttype in sorted(style.styles.keys()):
             addstyle(ttype)
 
-    def cleancharstyles(self):
+    def cleancharstyles(self, styleprefix):
         try:
             stylefamilies = self.doc.StyleFamilies
             charstyles = stylefamilies.CharacterStyles
             for cs in charstyles.ElementNames:
-                if cs.startswith(CHARSTYLEID) and not charstyles.getByName(cs).isInUse():
-                    charstyles.removeByName(cs)
+                if cs == styleprefix or cs.startswith(f'{styleprefix}.'):
+                    if not charstyles.getByName(cs).isInUse():
+                        charstyles.removeByName(cs)
         except AttributeError:
             pass
 
@@ -721,8 +722,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
 
         # create character styles if requested
         # (this happens here to stay synched with undo context)
+        styleprefix = self.options["CharStylePrefix"].strip()
         if self.options["UseCharStyles"]:
-            styleprefix = self.options["CharStylePrefix"].strip()
             if styleprefix == "":
                 styleprefix = CHARSTYLEID + style.__name__.lower()[:-5]
             self.createcharstyles(style, styleprefix)
@@ -755,7 +756,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         cursor.collapseToEnd()  # deselects the selected text
                 lastval = tok_value
                 lasttype = tok_type
-        self.cleancharstyles()
+        self.cleancharstyles(styleprefix)
         logger.debug("Terminating code block highlighting.")
 
     def show_line_numbers(self, code_block, isplaintext=False):

@@ -48,7 +48,7 @@ You can download the extension either from the official LibreOffice extensions p
 - Highlight properties are hard-formatted for each token, parsed according to the choosen Pygments lexer (aka coding language). If someone prefers instead to make use of character styles, select the corresponding option in the dialog box (from v2.3.0, Writer only).
 - When cursor is inside a text shape or a Calc cell, highlighting is applied to the whole shape or cell even if only a part of the text is selected.
 - When cursor is inside a text frame or a text table cell, highlighting is only applied to the selected text if any, otherwise to the whole frame or cell.
-- When highlighting applies to the selected text, it formats the entire paragraphs, even if selection starts after the paragraph start or ends before paragraph end.
+- When highlighting applies to the selected text, it formats the entire paragraphs, even if selection starts after the paragraph start or ends before paragraph end, unless the selection is a inline snippet.
 
 ## Screenshots
 *Menu items (Writer)*

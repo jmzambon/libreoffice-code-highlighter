@@ -1,8 +1,11 @@
 name: Build Dev Version Extension
 
-on: [workflow_dispatch]
-# release:
-#   types: [published]
+# on: [workflow_dispatch]
+on:
+  push:
+    branches: [ '*' ]
+  pull_request:
+    branches: [ '*' ]
 
 jobs:
   zip-files:
@@ -28,11 +31,8 @@ jobs:
         with:
           files: codehighlighter/
           # recursive: false
-          dest: codehighlighter2-dev.zip
+          dest: codehighlighter2-dev.oxt
           
-      - name: Rename zip to extension
-        run: mv codehighlighter2-dev.zip codehighlighter2-dev.oxt
-                    
       - uses: actions/upload-artifact@v1
         with:
          name: codehighlighter2-dev.oxt

@@ -538,8 +538,9 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                             # see https://bugs.documentfoundation.org/show_bug.cgi?id=99125
                             # so let's use the dispatcher as workaround
                             # cursor.ParaBackColor = -1
-                            prop = PropertyValue(Name="BackgroundColor", Value=-1)
-                            self.dispatcher.executeDispatch(self.frame, ".uno:BackgroundColor", "", 0, (prop,))
+                            if not self.charstylesavailable:
+                                prop = PropertyValue(Name="BackgroundColor", Value=-1)
+                                self.dispatcher.executeDispatch(self.frame, ".uno:BackgroundColor", "", 0, (prop,))
                             if bg_color:
                                 # cursor.ParaBackColor = self.to_int(bg_color)
                                 prop = PropertyValue(Name="BackgroundColor", Value=self.to_int(bg_color))

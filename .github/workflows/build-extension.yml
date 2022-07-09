@@ -1,0 +1,31 @@
+name: Build Extension
+
+on: [pull_request, push]
+
+jobs:
+
+  build-extension:
+    runs-on: ubuntu-latest 
+    # Customise for extension
+    env:
+      EXT_NAME: codehighlighter2
+      EXT_DIR: codehighlighter/
+    
+    steps:
+
+      - name: Step 1 - Get repo
+        uses: actions/checkout@v2
+
+      - name: Step 2 - Build repo
+        uses: vimtor/action-zip@v1
+        with:
+          files: ${{env.EXT_DIR}}
+          dest: ${{env.EXT_NAME}}.oxt
+
+      - name: Step 3 - Add extension to repo
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add ${{env.EXT_NAME}}.oxt
+          git commit -m "generated"
+          git push

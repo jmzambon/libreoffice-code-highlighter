@@ -14,7 +14,6 @@ from pygments.token import Comment, Error, Literal, Name, Token
 
 
 class LibreOfficeStyle(Style):
-    default_style = ""
     styles = {
         Token:                  '#000080',   # Blue
         Comment:                '#808080',   # Gray
@@ -25,7 +24,6 @@ class LibreOfficeStyle(Style):
 
 
 class LibreOfficeDarkStyle(Style):
-    default_style = ""
     background_color = '#333333'
     styles = {
         Token:                  '#b4c7dc',

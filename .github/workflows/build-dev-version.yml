@@ -33,3 +33,9 @@ jobs:
         with:
           files: ${{env.EXT_DIR}}
           dest: ${{env.EXT_NAME}}.oxt
+          
+      - name: Step 5 - Upload dev version
+        uses: actions/upload-artifact@v2
+        with: 
+          name: ${{env.EXT_NAME}} - Extension in Zip file
+          path: ${{env.EXT_NAME}}.oxt

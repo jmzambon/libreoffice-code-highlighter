@@ -513,7 +513,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         if self.doc.supportsService("com.sun.star.drawing.GenericDrawingDocument"):
                             self.doc.unlockControllers()
                             logger.debug("Controllers unlocked.")
-                        code_block.FillStyle = FS_NONE
+                        # code_block.FillStyle = FS_NONE
                         if bg_color:
                             code_block.FillStyle = FS_SOLID
                             code_block.FillColor = self.to_int(bg_color)
@@ -539,8 +539,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                             # see https://bugs.documentfoundation.org/show_bug.cgi?id=99125
                             # so let's use the dispatcher as workaround
                             # cursor.ParaBackColor = -1
-                            prop = PropertyValue(Name="BackgroundColor", Value=-1)
-                            self.dispatcher.executeDispatch(self.frame, ".uno:BackgroundColor", "", 0, (prop,))
+                            # prop = PropertyValue(Name="BackgroundColor", Value=-1)
+                            # self.dispatcher.executeDispatch(self.frame, ".uno:BackgroundColor", "", 0, (prop,))
                             if bg_color:
                                 # cursor.ParaBackColor = self.to_int(bg_color)
                                 prop = PropertyValue(Name="BackgroundColor", Value=self.to_int(bg_color))
@@ -575,7 +575,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     if self.show_line_numbers(code_block):
                         code = code_block.String    # code string has changed
                     try:
-                        code_block.BackColor = -1
+                        # code_block.BackColor = -1
                         if bg_color:
                             code_block.BackColor = self.to_int(bg_color)
                         cursor = code_block.createTextCursorByRange(code_block)
@@ -601,7 +601,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         if self.show_line_numbers(code_block):
                             code = code_block.String    # code string has changed
                         try:
-                            code_block.BackColor = -1
+                            # code_block.BackColor = -1
                             if bg_color:
                                 code_block.BackColor = self.to_int(bg_color)
                             cursor = code_block.createTextCursorByRange(code_block)
@@ -626,7 +626,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                                 if self.show_line_numbers(code_block):
                                     code = code_block.String    # code string has changed
                                 try:
-                                    code_block.BackColor = -1
+                                    # code_block.BackColor = -1
                                     if bg_color:
                                         code_block.BackColor = self.to_int(bg_color)
                                     cursor = code_block.createTextCursorByRange(code_block)
@@ -683,7 +683,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         if self.show_line_numbers(code_block):
                             code = code_block.String    # code string has changed
                         try:
-                            code_block.CellBackColor = -1
+                            # code_block.CellBackColor = -1
                             code_block.CharLocale = self.nolocale
                             if bg_color:
                                 code_block.CellBackColor = self.to_int(bg_color)

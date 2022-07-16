@@ -39,7 +39,7 @@ You can download the extension either from the official LibreOffice extensions p
 #### Tips
 - Multiselection is supported: you can select several code snippets at the same time, even from different languages (choose "automatic" in this last case).
 - Not all language aliases that are valid names for Code Highlighter 2 appear in the option dialog: if you don't find a language, try anyway to type its name in the combobox (try for example with "R" or with "Pascal").  
-- Click the "More..." button to access line numbers options.
+- Click the "More..." button to access line numbers options or character styles options.
 - Uncheck line numbering option to remove unwanted line numbers, due for example to copy-pasted code.
 - The extension contains two styles that are not part of Pygments: _libreoffice-classic_ and _libreoffice-dark_, that make use of LibreOffice IDE color schemes (classic mode and dark mode). Code Highlighter also adds a "LibreOffice Basic" language, which is not a Pygments lexer but a convenient shortcut to VB.net lexer, which is perfect for parsing LOBasic.
 
@@ -48,7 +48,7 @@ You can download the extension either from the official LibreOffice extensions p
 - Highlight properties are hard-formatted for each token, parsed according to the choosen Pygments lexer (aka coding language). If someone prefers instead to make use of character styles, select the corresponding option in the dialog box (from v2.3.0, Writer only).
 - When cursor is inside a text shape or a Calc cell, highlighting is applied to the whole shape or cell even if only a part of the text is selected.
 - When cursor is inside a text frame or a text table cell, highlighting is only applied to the selected text if any, otherwise to the whole frame or cell.
-- When highlighting applies to the selected text, it formats the entire paragraphs, even if selection starts after the paragraph start or ends before paragraph end, unless the selection is a inline snippet.
+- When highlighting applies to the selected text, it formats the entire paragraphs, even if selection starts after the paragraph start or ends before paragraph end, unless the selection is an inline snippet.
 
 ## Screenshots
 *Menu items (Writer)*

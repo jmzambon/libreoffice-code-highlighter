@@ -440,7 +440,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             stylefamilies = self.doc.StyleFamilies
             charstyles = stylefamilies.CharacterStyles
             for cs in charstyles.ElementNames:
-                # Remove only the styles created with certainty by the extension  
+                # Remove only the styles created with certainty by the extension
                 if cs.startswith(CHARSTYLEID) or cs.startswith(f'{styleprefix}.'):
                     if not charstyles.getByName(cs).isInUse():
                         charstyles.removeByName(cs)

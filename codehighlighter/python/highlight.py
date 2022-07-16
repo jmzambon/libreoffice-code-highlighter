@@ -27,7 +27,8 @@ from pygments.lexers import get_all_lexers, get_lexer_by_name, guess_lexer
 from pygments.styles import get_all_styles, get_style_by_name
 
 # uno
-import uno, unohelper
+import uno
+import unohelper
 from com.sun.star.awt import Selection, XDialogEventHandler
 from com.sun.star.awt.FontWeight import NORMAL as W_NORMAL, BOLD as W_BOLD
 from com.sun.star.awt.FontSlant import NONE as SL_NONE, ITALIC as SL_ITALIC
@@ -36,7 +37,7 @@ from com.sun.star.awt.MessageBoxType import ERRORBOX
 from com.sun.star.beans import PropertyValue
 from com.sun.star.container import ElementExistException
 from com.sun.star.document import XUndoAction
-from com.sun.star.drawing.FillStyle import NONE as FS_NONE, SOLID as FS_SOLID
+from com.sun.star.drawing.FillStyle import SOLID as FS_SOLID  # , NONE as FS_NONE
 from com.sun.star.lang import Locale
 from com.sun.star.sheet.CellFlags import STRING as CF_STRING
 from com.sun.star.task import XJobExecutor
@@ -270,8 +271,9 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         logger.debug("--> creating dialog ok.")
 
         # set localized strings
-        controlnames = ("label_lang", "label_style", "check_col_bg", "check_charstyles", "check_linenb", "nb_line", "cs_line",
-                        "lbl_nb_start", "lbl_nb_ratio", "lbl_nb_sep", "lbl_styleprefix", "pygments_ver", "topage1", "topage2")
+        controlnames = ("label_lang", "label_style", "check_col_bg", "check_charstyles", "check_linenb",
+                        "nb_line", "cs_line", "lbl_nb_start", "lbl_nb_ratio", "lbl_nb_sep", "lbl_styleprefix",
+                        "pygments_ver", "topage1", "topage2")
         for controlname in controlnames:
             dialog.getControl(controlname).Model.setPropertyValues(("Label", "HelpText"), self.strings[controlname])
         # dialog.getControl("nb_sep").Model.HelpText = self.strings["nb_sep"][1]
@@ -393,7 +395,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 if self.options["CharStylePrefix"].strip():
                     newcharstyle = charstyles.getByName(ttypename)
                     newcharstyle.setPropertiesToDefault(("CharColor", "CharBackColor",
-                        "CharWeight", "CharPosture", "CharUnderline"))
+                                                         "CharWeight", "CharPosture", "CharUnderline"))
                 else:
                     return
             if ttype.parent is not None:
@@ -716,7 +718,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         # clean up any previous formatting
         cursor.goRight(len(code), True)
         cursor.setPropertiesToDefault(("CharColor", "CharBackColor", "CharWeight",
-                "CharPosture", "CharUnderline"))
+                                       "CharPosture", "CharUnderline"))
         if self.charstylesavailable:
             cursor.setPropertiesToDefault(("CharStyleName", "CharStyleNames"))
         cursor.collapseToStart()

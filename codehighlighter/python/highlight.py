@@ -26,6 +26,7 @@ import pygments
 from pygments.lexers import get_all_lexers, get_lexer_by_name, guess_lexer
 from pygments.styles import get_all_styles, get_style_by_name
 
+
 # uno
 import uno
 import unohelper

@@ -10,6 +10,9 @@
     <prop oor:name="UseCharStyles" oor:type="xs:short">
       <value>0</value>
     </prop>
+    <prop oor:name="CharStylePrefix" oor:type="xs:string">
+      <value></value>
+    </prop>
     <prop oor:name="ColourizeBackground" oor:type="xs:short">
       <value>1</value>
     </prop>

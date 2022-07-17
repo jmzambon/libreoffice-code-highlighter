@@ -391,13 +391,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             try:
                 charstyles.insertByName(ttypename, newcharstyle)
             except ElementExistException:
-                # redefine style only if user has given his own generic prefix
-                if self.options["CharStylePrefix"].strip():
-                    newcharstyle = charstyles.getByName(ttypename)
-                    newcharstyle.setPropertiesToDefault(("CharColor", "CharBackColor",
-                                                         "CharWeight", "CharPosture", "CharUnderline"))
-                else:
-                    return
+                return
             if ttype.parent is not None:
                 parent = ttypename.rsplit('.', 1)[0]
                 if parent not in charstyles:

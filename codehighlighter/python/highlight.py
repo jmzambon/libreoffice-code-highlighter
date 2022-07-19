@@ -42,6 +42,7 @@ from com.sun.star.lang import Locale
 from com.sun.star.sheet.CellFlags import STRING as CF_STRING
 from com.sun.star.task import XJobExecutor
 from com.sun.star.uno import RuntimeException
+from com.sun.star.xml import AttributeData
 
 # internal
 import ch2_i18n
@@ -361,10 +362,10 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         self.cfg_access.setPropertyValues(tuple(kwargs.keys()), tuple(kwargs.values()))
         self.cfg_access.commitChanges()
 
-    def getlexer(self, code):
+    def getlexer(self, code_block):
         lang = self.options['Language']
         if lang == 'automatic':
-            lexer = guess_lexer(code)
+            lexer = self.guesslexer(code_block)
             logger.info(f'Automatic lexer choice : {lexer.name}')
         else:
             if lang == 'LibreOffice Basic':
@@ -383,6 +384,23 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         # prevent offset color if selection start with empty line
         lexer.stripnl = False
         return lexer
+
+    def guesslexer(self, code_block):
+        try:
+            udas = code_block.UserDefinedAttributes
+        except AttributeError:
+            udas = code_block.ParaUserDefinedAttributes
+        except Exception:
+            logging.exception("")
+            return guess_lexer(code_block.String)
+        if udas == None or not "ch2_lexer" in udas.ElementNames:
+            return guess_lexer(code_block.String)
+        else:
+            lexername = udas.getByName("ch2_lexer").Value
+            if lexername == "Text only":
+                return guess_lexer(code_block.String)
+            else:
+                return get_lexer_by_name(lexername)
 
     def createcharstyles(self, style, styleprefix):
         def addstyle(ttype):
@@ -451,6 +469,24 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         else:
             return get_style_by_name(name)
 
+    def taglexer(self, code_block, lexername):
+        try:
+            udas = code_block.UserDefinedAttributes
+        except AttributeError:
+            udas = code_block.ParaUserDefinedAttributes
+        except Exception:
+            logging.exception("")
+            return
+        lexerdata = AttributeData(Type="CDATA", Value=lexername)
+        try:
+            udas.insertByName('ch2_lexer', lexerdata)
+        except ElementExistException:
+            udas.replaceByName('ch2_lexer', lexerdata)
+        try:
+            code_block.UserDefinedAttributes = udas
+        except AttributeError:
+            code_block.ParaUserDefinedAttributes = udas
+
     def prepare_highlight(self, selected_item=None):
         '''
         Check if selection is valid and contains text.
@@ -493,7 +529,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     code = code_block.String
                     if code.strip():
                         hascode = True
-                        lexer = self.getlexer(code)
+                        lexer = self.getlexer(code_block)
                         # exit edit mode if necessary
                         self.dispatcher.executeDispatch(self.frame, ".uno:SelectObject", "", 0, ())
                         undoaction = UndoAction(self.doc, code_block,
@@ -513,6 +549,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         if bg_color:
                             code_block.FillStyle = FS_SOLID
                             code_block.FillColor = self.to_int(bg_color)
+                        # save lexer name as user defined attribute
+                        self.taglexer(code_block, lexer.name)
                         # model is not considered as modified after textbox formatting
                         self.doc.setModified(True)
                         undoaction.get_new_state()
@@ -526,7 +564,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     code = code_block.String
                     if code.strip():
                         hascode = True
-                        lexer = self.getlexer(code)
+                        lexer = self.getlexer(code_block)
                         try:
                             undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
                             self.show_line_numbers(code_block, isplaintext=True)
@@ -545,6 +583,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                             self.doc.CurrentController.select(cursor)
                             cursor.collapseToStart()
                             self.highlight_code(code, cursor, lexer, style)
+                            # save lexer name as user defined attribute
+                            self.taglexer(code_block, lexer.name)
                         finally:
                             undomanager.leaveUndoContext()
 
@@ -566,7 +606,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 code = code_block.String
                 if code.strip():
                     hascode = True
-                    lexer = self.getlexer(code)
+                    lexer = self.getlexer(code_block)
                     undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
                     if self.show_line_numbers(code_block):
                         code = code_block.String    # code string has changed
@@ -578,6 +618,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         cursor.CharLocale = self.nolocale
                         cursor.collapseToStart()
                         self.highlight_code(code, cursor, lexer, style)
+                        # save lexer name as user defined attribute
+                        self.taglexer(code_block, lexer.name)
                     finally:
                         undomanager.leaveUndoContext()
 
@@ -592,7 +634,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     code = code_block.String
                     if code.strip():
                         hascode = True
-                        lexer = self.getlexer(code)
+                        lexer = self.getlexer(code_block)
                         undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
                         if self.show_line_numbers(code_block):
                             code = code_block.String    # code string has changed
@@ -604,6 +646,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                             cursor.CharLocale = self.nolocale
                             cursor.collapseToStart()
                             self.highlight_code(code, cursor, lexer, style)
+                            # save lexer name as user defined attribute
+                            self.taglexer(code_block, lexer.name)
                         finally:
                             undomanager.leaveUndoContext()
                 else:
@@ -617,7 +661,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                             code = code_block.String
                             if code.strip():
                                 hascode = True
-                                lexer = self.getlexer(code)
+                                lexer = self.getlexer(code_block)
                                 undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
                                 if self.show_line_numbers(code_block):
                                     code = code_block.String    # code string has changed
@@ -629,6 +673,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                                     cursor.CharLocale = self.nolocale
                                     cursor.collapseToStart()
                                     self.highlight_code(code, cursor, lexer, style)
+                                        # save lexer name as user defined attribute
+                                    self.taglexer(code_block, lexer.name)
                                 finally:
                                     undomanager.leaveUndoContext()
 
@@ -674,7 +720,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     hascode = True
                     for code_block in cells:
                         code = code_block.String
-                        lexer = self.getlexer(code)
+                        lexer = self.getlexer(code_block)
                         undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
                         if self.show_line_numbers(code_block):
                             code = code_block.String    # code string has changed
@@ -686,6 +732,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                             cursor = code_block.createTextCursor()
                             cursor.gotoStart(False)
                             self.highlight_code(code, cursor, lexer, style)
+                            # save lexer name as user defined attribute
+                            self.taglexer(code_block, lexer.name)
                         finally:
                             undomanager.leaveUndoContext()
 

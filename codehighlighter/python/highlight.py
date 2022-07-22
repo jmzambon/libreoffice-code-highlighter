@@ -156,7 +156,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             self.cfg_access = self.create_cfg_access()
             self.options = self.load_options()
             self.setlogger()
-            logger.debug(f"Code Highlihter started from {self.doc.Title}.")
+            logger.debug(f"Code Highlighter started from {self.doc.Title}.")
             logger.info(f"Using Pygments version {pygments.__version__}.")
             logger.info(f"Loaded options = {self.options}.")
             self.frame = self.doc.CurrentController.Frame

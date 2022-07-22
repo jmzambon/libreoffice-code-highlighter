@@ -20,6 +20,7 @@
 import re
 import traceback
 from math import log10
+from ast import literal_eval
 
 # pygments
 import pygments
@@ -67,6 +68,7 @@ except RuntimeException:
 
 
 CHARSTYLEID = "ch2_"
+SNIPPETTAGID = CHARSTYLEID + "options"
 
 
 class UndoAction(unohelper.Base, XUndoAction):
@@ -202,6 +204,18 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         '''Start code highlighting with current options as default.'''
 
         self.prepare_highlight()
+
+    def do_update_all(self):
+        '''Update all already highlighted snippets based on last saved options.
+        Code-blocks must have been highlighted with Code Highlighter 2.'''
+
+        self.update_all(False)
+
+    def do_update_all_from_tag(self):
+        '''Update all already highlighted snippets based on options stored in code-block tags.
+        Code-blocks must have been highlighted at least once with Code Highlighter 2.'''
+
+        self.update_all(True)
 
     # private functions
     def create(self, service):
@@ -362,27 +376,19 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         self.cfg_access.setPropertyValues(tuple(kwargs.keys()), tuple(kwargs.values()))
         self.cfg_access.commitChanges()
 
-    def getlexer(self, code_block):
-        lang = self.options['Language']
-        if lang == 'automatic':
-            lexer = self.guesslexer(code_block)
-            logger.info(f'Automatic lexer choice : {lexer.name}')
-        else:
-            if lang == 'LibreOffice Basic':
-                lang = "VB.net"
-            try:
-                lexer = get_lexer_by_name(lang)
-            except pygments.util.ClassNotFound:
-                # get_lexer_by_name() only checks aliases, not the actual longname
-                for lex in get_all_lexers():
-                    if lex[0].lower() == lang.lower():
-                        # found the longname, use the first alias
-                        lexer = get_lexer_by_name(lex[1][0])
-                        break
-                else:
-                    raise
-        # prevent offset color if selection start with empty line
-        lexer.stripnl = False
+    def getlexerbyname(self, lexername):
+        if lexername == 'LibreOffice Basic':
+            lexername = "VB.net"
+        try:
+            lexer = get_lexer_by_name(lexername)
+        except pygments.util.ClassNotFound:
+            # get_lexer_by_name() only checks aliases, not the actual longname
+            for lex in get_all_lexers():
+                if lex[0].lower() == lexername.lower():
+                    # found the longname, use the first alias
+                    lexer = get_lexer_by_name(lex[1][0])
+            else:
+                raise
         return lexer
 
     def guesslexer(self, code_block):
@@ -391,16 +397,28 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         except AttributeError:
             udas = code_block.ParaUserDefinedAttributes
         except Exception:
-            logging.exception("")
+            logger.exception("")
             return guess_lexer(code_block.String)
-        if udas == None or not "ch2_lexer" in udas.ElementNames:
+        if udas == None or not SNIPPETTAGID in udas.ElementNames:
             return guess_lexer(code_block.String)
         else:
-            lexername = udas.getByName("ch2_lexer").Value
-            if lexername == "Text only":
+            options = literal_eval(udas.getByName(SNIPPETTAGID).Value)
+            logger.info('lexer name gotten from from snippet tag')
+            if options['Language'] == "Text only":
                 return guess_lexer(code_block.String)
             else:
-                return get_lexer_by_name(lexername)
+                return self.getlexerbyname(options['Language'])
+
+    def getlexer(self, code_block):
+        lang = self.options['Language']
+        if lang == 'automatic':
+            lexer = self.guesslexer(code_block)
+            logger.info(f'Automatic lexer choice : {lexer.name}')
+        else:
+            lexer = self.getlexerbyname(lang)
+        # prevent offset color if selection start with empty line
+        lexer.stripnl = False
+        return lexer
 
     def createcharstyles(self, style, styleprefix):
         def addstyle(ttype):
@@ -469,21 +487,24 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         else:
             return get_style_by_name(name)
 
-    def taglexer(self, code_block, lexername):
+    def tagcodeblock(self, code_block, lexername):
         try:
             udas = code_block.UserDefinedAttributes
         except AttributeError:
             udas = code_block.ParaUserDefinedAttributes
         except Exception:
-            logging.exception("")
+            logger.exception("")
             return
-        lexerdata = AttributeData(Type="CDATA", Value=lexername)
+        _options = {k: self.options[k] for k in self.options if not k.startswith('Log')}
+        _options['Language'] = lexername
+        options = AttributeData(Type="CDATA", Value=f'{_options}')
         try:
-            udas.insertByName('ch2_lexer', lexerdata)
+            udas.insertByName(SNIPPETTAGID, options)
         except ElementExistException:
-            udas.replaceByName('ch2_lexer', lexerdata)
+            udas.replaceByName(SNIPPETTAGID, options)
         try:
             code_block.UserDefinedAttributes = udas
+            logger.info(f'snippet tagged with options: {_options}')
         except AttributeError:
             code_block.ParaUserDefinedAttributes = udas
 
@@ -550,7 +571,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                             code_block.FillStyle = FS_SOLID
                             code_block.FillColor = self.to_int(bg_color)
                         # save lexer name as user defined attribute
-                        self.taglexer(code_block, lexer.name)
+                        self.tagcodeblock(code_block, lexer.name)
                         # model is not considered as modified after textbox formatting
                         self.doc.setModified(True)
                         undoaction.get_new_state()
@@ -584,7 +605,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                             cursor.collapseToStart()
                             self.highlight_code(code, cursor, lexer, style)
                             # save lexer name as user defined attribute
-                            self.taglexer(code_block, lexer.name)
+                            self.tagcodeblock(code_block, lexer.name)
                         finally:
                             undomanager.leaveUndoContext()
 
@@ -619,7 +640,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         cursor.collapseToStart()
                         self.highlight_code(code, cursor, lexer, style)
                         # save lexer name as user defined attribute
-                        self.taglexer(code_block, lexer.name)
+                        self.tagcodeblock(code_block, lexer.name)
                     finally:
                         undomanager.leaveUndoContext()
 
@@ -647,7 +668,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                             cursor.collapseToStart()
                             self.highlight_code(code, cursor, lexer, style)
                             # save lexer name as user defined attribute
-                            self.taglexer(code_block, lexer.name)
+                            self.tagcodeblock(code_block, lexer.name)
                         finally:
                             undomanager.leaveUndoContext()
                 else:
@@ -674,7 +695,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                                     cursor.collapseToStart()
                                     self.highlight_code(code, cursor, lexer, style)
                                         # save lexer name as user defined attribute
-                                    self.taglexer(code_block, lexer.name)
+                                    self.tagcodeblock(code_block, lexer.name)
                                 finally:
                                     undomanager.leaveUndoContext()
 
@@ -733,7 +754,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                             cursor.gotoStart(False)
                             self.highlight_code(code, cursor, lexer, style)
                             # save lexer name as user defined attribute
-                            self.taglexer(code_block, lexer.name)
+                            self.tagcodeblock(code_block, lexer.name)
                         finally:
                             undomanager.leaveUndoContext()
 
@@ -872,6 +893,61 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         c.gotoEndOfParagraph(True)
         return c, c.String
 
+    def update_all(self, usetags):
+        def browsetaggedcode_text(container=None):
+            root = False
+            if not container:
+                container = doc.Text
+                root = True
+            c = None
+            for para in container:
+                if not para.supportsService('com.sun.star.text.Paragraph'):
+                    continue
+                if 'ch2_lexer' in para.ParaUserDefinedAttributes.ElementNames and not c:
+                    c = container.createTextCursorByRange(para.Start)
+                elif c and 'ch2_lexer' not in para.ParaUserDefinedAttributes.ElementNames:
+                    c.gotoRange(para.Start, True)
+                    c.goLeft(1, True)
+                    snippets.append(container.createTextCursorByRange(c))
+                    c = None
+            # last paragraph could be part of a code block
+            if c and 'ch2_lexer' in para.ParaUserDefinedAttributes.ElementNames:
+                c.gotoRange(para.End, True)
+                snippets.append(container.createTextCursorByRange(c))
+            if root:
+                for frame in doc.TextFrames:
+                    if 'ch2_lexer' in frame.UserDefinedAttributes.ElementNames:
+                        snippets.append(frame)
+                    else:
+                        browsetaggedcode_text(frame)
+                for table in doc.TextTables:
+                    cellnames = table.CellNames
+                    for cellname in cellnames:
+                        cell = table.getCellByName(cellname)
+                        if 'ch2_lexer' in cell.UserDefinedAttributes.ElementNames:
+                            snippets.append(cell)
+                        else:
+                            browsetaggedcode_text(cell)
+                    for shape in doc.DrawPage:
+                        if (shape.ImplementationName == "SwXShape" and
+                                'ch2_lexer' in shape.UserDefinedAttributes.ElementNames):
+                            snippets.append(shape)
+        def browsetaggedcode_calc():
+            for sheet in self.doc.Sheets:
+                for ranges in sheet.UniqueCellFormatRanges:
+                    udas = ranges.UserDefinedAttributes
+                    if udas and SNIPPETTAGID in udas.ElementNames:
+                        if usetags:
+                            options = literal_eval(udas.getByName(SNIPPETTAGID).Value)
+                            self.options.update(options)
+                        for cell in ranges.Cells:
+                            self.prepare_highlight(cell)
+
+        if self.doc.supportsService('com.sun.star.text.GenericTextDocument'):
+            browsetaggedcode_text()
+        elif self.doc.supportsService('com.sun.star.sheet.SpreadsheetDocument'):
+            browsetaggedcode_calc()
+
 
 # Component registration
 g_ImplementationHelper = unohelper.ImplementationHelper()
@@ -890,3 +966,13 @@ def highlight_previous(event=None):
     ctx = XSCRIPTCONTEXT.getComponentContext()
     highlighter = CodeHighlighter(ctx)
     highlighter.do_highlight_previous()
+
+def highlight_update_all(event=None):
+    ctx = XSCRIPTCONTEXT.getComponentContext()
+    highlighter = CodeHighlighter(ctx)
+    highlighter.do_update_all()
+
+def highlight_update_all_from_tags(event=None):
+    ctx = XSCRIPTCONTEXT.getComponentContext()
+    highlighter = CodeHighlighter(ctx)
+    highlighter.do_update_all_from_tag()

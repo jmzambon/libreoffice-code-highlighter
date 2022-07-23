@@ -399,7 +399,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         except Exception:
             logger.exception("")
             return guess_lexer(code_block.String)
-        if udas == None or not SNIPPETTAGID in udas.ElementNames:
+        if udas == None or not SNIPPETTAGID in udas:
             return guess_lexer(code_block.String)
         else:
             options = literal_eval(udas.getByName(SNIPPETTAGID).Value)
@@ -471,7 +471,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         try:
             stylefamilies = self.doc.StyleFamilies
             charstyles = stylefamilies.CharacterStyles
-            for cs in charstyles.ElementNames:
+            for cs in charstyles:
                 # Remove only the styles created with certainty by the extension
                 if cs.startswith(CHARSTYLEID) or cs.startswith(f'{styleprefix}.'):
                     if not charstyles.getByName(cs).isInUse():
@@ -543,8 +543,15 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             if not self.charstylesavailable:
                 self.options["UseCharStyles"] = False
 
-            # TEXT SHAPES
-            if selected_item.ImplementationName == "com.sun.star.drawing.SvxShapeCollection":
+            # TEXT SHAPE
+            if selected_item.ImplementationName == "SwXShape":
+                shapes = self.create("com.sun.star.drawing.ShapeCollection")
+                shapes.add(selected_item)
+                self.prepare_highlight(shapes)
+                return
+
+            # TEXT SHAPE
+            elif selected_item.ImplementationName == "com.sun.star.drawing.SvxShapeCollection":
                 logger.debug("Dealing with text shapes.")
                 for code_block in selected_item:
                     code = code_block.String
@@ -835,10 +842,11 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         codecharheight = code_block.End.CharHeight
         nocharheight = round(codecharheight*ratio//50)/2   # round to 0.5
 
-        c = code_block.Text.createTextCursor()
-        code = c.Text.String
         if isplaintext:
             c, code = self.ensure_paragraphs(code_block)
+        else:
+            c = code_block.Text.createTextCursor()
+            code = c.Text.String
 
         # check for existing line numbering and its width
         p = re.compile(r"^\s*[0-9]+[\W]?\s+", re.MULTILINE)
@@ -848,7 +856,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             lenno = None
 
         def show_numbering():
-            nblignes = len(code_block.String.split('\n'))
+            nblignes = len(code.split('\n'))
             digits = int(log10(nblignes - 1 + startnb)) + 1
             for n, para in enumerate(code_block, start=startnb):
                 # para.Start.CharHeight = nocharheight
@@ -883,6 +891,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
 
     def ensure_paragraphs(self, selected_code):
         '''Ensure the selection does not contains part of paragraphs.'''
+
         # Cursor could start or end in the middle of a code line, when plain text selected.
         # So let's expand it to the entire paragraphs.
         c = selected_code.Text.createTextCursorByRange(selected_code)
@@ -894,60 +903,84 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         return c, c.String
 
     def update_all(self, usetags):
+        def highlight_snippet(code_block, udas, select=False):
+            if usetags:
+                options = literal_eval(udas.getByName(SNIPPETTAGID).Value)
+                self.options.update(options)
+            if select:
+                self.doc.CurrentController.select(code_block)
+                self.prepare_highlight()
+            else:
+                self.prepare_highlight(code_block)
+
         def browsetaggedcode_text(container=None):
             root = False
+            self.charstylesavailable = True
             if not container:
-                container = doc.Text
+                container = self.doc.Text
                 root = True
-            c = None
+            cursor = None
+            options = None
             for para in container:
                 if not para.supportsService('com.sun.star.text.Paragraph'):
                     continue
-                if 'ch2_lexer' in para.ParaUserDefinedAttributes.ElementNames and not c:
-                    c = container.createTextCursorByRange(para.Start)
-                elif c and 'ch2_lexer' not in para.ParaUserDefinedAttributes.ElementNames:
-                    c.gotoRange(para.Start, True)
-                    c.goLeft(1, True)
-                    snippets.append(container.createTextCursorByRange(c))
-                    c = None
+                udas = para.ParaUserDefinedAttributes
+                if udas == None:
+                    continue
+                if SNIPPETTAGID in udas and not cursor:
+                    options = udas
+                    cursor = container.createTextCursorByRange(para.Start)
+                elif cursor and SNIPPETTAGID not in udas:
+                    cursor.gotoRange(para.Start, True)
+                    cursor.goLeft(1, True)
+                    highlight_snippet(cursor, options, True)
+                    cursor, options = None, None
             # last paragraph could be part of a code block
-            if c and 'ch2_lexer' in para.ParaUserDefinedAttributes.ElementNames:
-                c.gotoRange(para.End, True)
-                snippets.append(container.createTextCursorByRange(c))
+            if cursor and SNIPPETTAGID in udas:
+                cursor.gotoRange(para.End, True)
+                highlight_snippet(cursor, udas, True)
+
             if root:
-                for frame in doc.TextFrames:
-                    if 'ch2_lexer' in frame.UserDefinedAttributes.ElementNames:
-                        snippets.append(frame)
+                for frame in self.doc.TextFrames:
+                    self.charstylesavailable = True
+                    if SNIPPETTAGID in frame.UserDefinedAttributes:
+                        highlight_snippet(frame, frame.UserDefinedAttributes)
                     else:
                         browsetaggedcode_text(frame)
-                for table in doc.TextTables:
+                for table in self.doc.TextTables:
+                    self.doc.CurrentController.select(table)
+                    self.charstylesavailable = True
                     cellnames = table.CellNames
                     for cellname in cellnames:
                         cell = table.getCellByName(cellname)
-                        if 'ch2_lexer' in cell.UserDefinedAttributes.ElementNames:
-                            snippets.append(cell)
+                        if SNIPPETTAGID in cell.UserDefinedAttributes:
+                            cellcursor = table.createCursorByCellName(cellname)
+                            from apso_utils import xray
+                            xray(cellcursor)
+                            highlight_snippet(cellcursor, cell.UserDefinedAttributes)
                         else:
                             browsetaggedcode_text(cell)
-                    for shape in doc.DrawPage:
+                    for shape in self.doc.DrawPage:
                         if (shape.ImplementationName == "SwXShape" and
-                                'ch2_lexer' in shape.UserDefinedAttributes.ElementNames):
-                            snippets.append(shape)
+                                SNIPPETTAGID in shape.UserDefinedAttributes):
+                            self.charstylesavailable = False
+                            highlight_snippet(shape, shape.UserDefinedAttributes)
+
         def browsetaggedcode_calc():
             for sheet in self.doc.Sheets:
                 for ranges in sheet.UniqueCellFormatRanges:
                     udas = ranges.UserDefinedAttributes
-                    if udas and SNIPPETTAGID in udas.ElementNames:
-                        if usetags:
-                            options = literal_eval(udas.getByName(SNIPPETTAGID).Value)
-                            self.options.update(options)
-                        for cell in ranges.Cells:
-                            self.prepare_highlight(cell)
+                    if udas and SNIPPETTAGID in udas:
+                        highlight_snippet(ranges, udas)
 
-        if self.doc.supportsService('com.sun.star.text.GenericTextDocument'):
-            browsetaggedcode_text()
-        elif self.doc.supportsService('com.sun.star.sheet.SpreadsheetDocument'):
-            browsetaggedcode_calc()
-
+        sel = self.doc.CurrentSelection
+        try:
+            if self.doc.supportsService('com.sun.star.text.GenericTextDocument'):
+                browsetaggedcode_text()
+            elif self.doc.supportsService('com.sun.star.sheet.SpreadsheetDocument'):
+                browsetaggedcode_calc()
+        finally:
+            self.doc.CurrentController.select(sel)
 
 # Component registration
 g_ImplementationHelper = unohelper.ImplementationHelper()

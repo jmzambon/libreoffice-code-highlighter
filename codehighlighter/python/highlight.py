@@ -549,15 +549,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             if not self.charstylesavailable:
                 self.options["UseCharStyles"] = False
 
-            # TEXT SHAPE
-            if selected_item.supportsService("com.sun.star.drawing.Text"):
-                shapes = self.create("com.sun.star.drawing.ShapeCollection")
-                shapes.add(selected_item)
-                self.prepare_highlight(shapes)
-                return
-
             # TEXT SHAPES
-            elif selected_item.ImplementationName == "com.sun.star.drawing.SvxShapeCollection":
+            if selected_item.ImplementationName == "com.sun.star.drawing.SvxShapeCollection":
                 logger.debug("Dealing with text shapes.")
                 for code_block in selected_item:
                     code = code_block.String
@@ -912,15 +905,13 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         return c, c.String
 
     def update_all(self, usetags):
-        def highlight_snippet(code_block, udas, select=False):
+        def highlight_snippet(code_block, udas):
             if usetags:
                 options = literal_eval(udas.getByName(SNIPPETTAGID).Value)
                 self.options.update(options)
-            if select:
-                self.doc.CurrentController.select(code_block)
-                self.prepare_highlight()
-            else:
-                self.prepare_highlight(code_block)
+            self.doc.CurrentController.select(code_block)
+            logger.debug(f'Updating snippet (type: {code_block.ImplementationName})')
+            self.prepare_highlight(self.doc.CurrentSelection)
 
         def browsetaggedcode_text(container=None):
             root = False
@@ -942,18 +933,19 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 elif cursor and SNIPPETTAGID not in udas:
                     cursor.gotoRange(para.Start, True)
                     cursor.goLeft(1, True)
-                    highlight_snippet(cursor, options, True)
+                    highlight_snippet(cursor, options)
                     cursor, options = None, None
             # last paragraph could be part of a code block
             if cursor and SNIPPETTAGID in udas:
                 cursor.gotoRange(para.End, True)
-                highlight_snippet(cursor, udas, True)
+                highlight_snippet(cursor, udas)
 
             if root:
                 for frame in self.doc.TextFrames:
                     self.charstylesavailable = True
-                    if SNIPPETTAGID in frame.UserDefinedAttributes:
-                        highlight_snippet(frame, frame.UserDefinedAttributes)
+                    udas = frame.UserDefinedAttributes
+                    if udas and SNIPPETTAGID in udas:
+                        highlight_snippet(frame, udas)
                     else:
                         browsetaggedcode_text(frame)
                 for table in self.doc.TextTables:
@@ -962,16 +954,17 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     cellnames = table.CellNames
                     for cellname in cellnames:
                         cell = table.getCellByName(cellname)
-                        if SNIPPETTAGID in cell.UserDefinedAttributes:
-                            cellcursor = table.createCursorByCellName(cellname)
-                            highlight_snippet(cellcursor, cell.UserDefinedAttributes)
+                        udas = cell.UserDefinedAttributes
+                        if udas and SNIPPETTAGID in udas:
+                            highlight_snippet(cell, udas)
                         else:
                             browsetaggedcode_text(cell)
                 for shape in self.doc.DrawPage:
-                    if (shape.ImplementationName == "SwXShape" and
-                            SNIPPETTAGID in shape.UserDefinedAttributes):
-                        self.charstylesavailable = False
-                        highlight_snippet(shape, shape.UserDefinedAttributes)
+                    if shape.ImplementationName == "SwXShape":
+                        udas = shape.UserDefinedAttributes
+                        if udas and SNIPPETTAGID in udas:
+                            self.charstylesavailable = False
+                            highlight_snippet(shape, udas)
 
         def browsetaggedcode_calc():
             for sheet in self.doc.Sheets:
@@ -984,12 +977,14 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             for drawpage in self.doc.DrawPages:
                 for shape in drawpage:
                     try:
-                        if SNIPPETTAGID in shape.UserDefinedAttributes:
+                        udas = shape.UserDefinedAttributes
+                        if udas and SNIPPETTAGID in udas:
                             self.charstylesavailable = False
-                            highlight_snippet(shape, shape.UserDefinedAttributes)
+                            highlight_snippet(shape, udas)
                     except AttributeError:
                         continue
 
+        logger.debug("Updating all snippets previously formatted with Code Highlighter 2.")
         sel = self.doc.CurrentSelection
         try:
             if self.doc.supportsService('com.sun.star.text.GenericTextDocument'):

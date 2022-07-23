@@ -544,13 +544,13 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 self.options["UseCharStyles"] = False
 
             # TEXT SHAPE
-            if selected_item.ImplementationName == "SwXShape":
+            if selected_item.supportsService("com.sun.star.drawing.Text"):
                 shapes = self.create("com.sun.star.drawing.ShapeCollection")
                 shapes.add(selected_item)
                 self.prepare_highlight(shapes)
                 return
 
-            # TEXT SHAPE
+            # TEXT SHAPES
             elif selected_item.ImplementationName == "com.sun.star.drawing.SvxShapeCollection":
                 logger.debug("Dealing with text shapes.")
                 for code_block in selected_item:
@@ -955,8 +955,6 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         cell = table.getCellByName(cellname)
                         if SNIPPETTAGID in cell.UserDefinedAttributes:
                             cellcursor = table.createCursorByCellName(cellname)
-                            from apso_utils import xray
-                            xray(cellcursor)
                             highlight_snippet(cellcursor, cell.UserDefinedAttributes)
                         else:
                             browsetaggedcode_text(cell)
@@ -973,12 +971,24 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     if udas and SNIPPETTAGID in udas:
                         highlight_snippet(ranges, udas)
 
+        def browsetaggedcode_draw():
+            for drawpage in self.doc.DrawPages:
+                for shape in drawpage:
+                    try:
+                        if SNIPPETTAGID in shape.UserDefinedAttributes:
+                            self.charstylesavailable = False
+                            highlight_snippet(shape, shape.UserDefinedAttributes)
+                    except AttributeError:
+                        continue
+
         sel = self.doc.CurrentSelection
         try:
             if self.doc.supportsService('com.sun.star.text.GenericTextDocument'):
                 browsetaggedcode_text()
             elif self.doc.supportsService('com.sun.star.sheet.SpreadsheetDocument'):
                 browsetaggedcode_calc()
+            elif self.doc.supportsService('com.sun.star.drawing.GenericDrawingDocument'):
+                browsetaggedcode_draw() 
         finally:
             self.doc.CurrentController.select(sel)
 

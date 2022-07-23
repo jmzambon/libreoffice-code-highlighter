@@ -166,6 +166,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             self.dispatcher = self.create("com.sun.star.frame.DispatchHelper")
             self.strings = ch2_i18n.getstrings(ctx)
             self.nolocale = Locale("zxx", "", "")
+            self.inlinesnippet = False
         except Exception:
             logger.exception("")
 
@@ -488,6 +489,11 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             return get_style_by_name(name)
 
     def tagcodeblock(self, code_block, lexername):
+        if self.inlinesnippet:
+            logger.info('Code identified as inline snippet -> no tag.')
+            self.inlinesnippet = False
+            return
+
         try:
             udas = code_block.UserDefinedAttributes
         except AttributeError:
@@ -896,7 +902,10 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         # So let's expand it to the entire paragraphs.
         c = selected_code.Text.createTextCursorByRange(selected_code)
         if c.Start.TextParagraph == c.End.TextParagraph:
-            return c, c.String    # inline snippet, abort expansion
+            if c.Text.compareRegionStarts(c, c.Start.TextParagraph) != 0:
+                logger.info('Code identified as inline snippet.')
+                self.inlinesnippet = True
+                return c, c.String    # inline snippet, abort expansion
         c.gotoStartOfParagraph(False)
         c.gotoRange(selected_code.End, True)
         c.gotoEndOfParagraph(True)

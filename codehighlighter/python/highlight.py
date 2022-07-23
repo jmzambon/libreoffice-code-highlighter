@@ -967,11 +967,11 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                             highlight_snippet(cellcursor, cell.UserDefinedAttributes)
                         else:
                             browsetaggedcode_text(cell)
-                    for shape in self.doc.DrawPage:
-                        if (shape.ImplementationName == "SwXShape" and
-                                SNIPPETTAGID in shape.UserDefinedAttributes):
-                            self.charstylesavailable = False
-                            highlight_snippet(shape, shape.UserDefinedAttributes)
+                for shape in self.doc.DrawPage:
+                    if (shape.ImplementationName == "SwXShape" and
+                            SNIPPETTAGID in shape.UserDefinedAttributes):
+                        self.charstylesavailable = False
+                        highlight_snippet(shape, shape.UserDefinedAttributes)
 
         def browsetaggedcode_calc():
             for sheet in self.doc.Sheets:

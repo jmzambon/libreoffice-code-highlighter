@@ -49,9 +49,6 @@
                                 <value xml:lang="en">Code Highlighter 2</value>
                                 <value xml:lang="fr">Code Highlighter 2</value>
                             </prop>
-                            <prop oor:name="URL" oor:type="xs:string">
-                                <value>.uno:About</value>
-                            </prop>
                             <node oor:name="Submenu">
                                 <node oor:name="hl_dialog" oor:op="replace">
                                     <prop oor:name="Title" oor:type="xs:string">
@@ -135,9 +132,6 @@
                             <prop oor:name="Title" oor:type="xs:string">
                                 <value xml:lang="en">Code Highlighter 2</value>
                                 <value xml:lang="fr">Code Highlighter 2</value>
-                            </prop>
-                            <prop oor:name="URL" oor:type="xs:string">
-                                <value>.uno:About</value>
                             </prop>
                             <node oor:name="Submenu">
                                 <node oor:name="hl_dialog" oor:op="replace">

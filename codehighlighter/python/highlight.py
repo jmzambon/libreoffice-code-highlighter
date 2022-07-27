@@ -272,7 +272,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
 
         # set localized strings
         controlnames = ("label_lang", "label_style", "check_col_bg", "check_charstyles", "check_linenb",
-                        "nb_line", "cs_line", "lbl_nb_start", "lbl_nb_ratio", "lbl_nb_sep", "lbl_styleprefix",
+                        "nb_line", "cs_line", "lbl_nb_start", "lbl_nb_ratio", "lbl_nb_sep", "lbl_masterstyle",
                         "pygments_ver", "topage1", "topage2")
         for controlname in controlnames:
             dialog.getControl(controlname).Model.setPropertyValues(("Label", "HelpText"), self.strings[controlname])
@@ -287,7 +287,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         nb_start = dialog.getControl('nb_start')
         nb_ratio = dialog.getControl('nb_ratio')
         nb_sep = dialog.getControl('nb_sep')
-        cs_prefix = dialog.getControl('cs_prefix')
+        cs_rootstyle = dialog.getControl('cs_rootstyle')
         pygments_ver = dialog.getControl('pygments_ver')
 
         cb_lang.Text = self.options['Language']
@@ -306,7 +306,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         nb_start.Value = self.options['LineNumberStart']
         nb_ratio.Value = self.options['LineNumberRatio']
         nb_sep.Text = self.options['LineNumberSeparator']
-        cs_prefix.Text = self.options['CharStylePrefix']
+        cs_rootstyle.Text = self.options['MasterCharStyle']
         logger.debug("--> filling controls ok.")
 
         def getextver():
@@ -341,7 +341,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         nb_start = int(dialog.getControl('nb_start').Value)
         nb_ratio = int(dialog.getControl('nb_ratio').Value)
         nb_sep = dialog.getControl('nb_sep').Text
-        cs_prefix = dialog.getControl('cs_prefix').Text
+        cs_rootstyle = dialog.getControl('cs_rootstyle').Text
 
         if lang != 'automatic' and lang.lower() not in self.all_lexer_aliases:
             self.msgbox(self.strings["errlang"])
@@ -351,7 +351,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             return False
         self.save_options(Style=style, Language=lang, ColourizeBackground=colorize_bg, ShowLineNumbers=show_linenb,
                           LineNumberStart=nb_start, LineNumberRatio=nb_ratio, LineNumberSeparator=nb_sep,
-                          UseCharStyles=use_charstyles, CharStylePrefix=cs_prefix)
+                          UseCharStyles=use_charstyles, MasterCharStyle=cs_rootstyle)
         logger.debug("Dialog validated and options saved.")
         logger.info(f"Updated options = {self.options}.")
         return True
@@ -397,6 +397,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 if parent not in charstyles:
                     addstyle(ttype.parent)
                 newcharstyle.ParentStyle = parent
+            elif mastercharstyle and mastercharstyle in charstyles.ElementNames:
+                newcharstyle.ParentStyle = mastercharstyle
             for d in style.styles.get(ttype, '').split():
                 tok_style = style.style_for_token(ttype)
                 if d == "noinherit":
@@ -426,6 +428,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     if tok_style["color"]:
                         newcharstyle.CharColor = self.to_int(tok_style["color"])
 
+        mastercharstyle = self.options["MasterCharStyle"].strip()
         stylefamilies = self.doc.StyleFamilies
         charstyles = stylefamilies.CharacterStyles
         for ttype in sorted(style.styles.keys()):
@@ -719,9 +722,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
 
         # create character styles if requested
         # (this happens here to stay synched with undo context)
-        styleprefix = self.options["CharStylePrefix"].strip()
-        if styleprefix == "":
-            styleprefix = CHARSTYLEID + style.__name__.lower()[:-5]
+        styleprefix = CHARSTYLEID + style.__name__.lower()[:-5]
         if self.options["UseCharStyles"]:
             self.createcharstyles(style, styleprefix)
         # caching consecutive tokens with same token type

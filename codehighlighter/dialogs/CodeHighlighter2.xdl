@@ -17,7 +17,7 @@
   <dlg:numericfield dlg:style-id="2" dlg:id="nb_start" dlg:tab-index="7" dlg:left="72" dlg:top="25" dlg:width="57" dlg:height="15" dlg:page="2" dlg:valign="center" dlg:strict-format="true" dlg:decimal-accuracy="0" dlg:value="1" dlg:value-min="1" dlg:spin="true" dlg:repeat="50"/>
   <dlg:numericfield dlg:style-id="2" dlg:id="nb_ratio" dlg:tab-index="8" dlg:left="72" dlg:top="42" dlg:width="57" dlg:height="15" dlg:page="2" dlg:valign="center" dlg:strict-format="true" dlg:decimal-accuracy="0" dlg:value-min="50" dlg:value-max="100" dlg:spin="true" dlg:repeat="50"/>
   <dlg:textfield dlg:style-id="2" dlg:id="nb_sep" dlg:tab-index="9" dlg:left="72" dlg:top="59" dlg:width="34" dlg:height="15" dlg:page="2" dlg:valign="center"/>
-  <dlg:textfield dlg:style-id="2" dlg:id="cs_prefix" dlg:tab-index="10" dlg:left="92" dlg:top="95" dlg:width="50" dlg:height="15" dlg:page="2" dlg:valign="center"/>
+  <dlg:textfield dlg:style-id="2" dlg:id="cs_rootstyle" dlg:tab-index="10" dlg:left="102" dlg:top="95" dlg:width="50" dlg:height="15" dlg:page="2" dlg:valign="center"/>
   <dlg:button dlg:id="btn_ok" dlg:tab-index="11" dlg:left="15" dlg:top="116" dlg:width="50" dlg:height="16" dlg:default="true" dlg:button-type="ok"/>
   <dlg:button dlg:id="btn_cancel" dlg:tab-index="12" dlg:left="72" dlg:top="116" dlg:width="50" dlg:height="16" dlg:button-type="cancel"/>
   <dlg:button dlg:id="topage1" dlg:tab-index="13" dlg:left="130" dlg:top="116" dlg:width="50" dlg:height="16" dlg:page="2">
@@ -30,7 +30,7 @@
   <dlg:text dlg:id="lbl_nb_ratio" dlg:tab-index="18" dlg:left="15" dlg:top="42" dlg:width="47" dlg:height="15" dlg:page="2" dlg:align="right" dlg:valign="center"/>
   <dlg:text dlg:id="lbl_nb_sep" dlg:tab-index="19" dlg:left="15" dlg:top="59" dlg:width="47" dlg:height="15" dlg:page="2" dlg:align="right" dlg:valign="center"/>
   <dlg:fixedline dlg:id="cs_line" dlg:tab-index="20" dlg:left="15" dlg:top="81" dlg:width="144" dlg:height="10" dlg:page="2"/>
-  <dlg:text dlg:id="lbl_styleprefix" dlg:tab-index="21" dlg:left="15" dlg:top="95" dlg:width="75" dlg:height="15" dlg:page="2" dlg:align="right" dlg:valign="center"/>
+  <dlg:text dlg:id="lbl_masterstyle" dlg:tab-index="21" dlg:left="15" dlg:top="95" dlg:width="85" dlg:height="15" dlg:page="2" dlg:align="right" dlg:valign="center"/>
   <dlg:button dlg:id="topage2" dlg:tab-index="22" dlg:left="130" dlg:top="116" dlg:width="50" dlg:height="16" dlg:page="1">
    <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.UNO:topage2" script:language="UNO"/>
   </dlg:button>

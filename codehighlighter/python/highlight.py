@@ -504,18 +504,22 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         except Exception:
             logger.exception("")
             return
-        _options = {k: self.options[k] for k in self.options if not k.startswith('Log')}
-        _options['Language'] = lexername
-        options = AttributeData(Type="CDATA", Value=f'{_options}')
-        try:
-            udas.insertByName(SNIPPETTAGID, options)
-        except ElementExistException:
-            udas.replaceByName(SNIPPETTAGID, options)
-        try:
-            code_block.UserDefinedAttributes = udas
-            logger.info(f'snippet tagged with options: {_options}')
-        except AttributeError:
-            code_block.ParaUserDefinedAttributes = udas
+        if udas is not None:
+            _options = {k: self.options[k] for k in self.options if not k.startswith('Log')}
+            _options['Language'] = lexername
+            options = AttributeData(Type="CDATA", Value=f'{_options}')
+            try:
+                udas.insertByName(SNIPPETTAGID, options)
+            except ElementExistException:
+                udas.replaceByName(SNIPPETTAGID, options)
+            try:
+                code_block.UserDefinedAttributes = udas
+                logger.info(f'snippet tagged with options: {_options}')
+            except AttributeError:
+                code_block.ParaUserDefinedAttributes = udas
+        else:
+            logger.debug("Problem while saving user defined attributes: code block is probably mixing attributes. ")
+            logger.debug(f"Code block concerned: {code_block.String}")
 
     def prepare_highlight(self, selected_item=None):
         '''

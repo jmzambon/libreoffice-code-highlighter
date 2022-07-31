@@ -93,10 +93,12 @@ class UndoAction(unohelper.Base, XUndoAction):
     # XUndoAction (https://www.openoffice.org/api/docs/common/ref/com/sun/star/document/XUndoAction.html)
     def undo(self):
         self.textbox.setString(self.old_text)
+        self.textbox.UserDefinedAttributes = self.old_attributes
         self._format(self.old_portions, self.old_bg)
 
     def redo(self):
         self.textbox.setString(self.new_text)
+        self.textbox.UserDefinedAttributes = self.new_attributes
         self._format(self.new_portions, self.new_bg)
 
     # public
@@ -109,6 +111,7 @@ class UndoAction(unohelper.Base, XUndoAction):
         self.old_bg = self.textbox.getPropertyValues(self.bgprops)
         self.old_text = self.textbox.String
         self.old_portions = self._extract_portions()
+        self.old_attributes = self.textbox.UserDefinedAttributes
 
     def get_new_state(self):
         '''
@@ -119,6 +122,7 @@ class UndoAction(unohelper.Base, XUndoAction):
         self.new_bg = self.textbox.getPropertyValues(self.bgprops)
         self.new_text = self.textbox.String
         self.new_portions = self._extract_portions()
+        self.new_attributes = self.textbox.UserDefinedAttributes
 
     # private
     def _extract_portions(self):
@@ -206,17 +210,11 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
 
         self.prepare_highlight()
 
-    def do_update_all(self):
-        '''Update all already highlighted snippets based on last saved options.
-        Code-blocks must have been highlighted with Code Highlighter 2.'''
-
-        self.update_all(False)
-
-    def do_update_all_from_tag(self):
-        '''Update all already highlighted snippets based on options stored in code-block tags.
+    def do_update(self):
+        '''Update already highlighted snippets based on options stored in code-block tags.
         Code-blocks must have been highlighted at least once with Code Highlighter 2.'''
 
-        self.update_all(True)
+        self.prepare_highlight(updatecode=True)
 
     # private functions
     def create(self, service):
@@ -521,7 +519,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             logger.debug("Problem while saving user defined attributes: code block is probably mixing attributes. ")
             logger.debug(f"Code block concerned: {code_block.String}")
 
-    def prepare_highlight(self, selected_item=None):
+    def prepare_highlight(self, selected_item=None, updatecode=False):
         '''
         Check if selection is valid and contains text.
         If there is no selection but cursor is inside a text frame or
@@ -556,86 +554,147 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             if not self.charstylesavailable:
                 self.options["UseCharStyles"] = False
 
+            # TEXT SHAPE
+            if selected_item.ImplementationName in ("SwXShape", "SvxShapeText"):
+                logger.debug("Dealing with text shape.")
+                code_block = selected_item
+                code = code_block.String
+                if code.strip():
+                    hascode = True
+                    lexer = self.getlexer(code_block)
+                    # exit edit mode if necessary
+                    self.dispatcher.executeDispatch(self.frame, ".uno:SelectObject", "", 0, ())
+                    undoaction = UndoAction(self.doc, code_block,
+                                            f"code highlight (lang: {lexer.name}, style: {stylename})")
+                    logger.debug("Custom undo action created.")
+                    if self.show_line_numbers(code_block):
+                        code = code_block.String    # code string has changed
+                    cursor = code_block.createTextCursorByRange(code_block)
+                    cursor.CharLocale = self.nolocale
+                    cursor.collapseToStart()
+                    self.highlight_code(code, cursor, lexer, style)
+                    # unlock controllers here to force left pane syncing in draw/impress
+                    if self.doc.supportsService("com.sun.star.drawing.GenericDrawingDocument"):
+                        self.doc.unlockControllers()
+                        logger.debug("Controllers unlocked.")
+                    # code_block.FillStyle = FS_NONE
+                    if bg_color:
+                        code_block.FillStyle = FS_SOLID
+                        code_block.FillColor = self.to_int(bg_color)
+                    # save options as user defined attribute
+                    self.tagcodeblock(code_block, lexer.name)
+                    # model is not considered as modified after textbox formatting
+                    self.doc.setModified(True)
+                    undoaction.get_new_state()
+                    undomanager.addUndoAction(undoaction)
+                    logger.debug("Custom undo action added.")
+
             # TEXT SHAPES
-            if selected_item.ImplementationName == "com.sun.star.drawing.SvxShapeCollection":
+            elif selected_item.ImplementationName == "com.sun.star.drawing.SvxShapeCollection":
                 logger.debug("Dealing with text shapes.")
                 for code_block in selected_item:
-                    code = code_block.String
-                    if code.strip():
-                        hascode = True
-                        lexer = self.getlexer(code_block)
-                        # exit edit mode if necessary
-                        self.dispatcher.executeDispatch(self.frame, ".uno:SelectObject", "", 0, ())
-                        undoaction = UndoAction(self.doc, code_block,
-                                                f"code highlight (lang: {lexer.name}, style: {stylename})")
-                        logger.debug("Custom undo action created.")
-                        if self.show_line_numbers(code_block):
-                            code = code_block.String    # code string has changed
-                        cursor = code_block.createTextCursorByRange(code_block)
+                    if updatecode:
+                        udas = code_block.UserDefinedAttributes
+                        if udas and SNIPPETTAGID in udas:
+                            options = literal_eval(udas.getByName(SNIPPETTAGID).Value)
+                            self.options.update(options)
+                        else:
+                            continue
+                    hascode = True
+                    self.prepare_highlight(code_block)
+
+            # PLAIN TEXT
+            elif selected_item.ImplementationName == "SwXTextRange":
+                logger.debug("Dealing with plain text.")
+                code_block = selected_item
+                code = code_block.String
+                if code.strip():
+                    hascode = True
+                    lexer = self.getlexer(code_block)
+                    try:
+                        undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
+                        self.show_line_numbers(code_block, isplaintext=True)
+                        cursor, code = self.ensure_paragraphs(code_block)
+                        # ParaBackColor does not work anymore, and new FillProperties isn't available from API
+                        # see https://bugs.documentfoundation.org/show_bug.cgi?id=99125
+                        # so let's use the dispatcher as workaround
+                        # cursor.ParaBackColor = -1
+                        # prop = PropertyValue(Name="BackgroundColor", Value=-1)
+                        # self.dispatcher.executeDispatch(self.frame, ".uno:BackgroundColor", "", 0, (prop,))
+                        self.doc.CurrentController.select(cursor)
                         cursor.CharLocale = self.nolocale
+                        if bg_color:
+                            # cursor.ParaBackColor = self.to_int(bg_color)
+                            prop = PropertyValue(Name="BackgroundColor", Value=self.to_int(bg_color))
+                            self.dispatcher.executeDispatch(self.frame, ".uno:BackgroundColor", "", 0, (prop,))
                         cursor.collapseToStart()
                         self.highlight_code(code, cursor, lexer, style)
-                        # unlock controllers here to force left pane syncing in draw/impress
-                        if self.doc.supportsService("com.sun.star.drawing.GenericDrawingDocument"):
-                            self.doc.unlockControllers()
-                            logger.debug("Controllers unlocked.")
-                        # code_block.FillStyle = FS_NONE
-                        if bg_color:
-                            code_block.FillStyle = FS_SOLID
-                            code_block.FillColor = self.to_int(bg_color)
-                        # save lexer name as user defined attribute
+                        # save options as user defined attribute
                         self.tagcodeblock(code_block, lexer.name)
-                        # model is not considered as modified after textbox formatting
-                        self.doc.setModified(True)
-                        undoaction.get_new_state()
-                        undomanager.addUndoAction(undoaction)
-                        logger.debug("Custom undo action added.")
+                    finally:
+                        undomanager.leaveUndoContext()
 
             # PLAIN TEXTS
             elif selected_item.ImplementationName == "SwXTextRanges":
-                logger.debug("Dealing with text ranges.")
                 for code_block in selected_item:
                     code = code_block.String
                     if code.strip():
+                        if updatecode:
+                            udas = code_block.ParaUserDefinedAttributes
+                            if udas and SNIPPETTAGID in udas:
+                                hascode = True
+                                options = literal_eval(udas.getByName(SNIPPETTAGID).Value)
+                                self.options.update(options)
+                            else:
+                                continue
                         hascode = True
-                        lexer = self.getlexer(code_block)
-                        try:
-                            undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
-                            self.show_line_numbers(code_block, isplaintext=True)
-                            cursor, code = self.ensure_paragraphs(code_block)
-                            # ParaBackColor does not work anymore, and new FillProperties isn't available from API
-                            # see https://bugs.documentfoundation.org/show_bug.cgi?id=99125
-                            # so let's use the dispatcher as workaround
-                            # cursor.ParaBackColor = -1
-                            # prop = PropertyValue(Name="BackgroundColor", Value=-1)
-                            # self.dispatcher.executeDispatch(self.frame, ".uno:BackgroundColor", "", 0, (prop,))
-                            if bg_color:
-                                # cursor.ParaBackColor = self.to_int(bg_color)
-                                prop = PropertyValue(Name="BackgroundColor", Value=self.to_int(bg_color))
-                                self.dispatcher.executeDispatch(self.frame, ".uno:BackgroundColor", "", 0, (prop,))
-                            cursor.CharLocale = self.nolocale
-                            self.doc.CurrentController.select(cursor)
-                            cursor.collapseToStart()
-                            self.highlight_code(code, cursor, lexer, style)
-                            # save lexer name as user defined attribute
-                            self.tagcodeblock(code_block, lexer.name)
-                        finally:
-                            undomanager.leaveUndoContext()
+                        self.prepare_highlight(code_block)
 
                 if not hascode and selected_item.Count == 1:
                     code_block = selected_item[0]
                     if code_block.TextFrame:
-                        self.prepare_highlight(code_block.TextFrame)
+                        self.prepare_highlight(code_block.TextFrame, updatecode)
                         return
                     elif code_block.TextTable:
                         cellname = code_block.Cell.CellName
                         texttablecursor = code_block.TextTable.createCursorByCellName(cellname)
-                        self.prepare_highlight(texttablecursor)
+                        self.prepare_highlight(texttablecursor, updatecode)
                         return
 
             # TEXT FRAME
             elif selected_item.ImplementationName == "SwXTextFrame":
-                logger.debug("Dealing with a text frame")
+                if updatecode:
+                    udas = selected_item.UserDefinedAttributes
+                    if udas and SNIPPETTAGID in udas:
+                        options = literal_eval(udas.getByName(SNIPPETTAGID).Value)
+                        self.options.update(options)
+                        hascode = True
+                        self.prepare_highlight(selected_item)
+                else:
+                    logger.debug("Dealing with a text frame")
+                    code_block = selected_item
+                    code = code_block.String
+                    if code.strip():
+                        hascode = True
+                        lexer = self.getlexer(code_block)
+                        undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
+                        if self.show_line_numbers(code_block):
+                            code = code_block.String    # code string has changed
+                        try:
+                            # code_block.BackColor = -1
+                            if bg_color:
+                                code_block.BackColor = self.to_int(bg_color)
+                            cursor = code_block.createTextCursorByRange(code_block)
+                            cursor.CharLocale = self.nolocale
+                            cursor.collapseToStart()
+                            self.highlight_code(code, cursor, lexer, style)
+                            # save options as user defined attribute
+                            self.tagcodeblock(code_block, lexer.name)
+                        finally:
+                            undomanager.leaveUndoContext()
+
+            # TEXT TABLE CELL
+            elif selected_item.ImplementationName == "SwXCell":
                 code_block = selected_item
                 code = code_block.String
                 if code.strip():
@@ -652,7 +711,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         cursor.CharLocale = self.nolocale
                         cursor.collapseToStart()
                         self.highlight_code(code, cursor, lexer, style)
-                        # save lexer name as user defined attribute
+                        # save options as user defined attribute
                         self.tagcodeblock(code_block, lexer.name)
                     finally:
                         undomanager.leaveUndoContext()
@@ -665,25 +724,18 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     # only one cell
                     logger.debug("Dealing with a single text table cell.")
                     code_block = table.getCellByName(rangename)
-                    code = code_block.String
-                    if code.strip():
-                        hascode = True
-                        lexer = self.getlexer(code_block)
-                        undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
-                        if self.show_line_numbers(code_block):
-                            code = code_block.String    # code string has changed
-                        try:
-                            # code_block.BackColor = -1
-                            if bg_color:
-                                code_block.BackColor = self.to_int(bg_color)
-                            cursor = code_block.createTextCursorByRange(code_block)
-                            cursor.CharLocale = self.nolocale
-                            cursor.collapseToStart()
-                            self.highlight_code(code, cursor, lexer, style)
-                            # save lexer name as user defined attribute
-                            self.tagcodeblock(code_block, lexer.name)
-                        finally:
-                            undomanager.leaveUndoContext()
+                    if updatecode:
+                        udas = code_block.UserDefinedAttributes
+                        if udas and SNIPPETTAGID in udas:
+                            options = literal_eval(udas.getByName(SNIPPETTAGID).Value)
+                            self.options.update(options)
+                            hascode = True
+                            self.prepare_highlight(code_block)
+                    else:
+                        code = code_block.String
+                        if code.strip():
+                            hascode = True
+                            self.prepare_highlight(code_block)
                 else:
                     # at least two cells
                     logger.debug("Dealing with multiple text table cells.")
@@ -692,32 +744,26 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     for row in range(nrows):
                         for col in range(ncols):
                             code_block = cellrange.getCellByPosition(col, row)
-                            code = code_block.String
-                            if code.strip():
-                                hascode = True
-                                lexer = self.getlexer(code_block)
-                                undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
-                                if self.show_line_numbers(code_block):
-                                    code = code_block.String    # code string has changed
-                                try:
-                                    # code_block.BackColor = -1
-                                    if bg_color:
-                                        code_block.BackColor = self.to_int(bg_color)
-                                    cursor = code_block.createTextCursorByRange(code_block)
-                                    cursor.CharLocale = self.nolocale
-                                    cursor.collapseToStart()
-                                    self.highlight_code(code, cursor, lexer, style)
-                                        # save lexer name as user defined attribute
-                                    self.tagcodeblock(code_block, lexer.name)
-                                finally:
-                                    undomanager.leaveUndoContext()
+                            if updatecode:
+                                udas = code_block.UserDefinedAttributes
+                                if udas and SNIPPETTAGID in udas:
+                                    options = literal_eval(udas.getByName(SNIPPETTAGID).Value)
+                                    self.options.update(options)
+                                    hascode = True
+                                    self.prepare_highlight(code_block)
+                                    continue
+                            else:
+                                code = code_block.String
+                                if code.strip():
+                                    hascode = True
+                                    self.prepare_highlight(code_block)
 
             # CURSOR INSIDE DRAW/IMPRESS SHAPE
             elif selected_item.ImplementationName == "SvxUnoTextCursor":
                 logger.debug("Dealing with text shape in edit mode.")
                 # exit edit mode
                 self.dispatcher.executeDispatch(self.frame, ".uno:SelectObject", "", 0, ())
-                self.prepare_highlight()
+                self.prepare_highlight(updatecode=updatecode)
                 return
 
                 # ### OLD CODE, intended to highlight sub text, but api's too buggy'
@@ -744,6 +790,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 #     finally:
                 #         undomanager.leaveUndoContext()
 
+            # CALC CELL
+
             # CALC CELL RANGE
             elif selected_item.ImplementationName in ("ScCellObj", "ScCellRangeObj", "ScCellRangesObj"):
                 logger.debug('Dealing with Calc cells.')
@@ -751,25 +799,35 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 self.dispatcher.executeDispatch(self.frame, ".uno:Deselect", "", 0, ())
                 cells = selected_item.queryContentCells(CF_STRING).Cells
                 if cells.hasElements():
-                    hascode = True
                     for code_block in cells:
-                        code = code_block.String
-                        lexer = self.getlexer(code_block)
-                        undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
-                        if self.show_line_numbers(code_block):
-                            code = code_block.String    # code string has changed
-                        try:
-                            # code_block.CellBackColor = -1
-                            code_block.CharLocale = self.nolocale
-                            if bg_color:
-                                code_block.CellBackColor = self.to_int(bg_color)
-                            cursor = code_block.createTextCursor()
-                            cursor.gotoStart(False)
-                            self.highlight_code(code, cursor, lexer, style)
-                            # save lexer name as user defined attribute
-                            self.tagcodeblock(code_block, lexer.name)
-                        finally:
-                            undomanager.leaveUndoContext()
+                        if updatecode:
+                            udas = code_block.UserDefinedAttributes
+                            if udas and SNIPPETTAGID in udas:
+                                hascode = True
+                                options = literal_eval(udas.getByName(SNIPPETTAGID).Value)
+                                self.options.update(options)
+                                self.prepare_highlight(code_block)
+                            else:
+                                continue
+                        else:
+                            hascode = True
+                            code = code_block.String
+                            lexer = self.getlexer(code_block)
+                            undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
+                            if self.show_line_numbers(code_block):
+                                code = code_block.String    # code string has changed
+                            try:
+                                # code_block.CellBackColor = -1
+                                code_block.CharLocale = self.nolocale
+                                if bg_color:
+                                    code_block.CellBackColor = self.to_int(bg_color)
+                                cursor = code_block.createTextCursor()
+                                cursor.gotoStart(False)
+                                self.highlight_code(code, cursor, lexer, style)
+                                # save options as user defined attribute
+                                self.tagcodeblock(code_block, lexer.name)
+                            finally:
+                                undomanager.leaveUndoContext()
 
             else:
                 logger.debug("Invalid selection (2).")
@@ -777,14 +835,19 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 return
 
             if not hascode:
-                logger.debug("Current selection contains no text.")
-                self.msgbox(self.strings["errsel2"])
+                if updatecode:
+                    logger.debug("Selection is not updatable.")
+                    self.msgbox(self.strings["errsel3"])
+                else:
+                    logger.debug("Current selection contains no text.")
+                    self.msgbox(self.strings["errsel2"])
 
         except AttributeError:
             self.msgbox(self.strings["errsel1"])
             logger.exception("")
         except Exception:
             self.msgbox(traceback.format_exc())
+            logger.exception("")
         finally:
             if self.doc.hasControllersLocked():
                 self.doc.unlockControllers()
@@ -901,15 +964,18 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         c = selected_code.Text.createTextCursorByRange(selected_code)
         if c.Start.TextParagraph == c.End.TextParagraph:
             if c.Text.compareRegionStarts(c, c.Start.TextParagraph) != 0:
+                # inline snippet, abort expansion
                 logger.info('Code identified as inline snippet.')
                 self.inlinesnippet = True
-                return c, c.String    # inline snippet, abort expansion
+                return c, c.String
         c.gotoStartOfParagraph(False)
         c.gotoRange(selected_code.End, True)
         c.gotoEndOfParagraph(True)
         return c, c.String
 
     def update_all(self, usetags):
+        '''Update all formatted code in the active document.
+        DO NOT PUBLISH, ALPHA STAGE'''
         def highlight_snippet(code_block, udas):
             if usetags:
                 options = literal_eval(udas.getByName(SNIPPETTAGID).Value)
@@ -1019,12 +1085,7 @@ def highlight_previous(event=None):
     highlighter = CodeHighlighter(ctx)
     highlighter.do_highlight_previous()
 
-def highlight_update_all(event=None):
+def highlight_update(event=None):
     ctx = XSCRIPTCONTEXT.getComponentContext()
     highlighter = CodeHighlighter(ctx)
-    highlighter.do_update_all()
-
-def highlight_update_all_from_tags(event=None):
-    ctx = XSCRIPTCONTEXT.getComponentContext()
-    highlighter = CodeHighlighter(ctx)
-    highlighter.do_update_all_from_tag()
+    highlighter.do_update()

@@ -652,6 +652,15 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
 
                 if not hascode and selected_item.Count == 1:
                     code_block = selected_item[0]
+                    if updatecode:
+                        udas = code_block.ParaUserDefinedAttributes
+                        if udas and SNIPPETTAGID in udas:
+                            cursor, _ = self.ensure_paragraphs(code_block)
+                            options = literal_eval(udas.getByName(SNIPPETTAGID).Value)
+                            self.options.update(options)
+                            self.doc.CurrentController.select(cursor)
+                            self.prepare_highlight(updatecode=updatecode)
+                            return
                     if code_block.TextFrame:
                         self.prepare_highlight(code_block.TextFrame, updatecode)
                         return
@@ -957,22 +966,49 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         return res
 
     def ensure_paragraphs(self, selected_code):
-        '''Ensure the selection does not contains part of paragraphs.'''
+        '''Ensure the selection does not contains part of paragraphs.
+        Cursor could start or end in the middle of a code line, when plain text selected.
+        So let's expand it to the entire paragraphs.'''
 
-        # Cursor could start or end in the middle of a code line, when plain text selected.
-        # So let's expand it to the entire paragraphs.
-        c = selected_code.Text.createTextCursorByRange(selected_code)
-        if c.Start.TextParagraph == c.End.TextParagraph:
-            if c.Text.compareRegionStarts(c, c.Start.TextParagraph) != 0:
-                # inline snippet, abort expansion
-                logger.info('Code identified as inline snippet.')
-                self.inlinesnippet = True
-                return c, c.String
-        c.gotoStartOfParagraph(False)
-        c.gotoRange(selected_code.End, True)
-        c.gotoEndOfParagraph(True)
+        if selected_code.String:
+            c = selected_code.Text.createTextCursorByRange(selected_code)
+            if c.Start.TextParagraph == c.End.TextParagraph:
+                if c.Text.compareRegionStarts(c, c.Start.TextParagraph) != 0:
+                    # inline snippet, abort expansion
+                    logger.info('Code identified as inline snippet.')
+                    self.inlinesnippet = True
+                    return c, c.String
+            c.gotoStartOfParagraph(False)
+            c.gotoRange(selected_code.End, True)
+            c.gotoEndOfParagraph(True)
+        else:
+            udas = selected_code.ParaUserDefinedAttributes
+            if udas and "ch2_options" in udas:
+                options = udas.getByName("ch2_options").Value
+                c = selected_code.Text.createTextCursorByRange(selected_code)
+
+                startpara = c.TextParagraph
+                endpara = c.TextParagraph
+                while c.gotoPreviousParagraph(False):
+                    udas = c.ParaUserDefinedAttributes
+                    if (udas and "ch2_options" in udas and
+                           udas.getByName("ch2_options").Value == options):
+                        startpara = c.TextParagraph
+                    else:
+                        break
+
+                c.gotoRange(selected_code, False)
+                while c.gotoNextParagraph(False):
+                    udas = c.ParaUserDefinedAttributes
+                    if (udas and "ch2_options" in udas and
+                            udas.getByName("ch2_options").Value == options):
+                        endpara = c.TextParagraph
+                    else:
+                        break
+                c.gotoRange(startpara.Start, False)
+                c.gotoRange(endpara.End, True)
         return c, c.String
-
+            
     def update_all(self, usetags):
         '''Update all formatted code in the active document.
         DO NOT PUBLISH, ALPHA STAGE'''

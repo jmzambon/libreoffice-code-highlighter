@@ -555,7 +555,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 self.options["UseCharStyles"] = False
 
             # TEXT SHAPE
-            if selected_item.ImplementationName in ("SwXShape", "SvxShapeText"):
+            if selected_item.ImplementationName in ("SwXShape", "SvxShapeText", "com.sun.star.comp.sc.ScShapeObj"):
                 logger.debug("Dealing with text shape.")
                 code_block = selected_item
                 code = code_block.String

@@ -593,15 +593,17 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             elif selected_item.ImplementationName == "com.sun.star.drawing.SvxShapeCollection":
                 logger.debug("Dealing with text shapes.")
                 for code_block in selected_item:
-                    if updatecode:
-                        udas = code_block.UserDefinedAttributes
-                        if udas and SNIPPETTAGID in udas:
-                            options = literal_eval(udas.getByName(SNIPPETTAGID).Value)
-                            self.options.update(options)
-                        else:
-                            continue
-                    hascode = True
-                    self.prepare_highlight(code_block)
+                    code = code_block.String
+                    if code.strip():
+                        if updatecode:
+                            udas = code_block.UserDefinedAttributes
+                            if udas and SNIPPETTAGID in udas:
+                                options = literal_eval(udas.getByName(SNIPPETTAGID).Value)
+                                self.options.update(options)
+                            else:
+                                continue
+                        hascode = True
+                        self.prepare_highlight(code_block)
 
             # PLAIN TEXT
             elif selected_item.ImplementationName == "SwXTextRange":

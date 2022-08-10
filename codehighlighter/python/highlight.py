@@ -386,8 +386,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 if lex[0].lower() == lexername.lower():
                     # found the longname, use the first alias
                     lexer = get_lexer_by_name(lex[1][0])
-            else:
-                raise
+                else:
+                    raise
         return lexer
 
     def guesslexer(self, code_block):

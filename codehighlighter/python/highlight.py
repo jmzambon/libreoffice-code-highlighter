@@ -379,16 +379,15 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         if lexername == 'LibreOffice Basic':
             lexername = "VB.net"
         try:
-            lexer = get_lexer_by_name(lexername)
+            return get_lexer_by_name(lexername)
         except pygments.util.ClassNotFound:
             # get_lexer_by_name() only checks aliases, not the actual longname
             for lex in get_all_lexers():
                 if lex[0].lower() == lexername.lower():
                     # found the longname, use the first alias
-                    lexer = get_lexer_by_name(lex[1][0])
+                    return get_lexer_by_name(lex[1][0])
             else:
                 raise
-        return lexer
 
     def guesslexer(self, code_block):
         try:

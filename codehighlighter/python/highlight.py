@@ -677,7 +677,9 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             # TEXT FRAME
             elif selected_item.ImplementationName == "SwXTextFrame":
                 if updatecode:
-                    udas = selected_item.UserDefinedAttributes
+                    # Frame's UserDefinedAttributes can't be reverted with undo manager -> using text cursor instead
+                    c = selected_item.createTextCursorByRange(selected_item)
+                    udas = c.ParaUserDefinedAttributes
                     if udas and SNIPPETTAGID in udas:
                         options = literal_eval(udas.getByName(SNIPPETTAGID).Value)
                         self.options.update(options)
@@ -689,20 +691,21 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     code = code_block.String
                     if code.strip():
                         hascode = True
-                        lexer = self.getlexer(code_block)
+                        cursor = code_block.createTextCursorByRange(code_block)
+                        lexer = self.getlexer(cursor)
                         undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
                         if self.show_line_numbers(code_block):
                             code = code_block.String    # code string has changed
+                            cursor = code_block.createTextCursorByRange(code_block)
                         try:
                             # code_block.BackColor = -1
                             if bg_color:
                                 code_block.BackColor = self.to_int(bg_color)
-                            cursor = code_block.createTextCursorByRange(code_block)
+                            # save options as user defined attribute
+                            self.tagcodeblock(cursor, lexer.name)
                             cursor.CharLocale = self.nolocale
                             cursor.collapseToStart()
                             self.highlight_code(code, cursor, lexer, style)
-                            # save options as user defined attribute
-                            self.tagcodeblock(code_block, lexer.name)
                         finally:
                             undomanager.leaveUndoContext()
 

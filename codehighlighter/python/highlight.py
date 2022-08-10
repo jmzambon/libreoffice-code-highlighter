@@ -431,7 +431,10 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 if parent not in charstyles:
                     addstyle(ttype.parent)
                 newcharstyle.ParentStyle = parent
-            elif mastercharstyle and mastercharstyle in charstyles.ElementNames:
+            elif mastercharstyle:
+                if not mastercharstyle in charstyles.ElementNames:
+                    master = self.doc.createInstance("com.sun.star.style.CharacterStyle")
+                    charstyles.insertByName(mastercharstyle, master)
                 newcharstyle.ParentStyle = mastercharstyle
             for d in style.styles.get(ttype, '').split():
                 tok_style = style.style_for_token(ttype)

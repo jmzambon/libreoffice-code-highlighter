@@ -19,6 +19,7 @@ CH2_STRINGS = {"en": { # dialog controls (label text + help text)
                       "errstyle": "Unknown style.",
                       "errsel1": "Unsupported selection.",
                       "errsel2": "Nothing to highlight.",
+                      "errsel3": "Update impossible: selection contains unformatted code.",
                       },
 
                "fr": { # contrôles de dilaogue (texte + texte d'aide)
@@ -42,6 +43,7 @@ CH2_STRINGS = {"en": { # dialog controls (label text + help text)
                       "errstyle": "Style inconnu.",
                       "errsel1": "Sélection invalide.",
                       "errsel2": "Rien à coloriser.",
+                      "errsel3": "Mise à jour impossible : la sélection contient du code non formaté.",
                       }
                }
 

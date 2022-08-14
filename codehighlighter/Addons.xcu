@@ -22,7 +22,7 @@
             <node oor:name="javahelps.codehighlighter" oor:op="replace">
                 <node oor:name="javahelps.codehighlighter.menu1" oor:op="replace">
                     <prop oor:name="MergePoint">
-                        <value>.uno:FormatMenu\None</value>
+                        <value>.uno:FormatMenu\.uno:GroupMenu</value>
                     </prop>
                     <prop oor:name="MergeCommand">
                         <value>AddAfter</value>
@@ -32,40 +32,137 @@
                     </prop>
                     <prop oor:name="MergeContext">
                         <value>
-                            com.sun.star.text.TextDocument,com.sun.star.sdb.TextReportDesign,com.sun.star.text.WebDocument,
-                            com.sun.star.xforms.XMLFormDocument,com.sun.star.text.GlobalDocument,com.sun.star.sdb.FormDesign,
-                            com.sun.star.sheet.SpreadsheetDocument,com.sun.star.drawing.DrawingDocument,
-                            com.sun.star.presentation.PresentationDocument,com.sun.star.sdb.OfficeDatabaseDocument
+                            com.sun.star.text.TextDocument,com.sun.star.sheet.SpreadsheetDocument,
+                            com.sun.star.sdb.TextReportDesign,com.sun.star.text.WebDocument,
+                            com.sun.star.xforms.XMLFormDocument,com.sun.star.text.GlobalDocument,
+                            com.sun.star.presentation.PresentationDocument, com.sun.star.sdb.FormDesign,
                         </value>
                     </prop>
                     <node oor:name="MenuItems">
-                        <node oor:name="sep" oor:op="replace">
+                        <node oor:name="ch2-1" oor:op="replace">
                             <prop oor:name="URL" oor:type="xs:string">
                                 <value>private:separator</value>
                             </prop>
                         </node>
-                        <node oor:name="hl_dialog" oor:op="replace">
+                        <node oor:name="ch2-2" oor:op="replace">
                             <prop oor:name="Title" oor:type="xs:string">
-                                <value xml:lang="en">Highlight Code</value>
-                                <value xml:lang="fr">Colorer le code</value>
+                                <value xml:lang="en">Code Highlighter 2</value>
+                                <value xml:lang="fr">Code Highlighter 2</value>
                             </prop>
+                            <node oor:name="Submenu">
+                                <node oor:name="ch2-4" oor:op="replace">
+                                    <prop oor:name="Title" oor:type="xs:string">
+                                        <value xml:lang="en">Highlight Code</value>
+                                        <value xml:lang="fr">Colorer le code</value>
+                                    </prop>
+                                    <prop oor:name="URL" oor:type="xs:string">
+                                        <value>service:ooo.ext.code-highlighter.impl?highlight</value>
+                                    </prop>
+                                    <prop oor:name="Target" oor:type="xs:string">
+                                        <value>_self</value>
+                                    </prop>
+                                </node>
+                                <node oor:name="ch2-5" oor:op="replace">
+                                    <prop oor:name="Title" oor:type="xs:string">
+                                        <value xml:lang="en">Highlight Code (previous settings)</value>
+                                        <value xml:lang="fr">Colorer le code (choix précédents)</value>
+                                    </prop>
+                                    <prop oor:name="URL" oor:type="xs:string">
+                                        <value>service:ooo.ext.code-highlighter.impl?highlight_previous</value>
+                                    </prop>
+                                    <prop oor:name="Target" oor:type="xs:string">
+                                        <value>_self</value>
+                                    </prop>
+                                </node>
+                                <node oor:name="ch2-6" oor:op="replace">
+                                    <prop oor:name="Title" oor:type="xs:string">
+                                        <value xml:lang="en">Update selection</value>
+                                        <value xml:lang="fr">Actualiser la sélection</value>
+                                    </prop>
+                                    <prop oor:name="URL" oor:type="xs:string">
+                                        <value>service:ooo.ext.code-highlighter.impl?update</value>
+                                    </prop>
+                                    <prop oor:name="Target" oor:type="xs:string">
+                                        <value>_self</value>
+                                    </prop>
+                                </node>
+                            </node>
+                        </node>
+                        <node oor:name="ch2-3" oor:op="replace">
                             <prop oor:name="URL" oor:type="xs:string">
-                                <value>service:ooo.ext.code-highlighter.impl?highlight</value>
-                            </prop>
-                            <prop oor:name="Target" oor:type="xs:string">
-                                <value>_self</value>
+                                <value>private:separator</value>
                             </prop>
                         </node>
-                        <node oor:name="hl_previous_settings" oor:op="replace">
-                            <prop oor:name="Title" oor:type="xs:string">
-                                <value xml:lang="en">Highlight Code (previous settings)</value>
-                                <value xml:lang="fr">Colorer le code (choix précédents)</value>
-                            </prop>
+                    </node>
+                </node>
+                <node oor:name="javahelps.codehighlighter.menu2" oor:op="replace">
+                    <prop oor:name="MergePoint">
+                        <value>.uno:FormatMenu\.uno:ObjectTitleDescription</value>
+                    </prop>
+                    <prop oor:name="MergeCommand">
+                        <value>AddAfter</value>
+                    </prop>
+                    <prop oor:name="MergeFallback">
+                        <value>AddPath</value>
+                    </prop>
+                    <prop oor:name="MergeContext">
+                        <value>
+                            com.sun.star.drawing.DrawingDocument
+                        </value>
+                    </prop>
+                    <node oor:name="MenuItems">
+                        <node oor:name="ch2-1" oor:op="replace">
                             <prop oor:name="URL" oor:type="xs:string">
-                                <value>service:ooo.ext.code-highlighter.impl?highlight_previous</value>
+                                <value>private:separator</value>
                             </prop>
-                            <prop oor:name="Target" oor:type="xs:string">
-                                <value>_self</value>
+                        </node>
+                        <node oor:name="ch2-2" oor:op="replace">
+                            <prop oor:name="Title" oor:type="xs:string">
+                                <value xml:lang="en">Code Highlighter 2</value>
+                                <value xml:lang="fr">Code Highlighter 2</value>
+                            </prop>
+                            <node oor:name="Submenu">
+                                <node oor:name="ch2-4" oor:op="replace">
+                                    <prop oor:name="Title" oor:type="xs:string">
+                                        <value xml:lang="en">Highlight Code</value>
+                                        <value xml:lang="fr">Colorer le code</value>
+                                    </prop>
+                                    <prop oor:name="URL" oor:type="xs:string">
+                                        <value>service:ooo.ext.code-highlighter.impl?highlight</value>
+                                    </prop>
+                                    <prop oor:name="Target" oor:type="xs:string">
+                                        <value>_self</value>
+                                    </prop>
+                                </node>
+                                <node oor:name="ch2-5" oor:op="replace">
+                                    <prop oor:name="Title" oor:type="xs:string">
+                                        <value xml:lang="en">Highlight Code (previous settings)</value>
+                                        <value xml:lang="fr">Colorer le code (choix précédents)</value>
+                                    </prop>
+                                    <prop oor:name="URL" oor:type="xs:string">
+                                        <value>service:ooo.ext.code-highlighter.impl?highlight_previous</value>
+                                    </prop>
+                                    <prop oor:name="Target" oor:type="xs:string">
+                                        <value>_self</value>
+                                    </prop>
+                                </node>
+                                <node oor:name="ch2-6" oor:op="replace">
+                                    <prop oor:name="Title" oor:type="xs:string">
+                                        <value xml:lang="en">Update selection</value>
+                                        <value xml:lang="fr">Actualiser la sélection</value>
+                                    </prop>
+                                    <prop oor:name="URL" oor:type="xs:string">
+                                        <value>service:ooo.ext.code-highlighter.impl?update</value>
+                                    </prop>
+                                    <prop oor:name="Target" oor:type="xs:string">
+                                        <value>_self</value>
+                                    </prop>
+                                </node>
+                            </node>
+                        </node>
+                        <node oor:name="ch2-3" oor:op="replace">
+                            <prop oor:name="URL" oor:type="xs:string">
+                                <value>private:separator</value>
                             </prop>
                         </node>
                     </node>
@@ -89,6 +186,19 @@
             <node oor:name="codehighlighter.image2" oor:op="replace">
                 <prop oor:name="URL" oor:type="xs:string">
                     <value>service:ooo.ext.code-highlighter.impl?highlight_previous</value>
+                </prop>
+                <node oor:name="UserDefinedImages">
+                    <prop oor:name="ImageSmallURL">
+                        <value>%origin%/images/icon_16.png</value>
+                    </prop>
+                    <prop oor:name="ImageBigURL">
+                        <value>%origin%/images/icon_26png</value>
+                    </prop>
+                </node>
+            </node>
+            <node oor:name="codehighlighter.image3" oor:op="replace">
+                <prop oor:name="URL" oor:type="xs:string">
+                    <value>service:ooo.ext.code-highlighter.impl?update</value>
                 </prop>
                 <node oor:name="UserDefinedImages">
                     <prop oor:name="ImageSmallURL">

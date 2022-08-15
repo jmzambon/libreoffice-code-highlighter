@@ -942,13 +942,6 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             c = code_block.Text.createTextCursor()
             code = c.Text.String
 
-        # check for existing line numbering and its width
-        p = re.compile(r"^\s*[0-9]+[\W]?\s+", re.MULTILINE)
-        try:
-            lenno = min(len(f) for f in p.findall(code))
-        except ValueError:
-            lenno = None
-
         def show_numbering():
             nblignes = len(code.split('\n'))
             digits = int(log10(nblignes - 1 + startnb)) + 1
@@ -970,16 +963,17 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
 
         if show:
             logger.debug("Showing code block numbering.")
-            if not lenno:
-                show_numbering()
-            else:
-                # numbering already exists, but let's replace it anyway,
-                # as its format may differ from current settings.
+            show_numbering()
+        else:
+            # check for existing line numbering and its width
+            p = re.compile(r"^\s*[0-9]+[\W]?\s+", re.MULTILINE)
+            try:
+                lenno = min(len(f) for f in p.findall(code))
+            except ValueError:
+                lenno = None
+            if lenno:
+                logger.debug("Hiding code block numbering.")
                 hide_numbering()
-                show_numbering()
-        elif lenno:
-            logger.debug("Hiding code block numbering.")
-            hide_numbering()
 
     def ensure_paragraphs(self, selected_code):
         '''Ensure the selection does not contains part of paragraphs.
@@ -1142,3 +1136,9 @@ def highlight_update(event=None):
     ctx = XSCRIPTCONTEXT.getComponentContext()
     highlighter = CodeHighlighter(ctx)
     highlighter.do_update()
+
+
+def highlight_update_all(event=None):
+    ctx = XSCRIPTCONTEXT.getComponentContext()
+    highlighter = CodeHighlighter(ctx)
+    highlighter.update_all(True)

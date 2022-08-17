@@ -212,7 +212,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         self.prepare_highlight()
 
     def do_update(self):
-        '''Update already highlighted snippets based on options stored in code-block tags.
+        '''Update already highlighted snippets based on options stored in codeblock tags.
         Code-blocks must have been highlighted at least once with Code Highlighter 2.'''
 
         self.prepare_highlight(updatecode=True)
@@ -394,7 +394,10 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         try:
             udas = code_block.UserDefinedAttributes
         except AttributeError:
-            udas = code_block.ParaUserDefinedAttributes
+            if self.inlinesnippet:
+                udas = code_block.TextUserDefinedAttributes
+            else:
+                udas = code_block.ParaUserDefinedAttributes
         except Exception:
             logger.exception("")
             return guess_lexer(code_block.String)
@@ -494,17 +497,16 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
 
     def tagcodeblock(self, code_block, lexername):
         if self.inlinesnippet:
-            logger.info('Code identified as inline snippet -> no tag.')
-            self.inlinesnippet = False
-            return
-
-        try:
-            udas = code_block.UserDefinedAttributes
-        except AttributeError:
-            udas = code_block.ParaUserDefinedAttributes
-        except Exception:
-            logger.exception("")
-            return
+            logger.info('Code identified as inline snippet.')
+            udas = code_block.TextUserDefinedAttributes
+        else:
+            try:
+                udas = code_block.UserDefinedAttributes
+            except AttributeError:
+                udas = code_block.ParaUserDefinedAttributes
+            except Exception:
+                logger.exception("")
+                return
         if udas is not None:
             _options = {k: self.options[k] for k in self.options if not k.startswith('Log')}
             _options['Language'] = lexername
@@ -513,11 +515,14 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 udas.insertByName(SNIPPETTAGID, options)
             except ElementExistException:
                 udas.replaceByName(SNIPPETTAGID, options)
-            try:
-                code_block.UserDefinedAttributes = udas
-                logger.info(f'snippet tagged with options: {_options}')
-            except AttributeError:
-                code_block.ParaUserDefinedAttributes = udas
+            if self.inlinesnippet:
+                code_block.TextUserDefinedAttributes = udas
+            else:
+                try:
+                    code_block.UserDefinedAttributes = udas
+                    logger.info(f'snippet tagged with options: {_options}')
+                except AttributeError:
+                    code_block.ParaUserDefinedAttributes = udas
         else:
             logger.debug("Problem while saving user defined attributes: code block is probably mixing attributes. ")
             logger.debug(f"Code block concerned: {code_block.String}")
@@ -630,7 +635,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         # self.dispatcher.executeDispatch(self.frame, ".uno:BackgroundColor", "", 0, (prop,))
                         self.doc.CurrentController.select(cursor)
                         cursor.CharLocale = self.nolocale
-                        if bg_color:
+                        if bg_color and not self.inlinesnippet:
                             # cursor.ParaBackColor = self.to_int(bg_color)
                             prop = PropertyValue(Name="BackgroundColor", Value=self.to_int(bg_color))
                             self.dispatcher.executeDispatch(self.frame, ".uno:BackgroundColor", "", 0, (prop,))
@@ -646,10 +651,14 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             # PLAIN TEXTS
             elif selected_item.ImplementationName == "SwXTextRanges":
                 for code_block in selected_item:
+                    self.checkinlinesnippet(code_block)
                     code = code_block.String
                     if code.strip():
                         if updatecode:
-                            udas = code_block.ParaUserDefinedAttributes
+                            if self.inlinesnippet:
+                                udas = code_block.TextUserDefinedAttributes
+                            else:
+                                udas = code_block.ParaUserDefinedAttributes
                             if udas and SNIPPETTAGID in udas:
                                 hascode = True
                                 options = literal_eval(udas.getByName(SNIPPETTAGID).Value)
@@ -670,7 +679,10 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         self.prepare_highlight(texttablecursor, updatecode)
                         return
                     elif updatecode:
-                        udas = code_block.ParaUserDefinedAttributes
+                        if self.inlinesnippet:
+                            udas = code_block.TextUserDefinedAttributes
+                        else:
+                            udas = code_block.ParaUserDefinedAttributes
                         if udas and SNIPPETTAGID in udas:
                             cursor, _ = self.ensure_paragraphs(code_block)
                             options = literal_eval(udas.getByName(SNIPPETTAGID).Value)
@@ -975,42 +987,64 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 logger.debug("Hiding code block numbering.")
                 hide_numbering()
 
+    def checkinlinesnippet(self, code_block):
+        self.inlinesnippet = False
+        c = code_block.Text.createTextCursorByRange(code_block)
+        if code_block.String:
+            if c.Start.TextParagraph == c.End.TextParagraph:
+                if c.Text.compareRegionStarts(c, c.Start.TextParagraph) != 0:
+                    # inline snippet
+                    logger.info('Code identified as inline snippet.')
+                    self.inlinesnippet = True
+        else:
+            udas = code_block.TextUserDefinedAttributes
+            if udas and SNIPPETTAGID in udas:
+                self.inlinesnippet = True
+
     def ensure_paragraphs(self, selected_code):
         '''Ensure the selection does not contains part of paragraphs.
         Cursor could start or end in the middle of a code line, when plain text selected.
         So let's expand it to the entire paragraphs.'''
 
+        c = selected_code.Text.createTextCursorByRange(selected_code)
         if selected_code.String:
-            c = selected_code.Text.createTextCursorByRange(selected_code)
-            if c.Start.TextParagraph == c.End.TextParagraph:
-                if c.Text.compareRegionStarts(c, c.Start.TextParagraph) != 0:
-                    # inline snippet, abort expansion
-                    logger.info('Code identified as inline snippet.')
-                    self.inlinesnippet = True
-                    return c, c.String
+            if self.inlinesnippet:
+                # inline snippet, abort expansion
+                return c, c.String
             c.gotoStartOfParagraph(False)
             c.gotoRange(selected_code.End, True)
             c.gotoEndOfParagraph(True)
         else:
-            udas = selected_code.ParaUserDefinedAttributes
-            if udas and "ch2_options" in udas:
-                options = udas.getByName("ch2_options").Value
-                c = selected_code.Text.createTextCursorByRange(selected_code)
+            if self.inlinesnippet:
+                udas = selected_code.TextUserDefinedAttributes
+                options = udas.getByName(SNIPPETTAGID).Value
+                while c.goLeft(1, False):
+                    udas2 = c.TextUserDefinedAttributes
+                    if not (udas2 and SNIPPETTAGID in udas2 and udas2.getByName(SNIPPETTAGID).Value == options):
+                        break
 
+                c.gotoRange(selected_code, True)
+                while c.goRight(1, True):
+                    udas2 = c.TextUserDefinedAttributes
+                    if not (udas2 and SNIPPETTAGID in udas2 and udas2.getByName(SNIPPETTAGID).Value == options):
+                        c.goLeft(1, True)
+                        break
+            else:
+                udas = selected_code.ParaUserDefinedAttributes
+                options = udas.getByName(SNIPPETTAGID).Value
                 startpara = c.TextParagraph
                 endpara = c.TextParagraph
                 while c.gotoPreviousParagraph(False):
-                    udas = c.ParaUserDefinedAttributes
-                    if (udas and "ch2_options" in udas and udas.getByName("ch2_options").Value == options):
+                    udas2 = c.ParaUserDefinedAttributes
+                    if (udas2 and SNIPPETTAGID in udas2 and udas2.getByName(SNIPPETTAGID).Value == options):
                         startpara = c.TextParagraph
                     else:
                         break
 
                 c.gotoRange(selected_code, False)
                 while c.gotoNextParagraph(False):
-                    udas = c.ParaUserDefinedAttributes
-                    if (udas and "ch2_options" in udas and
-                            udas.getByName("ch2_options").Value == options):
+                    udas2 = c.ParaUserDefinedAttributes
+                    if (udas2 and SNIPPETTAGID in udas2 and udas2.getByName(SNIPPETTAGID).Value == options):
                         endpara = c.TextParagraph
                     else:
                         break
@@ -1018,9 +1052,10 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 c.gotoRange(endpara.End, True)
         return c, c.String
 
+    # dev tools
     def update_all(self, usetags):
         '''Update all formatted code in the active document.
-        DO NOT PUBLISH, ALPHA STAGE'''
+        DO NOT PUBLISH, ALPHA VERSION'''
         def highlight_snippet(code_block, udas):
             if usetags:
                 options = literal_eval(udas.getByName(SNIPPETTAGID).Value)
@@ -1109,6 +1144,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 browsetaggedcode_calc()
             elif self.doc.supportsService('com.sun.star.drawing.GenericDrawingDocument'):
                 browsetaggedcode_draw()
+            self.msgbox("Done.")
         finally:
             self.doc.CurrentController.select(sel)
 

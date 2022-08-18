@@ -1235,8 +1235,6 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         ranges.UserDefinedAttributes = udas
 
         def searchforlexertag_draw():
-            # from apso_utils import xray
-            # xray(self.doc)
             for drawpage in self.doc.DrawPages:
                 for shape in drawpage:
                     try:

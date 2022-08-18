@@ -217,6 +217,12 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
 
         self.prepare_highlight(updatecode=True)
 
+    def do_removealltags(self):
+        '''Remove all highlighting infos inserted with Code Highlighter 2
+        in the active document.'''
+
+        self.removealltags()
+
     # private functions
     def create(self, service):
         '''Instanciate UNO services'''
@@ -1148,6 +1154,118 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         finally:
             self.doc.CurrentController.select(sel)
 
+    def removealltags(self):
+        '''
+        Remove all snippet tags in the active document.
+        TODO:
+        - progress bar
+        - selection only
+        - draw and impress: add custom undo action
+        '''
+        def searchforlexertag_text(container=None):
+            root = False
+            if not container:
+                container = self.doc.Text
+                root = True
+            c = container.Text.createTextCursorByRange(container)
+            # search for ParaUserDefinedAttributes
+            udas = c.ParaUserDefinedAttributes
+            if not udas:    # ParaUserDefinedAttributes is empty when container contains mixed attributes
+                for para in container:
+                    if not para.supportsService('com.sun.star.text.Paragraph'):
+                        continue
+                    udas2 = para.ParaUserDefinedAttributes
+                    if SNIPPETTAGID in udas2:
+                        udas2.removeByName(SNIPPETTAGID)
+                        para.ParaUserDefinedAttributes = udas2
+            elif SNIPPETTAGID in udas:
+                udas.removeByName(SNIPPETTAGID)
+                c.ParaUserDefinedAttributes = udas
+
+            # search for TextUserDefinedAttributes
+            udas = c.TextUserDefinedAttributes
+            if not udas:    # TextUserDefinedAttributes is empty when container contains mixed attributes
+                for para in container:
+                    if not para.supportsService('com.sun.star.text.Paragraph'):
+                        continue
+                    udas2 = para.TextUserDefinedAttributes
+                    if not udas2:
+                        for portion in para:
+                            if portion.TextPortionType == "Text":
+                                udas3 = portion.TextUserDefinedAttributes
+                                if SNIPPETTAGID in udas3:
+                                    udas3.removeByName(SNIPPETTAGID)
+                                    portion.TextUserDefinedAttributes = udas3
+                    elif SNIPPETTAGID in udas2:
+                        udas2.removeByName(SNIPPETTAGID)
+                        para.TextUserDefinedAttributes = udas2
+            elif SNIPPETTAGID in udas:
+                udas.removeByName(SNIPPETTAGID)
+                c.TextUserDefinedAttributes = udas
+
+            # search for UserDefinedAttributes and for subtexts
+            if root:
+                for frame in self.doc.TextFrames:
+                    udas = frame.UserDefinedAttributes
+                    if SNIPPETTAGID in udas:
+                        udas.removeByName(SNIPPETTAGID)
+                        frame.UserDefinedAttributes = udas
+                    searchforlexertag_text(frame)
+                for table in self.doc.TextTables:
+                    cellnames = table.CellNames
+                    for cellname in cellnames:
+                        cell = table.getCellByName(cellname)
+                        udas = cell.UserDefinedAttributes
+                        if SNIPPETTAGID in udas:
+                            udas.removeByName(SNIPPETTAGID)
+                            cell.UserDefinedAttributes = udas
+                        searchforlexertag_text(cell)
+                for shape in self.doc.DrawPage:
+                    udas = shape.UserDefinedAttributes
+                    if SNIPPETTAGID in udas:
+                        udas.removeByName(SNIPPETTAGID)
+                        shape.UserDefinedAttributes = udas
+
+        def searchforlexertag_calc():
+            for sheet in self.doc.Sheets:
+                for ranges in sheet.UniqueCellFormatRanges:
+                    udas = ranges.UserDefinedAttributes
+                    if SNIPPETTAGID in udas:
+                        udas.removeByName(SNIPPETTAGID)
+                        ranges.UserDefinedAttributes = udas
+
+        def searchforlexertag_draw():
+            # from apso_utils import xray
+            # xray(self.doc)
+            for drawpage in self.doc.DrawPages:
+                for shape in drawpage:
+                    try:
+                        udas = shape.UserDefinedAttributes
+                        if SNIPPETTAGID in udas:
+                            udas.removeByName(SNIPPETTAGID)
+                            shape.UserDefinedAttributes = udas
+                    except AttributeError:
+                        continue
+
+        self.doc.lockControllers()
+        undomanager = self.doc.UndoManager
+        undomanager.enterUndoContext("All CH2 attributes removed.")
+        try:
+            if self.doc.supportsService('com.sun.star.text.GenericTextDocument'):
+                searchforlexertag_text()
+                self.msgbox("Done.")
+            elif self.doc.supportsService('com.sun.star.sheet.SpreadsheetDocument'):
+                searchforlexertag_calc()
+                self.msgbox("Done.")
+            elif self.doc.supportsService('com.sun.star.drawing.GenericDrawingDocument'):
+                searchforlexertag_draw()
+                self.msgbox("Done.")
+            else:
+                self.msgbox("Module not yet supported.")
+        finally:
+            undomanager.leaveUndoContext()
+            self.doc.unlockControllers()
+
 
 # Component registration
 g_ImplementationHelper = unohelper.ImplementationHelper()
@@ -1178,3 +1296,8 @@ def highlight_update_all(event=None):
     ctx = XSCRIPTCONTEXT.getComponentContext()
     highlighter = CodeHighlighter(ctx)
     highlighter.update_all(True)
+
+def remove_all_tags(event=None):
+    ctx = XSCRIPTCONTEXT.getComponentContext()
+    highlighter = CodeHighlighter(ctx)
+    highlighter.do_removealltags()

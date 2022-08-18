@@ -84,7 +84,7 @@ class UndoAction(unohelper.Base, XUndoAction):
         self.old_bg = None
         self.new_portions = None
         self.new_bg = None
-        self.charprops = ("CharColor", "CharLocale", "CharPosture", "CharHeight", "CharWeight")
+        self.charprops = ("CharBackColor", "CharColor", "CharLocale", "CharPosture", "CharHeight", "CharWeight")
         self.bgprops = ("FillColor", "FillStyle")
         self.get_old_state()
         # XUndoAction attribute

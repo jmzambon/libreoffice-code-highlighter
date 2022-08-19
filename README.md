@@ -49,8 +49,7 @@ You can download the extension either from the official LibreOffice extensions p
 - When cursor is inside a text shape or a Calc cell, highlighting is applied to the whole shape or cell even if only a part of the text is selected.
 - When cursor is inside a text frame or a text table cell, highlighting is only applied to the selected text if any, otherwise to the whole frame or cell.
 - When highlighting applies to the selected text, it formats the entire paragraphs, even if selection starts after the paragraph start or ends before paragraph end, unless the selection is an inline snippet.
-- Choosing "Update selection", the program will update highlighted code keeping the already applied options. In that case, if nothing is selected and the cursor is inside an already highlighted block, the whole block will be updated.
-- By now, "Update selection" will do nothing from within an inline snippet.   
+- Choosing "Update selection", the program will update highlighted code keeping the already applied options. If nothing is selected and the cursor is inside an already highlighted block, the whole block will be updated.
 
 ## Screenshots
 *Menu items (Writer)*

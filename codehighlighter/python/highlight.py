@@ -502,6 +502,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             return get_style_by_name(name)
 
     def tagcodeblock(self, code_block, lexername):
+        if not self.options["StoreOptionsWithSnippet"]:
+            return
         if self.inlinesnippet:
             logger.info('Code identified as inline snippet.')
             udas = code_block.TextUserDefinedAttributes

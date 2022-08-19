@@ -28,6 +28,9 @@
     <prop oor:name="LineNumberSeparator" oor:type="xs:string">
       <value>  </value>
     </prop>
+    <prop oor:name="StoreOptionsWithSnippet" oor:type="xs:short">
+      <value>1</value>
+    </prop>
     <prop oor:name="LogLevel" oor:type="xs:short">
       <value>0</value>
     </prop>

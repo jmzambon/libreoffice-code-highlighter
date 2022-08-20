@@ -587,8 +587,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     code = code_block.String    # code string may have changed
                     cursor = code_block.createTextCursorByRange(code_block)
                     cursor.CharLocale = self.nolocale
-                    cursor.collapseToStart()
-                    self.highlight_code(code, cursor, lexer, style)
+                    self.highlight_code(cursor, lexer, style)
                     # unlock controllers here to force left pane syncing in draw/impress
                     if self.doc.supportsService("com.sun.star.drawing.GenericDrawingDocument"):
                         self.doc.unlockControllers()
@@ -647,8 +646,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                             # cursor.ParaBackColor = self.to_int(bg_color)
                             prop = PropertyValue(Name="BackgroundColor", Value=self.to_int(bg_color))
                             self.dispatcher.executeDispatch(self.frame, ".uno:BackgroundColor", "", 0, (prop,))
-                        cursor.collapseToStart()
-                        self.highlight_code(code, cursor, lexer, style)
+                        self.highlight_code(cursor, lexer, style)
                         if self.options['ShowLineNumbers']:
                             self.show_line_numbers(code_block, True, isplaintext=True)
                         # save options as user defined attribute
@@ -727,8 +725,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                             if bg_color:
                                 code_block.BackColor = self.to_int(bg_color)
                             cursor.CharLocale = self.nolocale
-                            cursor.collapseToStart()
-                            self.highlight_code(code, cursor, lexer, style)
+                            self.highlight_code(cursor, lexer, style)
                             if self.options['ShowLineNumbers']:
                                 self.show_line_numbers(code_block, True)
                             # save options as user defined attribute
@@ -753,8 +750,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                             code_block.BackColor = self.to_int(bg_color)
                         cursor = code_block.createTextCursorByRange(code_block)
                         cursor.CharLocale = self.nolocale
-                        cursor.collapseToStart()
-                        self.highlight_code(code, cursor, lexer, style)
+                        self.highlight_code(cursor, lexer, style)
                         if self.options['ShowLineNumbers']:
                             self.show_line_numbers(code_block, True)
                         # save options as user defined attribute
@@ -868,8 +864,9 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                                 if bg_color:
                                     code_block.CellBackColor = self.to_int(bg_color)
                                 cursor = code_block.createTextCursor()
-                                cursor.gotoStart(False)
-                                self.highlight_code(code, cursor, lexer, style)
+                                from apso_utils import xray
+                                xray(cursor)
+                                self.highlight_code(cursor, lexer, style)
                                 if self.options['ShowLineNumbers']:
                                     self.show_line_numbers(code_block, True)
                                 # save options as user defined attribute
@@ -901,9 +898,9 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 self.doc.unlockControllers()
                 logger.debug("Controllers unlocked.")
 
-    def highlight_code(self, code, cursor, lexer, style):
+    def highlight_code(self, cursor, lexer, style):
+        code = cursor.String
         # clean up any previous formatting
-        cursor.goRight(len(code), True)
         cursor.setPropertiesToDefault(("CharColor", "CharBackColor", "CharWeight",
                                        "CharPosture", "CharUnderline"))
         if self.charstylesavailable and self.options['UseCharStyles']:
@@ -948,6 +945,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         logger.debug("Terminating code block highlighting.")
 
     def show_line_numbers(self, code_block, show, isplaintext=False):
+        if self.inlinesnippet:
+            return
         startnb = self.options["LineNumberStart"]
         ratio = self.options["LineNumberRatio"]
         sep = self.options["LineNumberSeparator"]

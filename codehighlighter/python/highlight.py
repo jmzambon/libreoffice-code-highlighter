@@ -646,7 +646,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                             # cursor.ParaBackColor = self.to_int(bg_color)
                             prop = PropertyValue(Name="BackgroundColor", Value=self.to_int(bg_color))
                             self.dispatcher.executeDispatch(self.frame, ".uno:BackgroundColor", "", 0, (prop,))
-                        self.highlight_code(cursor, lexer, style)
+                        self.highlight_code(cursor, lexer, style, bg_color)
                         if self.options['ShowLineNumbers']:
                             self.show_line_numbers(code_block, True, isplaintext=True)
                         # save options as user defined attribute
@@ -864,8 +864,6 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                                 if bg_color:
                                     code_block.CellBackColor = self.to_int(bg_color)
                                 cursor = code_block.createTextCursor()
-                                from apso_utils import xray
-                                xray(cursor)
                                 self.highlight_code(cursor, lexer, style)
                                 if self.options['ShowLineNumbers']:
                                     self.show_line_numbers(code_block, True)
@@ -898,7 +896,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 self.doc.unlockControllers()
                 logger.debug("Controllers unlocked.")
 
-    def highlight_code(self, cursor, lexer, style):
+    def highlight_code(self, cursor, lexer, style, code_bg_color=None):
         code = cursor.String
         # clean up any previous formatting
         cursor.setPropertiesToDefault(("CharColor", "CharBackColor", "CharWeight",
@@ -933,8 +931,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                             cursor.CharUnderline = UL_SINGLE if tok_style['underline'] else UL_NONE
                             if tok_style["bgcolor"]:
                                 cursor.CharBackColor = self.to_int(tok_style["bgcolor"])
-                            else:
-                                cursor.CharBackColor = -1
+                            elif self.inlinesnippet and code_bg_color:
+                                cursor.CharBackColor = self.to_int(code_bg_color)
                     except Exception:
                         pass
                     finally:

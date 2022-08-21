@@ -957,7 +957,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         nocharheight = round(codecharheight*ratio//50)/2   # round to 0.5
 
         if isplaintext:
-            c, code = self.ensure_paragraphs(code_block)
+            c = code_block.Text.createTextCursorByRange(code_block)
+            code = c.String
         else:
             c = code_block.Text.createTextCursor()
             code = c.Text.String

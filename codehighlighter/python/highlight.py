@@ -684,15 +684,16 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         texttablecursor = code_block.TextTable.createCursorByCellName(cellname)
                         self.prepare_highlight(texttablecursor, updatecode)
                         return
-                    elif updatecode:
+                    else:
                         if self.inlinesnippet:
                             udas = code_block.TextUserDefinedAttributes
                         else:
                             udas = code_block.ParaUserDefinedAttributes
                         if udas and SNIPPETTAGID in udas:
                             cursor, _ = self.ensure_paragraphs(code_block)
-                            options = literal_eval(udas.getByName(SNIPPETTAGID).Value)
-                            self.options.update(options)
+                            if updatecode:
+                                options = literal_eval(udas.getByName(SNIPPETTAGID).Value)
+                                self.options.update(options)
                             self.doc.CurrentController.select(cursor)
                             self.prepare_highlight(updatecode=updatecode)
                             return

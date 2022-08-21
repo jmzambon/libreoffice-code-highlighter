@@ -550,7 +550,9 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         stylename = self.options['Style']
         style = self.getstylebyname(stylename)
         bg_color = style.background_color if self.options['ColourizeBackground'] else None
-
+        if self.options['ShowLineNumbers']:
+            _style = style.style_for_token(("Comment",))
+            lineno_color = self.to_int(_style['color'])
         if not self.doc.hasControllersLocked():
             self.doc.lockControllers()
             logger.debug("Controllers locked.")
@@ -597,7 +599,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         code_block.FillStyle = FS_SOLID
                         code_block.FillColor = self.to_int(bg_color)
                     if self.options['ShowLineNumbers']:
-                        self.show_line_numbers(code_block, True)
+                        self.show_line_numbers(code_block, True, charcolor=lineno_color)
                     # save options as user defined attribute
                     self.tagcodeblock(code_block, lexer.name)
                     # model is not considered as modified after textbox formatting
@@ -648,7 +650,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                             self.dispatcher.executeDispatch(self.frame, ".uno:BackgroundColor", "", 0, (prop,))
                         self.highlight_code(cursor, lexer, style, bg_color)
                         if self.options['ShowLineNumbers']:
-                            self.show_line_numbers(code_block, True, isplaintext=True)
+                            self.show_line_numbers(code_block, True, charcolor=lineno_color, isplaintext=True)
                         # save options as user defined attribute
                         self.tagcodeblock(code_block, lexer.name)
                     finally:
@@ -728,7 +730,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                             cursor.CharLocale = self.nolocale
                             self.highlight_code(cursor, lexer, style)
                             if self.options['ShowLineNumbers']:
-                                self.show_line_numbers(code_block, True)
+                                self.show_line_numbers(code_block, True, charcolor=lineno_color)
                             # save options as user defined attribute
                             cursor = code_block.createTextCursorByRange(code_block)
                             self.tagcodeblock(cursor, lexer.name)
@@ -753,7 +755,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         cursor.CharLocale = self.nolocale
                         self.highlight_code(cursor, lexer, style)
                         if self.options['ShowLineNumbers']:
-                            self.show_line_numbers(code_block, True)
+                            self.show_line_numbers(code_block, True, charcolor=lineno_color)
                         # save options as user defined attribute
                         self.tagcodeblock(code_block, lexer.name)
                     finally:
@@ -867,7 +869,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                                 cursor = code_block.createTextCursor()
                                 self.highlight_code(cursor, lexer, style)
                                 if self.options['ShowLineNumbers']:
-                                    self.show_line_numbers(code_block, True)
+                                    self.show_line_numbers(code_block, True, charcolor=lineno_color)
                                 # save options as user defined attribute
                                 self.tagcodeblock(code_block, lexer.name)
                             finally:
@@ -897,7 +899,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 self.doc.unlockControllers()
                 logger.debug("Controllers unlocked.")
 
-    def highlight_code(self, cursor, lexer, style, code_bg_color=None):
+    def highlight_code(self, cursor, lexer, style, inline_bg_color=None):
         code = cursor.String
         # clean up any previous formatting
         cursor.setPropertiesToDefault(("CharColor", "CharBackColor", "CharWeight",
@@ -932,8 +934,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                             cursor.CharUnderline = UL_SINGLE if tok_style['underline'] else UL_NONE
                             if tok_style["bgcolor"]:
                                 cursor.CharBackColor = self.to_int(tok_style["bgcolor"])
-                            elif self.inlinesnippet and code_bg_color:
-                                cursor.CharBackColor = self.to_int(code_bg_color)
+                            elif self.inlinesnippet and inline_bg_color:
+                                cursor.CharBackColor = self.to_int(inline_bg_color)
                     except Exception:
                         pass
                     finally:
@@ -943,7 +945,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         self.cleancharstyles(styleprefix)
         logger.debug("Terminating code block highlighting.")
 
-    def show_line_numbers(self, code_block, show, isplaintext=False):
+    def show_line_numbers(self, code_block, show, charcolor=-1, isplaintext=False):
         if self.inlinesnippet:
             return
         startnb = self.options["LineNumberStart"]
@@ -971,7 +973,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 c.goRight(len(prefix), True)
                 c.CharHeight = nocharheight
                 c.setPropertyValues(("CharColor", "CharPosture", "CharUnderline", "CharWeight"),
-                                    (-1, SL_NONE, UL_NONE, W_NORMAL))
+                                    (charcolor, SL_NONE, UL_NONE, W_NORMAL))
 
         def hide_numbering():
             for para in code_block:

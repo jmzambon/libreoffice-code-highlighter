@@ -634,7 +634,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     lexer = self.getlexer(code_block)
                     try:
                         undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
-                        self.show_line_numbers(code_block, False)
+                        self.show_line_numbers(code_block, False, isplaintext=True)
                         cursor, code = self.ensure_paragraphs(code_block)
                         # ParaBackColor does not work anymore, and new FillProperties isn't available from API
                         # see https://bugs.documentfoundation.org/show_bug.cgi?id=99125
@@ -650,7 +650,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                             self.dispatcher.executeDispatch(self.frame, ".uno:BackgroundColor", "", 0, (prop,))
                         self.highlight_code(cursor, lexer, style, bg_color)
                         if self.options['ShowLineNumbers']:
-                            self.show_line_numbers(code_block, True, charcolor=lineno_color)
+                            self.show_line_numbers(code_block, True, charcolor=lineno_color, isplaintext=True)
                         # save options as user defined attribute
                         self.tagcodeblock(code_block, lexer.name)
                     finally:
@@ -945,7 +945,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         self.cleancharstyles(styleprefix)
         logger.debug("Terminating code block highlighting.")
 
-    def show_line_numbers(self, code_block, show, charcolor=-1):
+    def show_line_numbers(self, code_block, show, charcolor=-1, isplaintext=False):
         if self.inlinesnippet:
             return
         startnb = self.options["LineNumberStart"]
@@ -956,8 +956,11 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         codecharheight = code_block.End.CharHeight
         nocharheight = round(codecharheight*ratio//50)/2   # round to 0.5
 
-        c = code_block.Text.createTextCursor()
-        code = c.Text.String
+        if isplaintext:
+            c, code = self.ensure_paragraphs(code_block)
+        else:
+            c = code_block.Text.createTextCursor()
+            code = c.Text.String
 
         def show_numbering():
             nblignes = len(code.split('\n'))

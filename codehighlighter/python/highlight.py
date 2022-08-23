@@ -902,8 +902,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
     def highlight_code(self, cursor, lexer, style, inline_bg_color=None):
         code = cursor.String
         # clean up any previous formatting
-        cursor.setPropertiesToDefault(("CharColor", "CharBackColor", "CharWeight",
-                                       "CharPosture", "CharUnderline"))
+        cursor.setPropertyValues(("CharBackColor", "CharColor", "CharPosture", "CharUnderline", "CharWeight"),
+                                 (-1, -1, SL_NONE, UL_NONE, W_NORMAL))
         if self.charstylesavailable and self.options['UseCharStyles']:
             cursor.setPropertiesToDefault(("CharStyleName", "CharStyleNames"))
         cursor.collapseToStart()

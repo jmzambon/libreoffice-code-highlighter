@@ -299,7 +299,6 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             dialog.getControl(controlname).Model.setPropertyValues(("Label", "HelpText"), self.strings[controlname])
         controlnames = ("nb_sep", "cs_rootstyle")
         for controlname in controlnames:
-            print(controlname)
             dialog.getControl(controlname).Model.HelpText = self.strings["lbl_" + controlname][1]
 
         cb_lang = dialog.getControl('cb_lang')

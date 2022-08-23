@@ -31,10 +31,12 @@ You can download the extension either from the official LibreOffice extensions p
   - **Calc**: either in  cell or in a text box
   - **Impress** and **Draw**: in a text box
 - Select the object or the text containing the code snippet.
-- *Format -> Highlight Code*
+- *Format -> Code Highlighter 2 -> Highlight Code*
   - in the dialog: select the language, the style and side parameters if needed
-- Alternatively *Tools -> Highlight Code (previous settings)*
+- or *Format -> Code Highlighter 2 -> Highlight Code (previous settings)*
   - does not open a dialog, but applies previous settings (persistent also between restarts of LO)
+- or *Format -> Code Highlighter 2 -> Update selection*
+  - updates an already highlighted snippet with the formatting informations stored with it
 
 #### Tips
 - Multiselection is supported: you can select several code snippets at the same time, even from different languages (choose "automatic" in this last case).

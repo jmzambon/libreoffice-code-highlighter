@@ -293,11 +293,14 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
 
         # set localized strings
         controlnames = ("label_lang", "label_style", "check_col_bg", "check_charstyles", "check_linenb",
-                        "nb_line", "cs_line", "lbl_nb_start", "lbl_nb_ratio", "lbl_nb_sep", "lbl_masterstyle",
+                        "nb_line", "cs_line", "lbl_nb_start", "lbl_nb_ratio", "lbl_nb_sep", "lbl_cs_rootstyle",
                         "pygments_ver", "topage1", "topage2")
         for controlname in controlnames:
             dialog.getControl(controlname).Model.setPropertyValues(("Label", "HelpText"), self.strings[controlname])
-        # dialog.getControl("nb_sep").Model.HelpText = self.strings["nb_sep"][1]
+        controlnames = ("nb_sep", "cs_rootstyle")
+        for controlname in controlnames:
+            print(controlname)
+            dialog.getControl(controlname).Model.HelpText = self.strings["lbl_" + controlname][1]
 
         cb_lang = dialog.getControl('cb_lang')
         cb_style = dialog.getControl('cb_style')

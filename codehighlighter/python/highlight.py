@@ -902,6 +902,25 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 logger.debug("Controllers unlocked.")
 
     def highlight_code(self, cursor, lexer, style, inline_bg_color=None):
+        def _highlight_code():
+            cursor.goRight(len(lastval), True)  # selects the token's text
+            try:
+                if self.options["UseCharStyles"]:
+                    cursor.CharStyleName = str(lasttype).replace('Token', styleprefix)
+                else:
+                    tok_style = style.style_for_token(lasttype)
+                    cursor.CharColor = self.to_int(tok_style['color'])
+                    cursor.CharWeight = W_BOLD if tok_style['bold'] else W_NORMAL
+                    cursor.CharPosture = SL_ITALIC if tok_style['italic'] else SL_NONE
+                    cursor.CharUnderline = UL_SINGLE if tok_style['underline'] else UL_NONE
+                    if tok_style["bgcolor"]:
+                        cursor.CharBackColor = self.to_int(tok_style["bgcolor"])
+                    elif self.inlinesnippet and inline_bg_color:
+                        cursor.CharBackColor = self.to_int(inline_bg_color)
+            except Exception:
+                pass
+            finally:
+                cursor.collapseToEnd()  # deselects the selected text
         code = cursor.String
         # clean up any previous formatting
         cursor.setPropertyValues(("CharBackColor", "CharColor", "CharPosture", "CharUnderline", "CharWeight"),
@@ -924,26 +943,12 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 lastval += tok_value
             else:
                 if lastval:
-                    cursor.goRight(len(lastval), True)  # selects the token's text
-                    try:
-                        if self.options["UseCharStyles"]:
-                            cursor.CharStyleName = str(lasttype).replace('Token', styleprefix)
-                        else:
-                            tok_style = style.style_for_token(lasttype)
-                            cursor.CharColor = self.to_int(tok_style['color'])
-                            cursor.CharWeight = W_BOLD if tok_style['bold'] else W_NORMAL
-                            cursor.CharPosture = SL_ITALIC if tok_style['italic'] else SL_NONE
-                            cursor.CharUnderline = UL_SINGLE if tok_style['underline'] else UL_NONE
-                            if tok_style["bgcolor"]:
-                                cursor.CharBackColor = self.to_int(tok_style["bgcolor"])
-                            elif self.inlinesnippet and inline_bg_color:
-                                cursor.CharBackColor = self.to_int(inline_bg_color)
-                    except Exception:
-                        pass
-                    finally:
-                        cursor.collapseToEnd()  # deselects the selected text
+                    _highlight_code()
                 lastval = tok_value
                 lasttype = tok_type
+        # emptying buffer
+        if lastval:
+            _highlight_code()
         self.cleancharstyles(styleprefix)
         logger.debug("Terminating code block highlighting.")
 

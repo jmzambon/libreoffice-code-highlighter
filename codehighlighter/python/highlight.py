@@ -925,7 +925,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         # clean up any previous formatting
         cursor.setPropertyValues(("CharBackColor", "CharColor", "CharPosture", "CharUnderline", "CharWeight"),
                                  (-1, -1, SL_NONE, UL_NONE, W_NORMAL))
-        if self.charstylesavailable and self.options['UseCharStyles']:
+        if self.charstylesavailable:
             cursor.setPropertiesToDefault(("CharStyleName", "CharStyleNames"))
         cursor.collapseToStart()
 

@@ -947,7 +947,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 lastval = tok_value
                 lasttype = tok_type
         # emptying buffer
-        if lastval:
+        if lastval.strip():
             _highlight_code()
         self.cleancharstyles(styleprefix)
         logger.debug("Terminating code block highlighting.")

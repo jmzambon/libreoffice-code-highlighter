@@ -20,6 +20,7 @@
 import uno
 import os.path
 import logging
+from com.sun.star.uno import RuntimeException
 LOGLEVEL = {0: logging.WARNING, 1: logging.INFO, 2: logging.DEBUG}
 logger = logging.getLogger("codehighlighter")
 formatter = logging.Formatter("%(levelname)s [%(funcName)s::%(lineno)d] %(message)s")
@@ -76,7 +77,6 @@ try:
     from com.sun.star.lang import Locale
     from com.sun.star.sheet.CellFlags import STRING as CF_STRING
     from com.sun.star.task import XJobExecutor
-    from com.sun.star.uno import RuntimeException
     from com.sun.star.xml import AttributeData
 
     # internal

@@ -4,7 +4,7 @@
 
     Lexers for configuration file formats.
 
-    :copyright: Copyright 2006-2022 by the Pygments team, see AUTHORS.
+    :copyright: Copyright 2006-2023 by the Pygments team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -607,8 +607,8 @@ class TerraformLexer(ExtendedRegexLexer):
 
     name = 'Terraform'
     url = 'https://www.terraform.io/'
-    aliases = ['terraform', 'tf']
-    filenames = ['*.tf']
+    aliases = ['terraform', 'tf', 'hcl']
+    filenames = ['*.tf', '*.hcl']
     mimetypes = ['application/x-tf', 'application/x-terraform']
 
     classes = ('backend', 'data', 'module', 'output', 'provider',

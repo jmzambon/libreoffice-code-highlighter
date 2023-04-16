@@ -16,39 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# python standard
-import re
-import traceback
-from math import log10
-from ast import literal_eval
-
-# pygments
-import pygments
-from pygments.lexers import get_all_lexers, get_lexer_by_name, guess_lexer
-from pygments.styles import get_all_styles, get_style_by_name
-
-# uno
-import uno
-import unohelper
-from com.sun.star.awt import Selection, XDialogEventHandler
-from com.sun.star.awt.FontWeight import NORMAL as W_NORMAL, BOLD as W_BOLD
-from com.sun.star.awt.FontSlant import NONE as SL_NONE, ITALIC as SL_ITALIC
-from com.sun.star.awt.FontUnderline import NONE as UL_NONE, SINGLE as UL_SINGLE
-from com.sun.star.awt.MessageBoxType import ERRORBOX
-from com.sun.star.beans import PropertyValue
-from com.sun.star.container import ElementExistException
-from com.sun.star.document import XUndoAction
-from com.sun.star.drawing.FillStyle import SOLID as FS_SOLID  # , NONE as FS_NONE
-from com.sun.star.lang import Locale
-from com.sun.star.sheet.CellFlags import STRING as CF_STRING
-from com.sun.star.task import XJobExecutor
-from com.sun.star.uno import RuntimeException
-from com.sun.star.xml import AttributeData
-
-# internal
-import ch2_i18n
-
 # prepare logger
+import uno
 import os.path
 import logging
 LOGLEVEL = {0: logging.WARNING, 1: logging.INFO, 2: logging.DEBUG}
@@ -62,9 +31,58 @@ try:
     logfile = os.path.join(uno.fileUrlToSystemPath(userpath), "codehighlighter.log")
     filehandler = logging.FileHandler(logfile, mode="w", delay=True)
     filehandler.setFormatter(formatter)
+    logger.addHandler(consolehandler)
+    logger.setLevel(logging.INFO)
+    logger.info("Logger installed.")
 except RuntimeException:
     # At installation time, no context is available -> just ignore it.
     pass
+
+# simple import hook, making sure embedded pygments is found first
+import sys
+path = os.path.join(os.path.dirname(__file__), "pythonpath")
+try:
+    sys.path.insert(0, sys.path.pop(sys.path.index(path)))
+    logger.debug(f'sys.path: {sys.path}')
+    logger.info("Embedded Pygments path priorised.")
+except Exception as e:
+    logger.exception("")
+
+try:
+    # python standard
+    import re
+    import traceback
+    from math import log10
+    from ast import literal_eval
+
+    # pygments
+    import pygments
+    from pygments.lexers import get_all_lexers, get_lexer_by_name, guess_lexer
+    from pygments.styles import get_all_styles, get_style_by_name
+    logger.info(f"Pygments imported from {pygments.__file__}.")
+    logger.info(f"Lexers imported from {pygments.lexers.__file__}.")
+
+    # uno
+    import unohelper
+    from com.sun.star.awt import Selection, XDialogEventHandler
+    from com.sun.star.awt.FontWeight import NORMAL as W_NORMAL, BOLD as W_BOLD
+    from com.sun.star.awt.FontSlant import NONE as SL_NONE, ITALIC as SL_ITALIC
+    from com.sun.star.awt.FontUnderline import NONE as UL_NONE, SINGLE as UL_SINGLE
+    from com.sun.star.awt.MessageBoxType import ERRORBOX
+    from com.sun.star.beans import PropertyValue
+    from com.sun.star.container import ElementExistException
+    from com.sun.star.document import XUndoAction
+    from com.sun.star.drawing.FillStyle import SOLID as FS_SOLID  # , NONE as FS_NONE
+    from com.sun.star.lang import Locale
+    from com.sun.star.sheet.CellFlags import STRING as CF_STRING
+    from com.sun.star.task import XJobExecutor
+    from com.sun.star.uno import RuntimeException
+    from com.sun.star.xml import AttributeData
+
+    # internal
+    import ch2_i18n
+except Exception:
+    logger.exception("")
 
 
 CHARSTYLEID = "ch2_"

@@ -11,6 +11,7 @@
       <prop oor:name="LineNumberStart" oor:type="xs:long"/>
       <prop oor:name="LineNumberRatio" oor:type="xs:short"/>
       <prop oor:name="LineNumberSeparator" oor:type="xs:string"/>
+      <prop oor:name="LineNumberPaddingSymbol" oor:type="xs:string"/>
       <prop oor:name="StoreOptionsWithSnippet" oor:type="xs:short"/>
       <prop oor:name="LogLevel" oor:type="xs:short"/>
       <prop oor:name="LogToFile" oor:type="xs:short"/>

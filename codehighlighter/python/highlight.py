@@ -41,11 +41,15 @@ except RuntimeException:
 
 # simple import hook, making sure embedded pygments is found first
 import sys
-path = os.path.join(os.path.dirname(__file__), "pythonpath")
 try:
+    path = os.path.join(os.path.dirname(__file__), "pythonpath")
     sys.path.insert(0, sys.path.pop(sys.path.index(path)))
     logger.debug(f'sys.path: {sys.path}')
     logger.info("Embedded Pygments path priorised.")
+except NameError:
+    # __file__ is not defined
+    # only occurs when using exposed functions -> should be harmless
+    pass
 except Exception as e:
     logger.exception("")
 
@@ -311,11 +315,11 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
 
         # set localized strings
         controlnames = ("label_lang", "label_style", "check_col_bg", "check_charstyles", "check_linenb",
-                        "nb_line", "cs_line", "lbl_nb_start", "lbl_nb_ratio", "lbl_nb_sep", "lbl_cs_rootstyle",
-                        "pygments_ver", "topage1", "topage2")
+                        "nb_line", "cs_line", "lbl_nb_start", "lbl_nb_ratio", "lbl_nb_sep", "lbl_nb_pad",
+                        "lbl_cs_rootstyle", "pygments_ver", "topage1", "topage2")
         for controlname in controlnames:
             dialog.getControl(controlname).Model.setPropertyValues(("Label", "HelpText"), self.strings[controlname])
-        controlnames = ("nb_sep", "cs_rootstyle")
+        controlnames = ("nb_sep", "nb_pad", "cs_rootstyle")
         for controlname in controlnames:
             dialog.getControl(controlname).Model.HelpText = self.strings["lbl_" + controlname][1]
 
@@ -328,6 +332,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         nb_start = dialog.getControl('nb_start')
         nb_ratio = dialog.getControl('nb_ratio')
         nb_sep = dialog.getControl('nb_sep')
+        nb_pad = dialog.getControl('nb_pad')
         cs_rootstyle = dialog.getControl('cs_rootstyle')
         pygments_ver = dialog.getControl('pygments_ver')
 
@@ -347,6 +352,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         nb_start.Value = self.options['LineNumberStart']
         nb_ratio.Value = self.options['LineNumberRatio']
         nb_sep.Text = self.options['LineNumberSeparator']
+        nb_pad.Text = self.options['LineNumberPaddingSymbol']
         cs_rootstyle.Text = self.options['MasterCharStyle']
         logger.debug("--> filling controls ok.")
 
@@ -382,6 +388,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         nb_start = int(dialog.getControl('nb_start').Value)
         nb_ratio = int(dialog.getControl('nb_ratio').Value)
         nb_sep = dialog.getControl('nb_sep').Text
+        nb_pad = dialog.getControl('nb_pad').Text
         cs_rootstyle = dialog.getControl('cs_rootstyle').Text
 
         if lang != 'automatic' and lang.lower() not in self.all_lexer_aliases:
@@ -392,7 +399,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             return False
         self.save_options(Style=style, Language=lang, ColourizeBackground=colorize_bg, ShowLineNumbers=show_linenb,
                           LineNumberStart=nb_start, LineNumberRatio=nb_ratio, LineNumberSeparator=nb_sep,
-                          UseCharStyles=use_charstyles, MasterCharStyle=cs_rootstyle)
+                          LineNumberPaddingSymbol=nb_pad, UseCharStyles=use_charstyles, MasterCharStyle=cs_rootstyle)
         logger.debug("Dialog validated and options saved.")
         logger.info(f"Updated options = {self.options}.")
         return True
@@ -976,6 +983,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         startnb = self.options["LineNumberStart"]
         ratio = self.options["LineNumberRatio"]
         sep = self.options["LineNumberSeparator"]
+        pad = self.options["LineNumberPaddingSymbol"]
         logger.debug(f"Starting code block numbering (show: {show}).")
         sep = sep.replace(r'\t', '\t')
         codecharheight = code_block.End.CharHeight
@@ -993,7 +1001,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             digits = int(log10(nblignes - 1 + startnb)) + 1
             for n, para in enumerate(code_block, start=startnb):
                 # para.Start.CharHeight = nocharheight
-                prefix = f'{n:>{digits}}{sep}'
+                prefix = f'{n:{pad}>{digits}}{sep}'
                 para.Start.setString(prefix)
                 c.gotoRange(para.Start, False)
                 c.goRight(len(prefix), True)

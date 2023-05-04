@@ -28,6 +28,9 @@
     <prop oor:name="LineNumberSeparator" oor:type="xs:string">
       <value>  </value>
     </prop>
+    <prop oor:name="LineNumberPaddingSymbol" oor:type="xs:string">
+      <value></value>
+    </prop>
     <prop oor:name="StoreOptionsWithSnippet" oor:type="xs:short">
       <value>1</value>
     </prop>

@@ -901,7 +901,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                                 if bg_color:
                                     code_block.CellBackColor = self.to_int(bg_color)
                                 cursor = code_block.createTextCursor()
-                                self.highlight_code(cursor, lexer, style)
+                                self.highlight_code(cursor, lexer, style, checkunicode=True)
                                 if self.options['ShowLineNumbers']:
                                     self.show_line_numbers(code_block, True, charcolor=lineno_color)
                                 # save options as user defined attribute

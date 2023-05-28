@@ -106,11 +106,18 @@ class UndoAction(unohelper.Base, XUndoAction):
         self.old_bg = None
         self.new_portions = None
         self.new_bg = None
-        self.charprops = ("CharBackColor", "CharColor", "CharLocale", "CharPosture", "CharHeight", "CharWeight")
+        self.charprops = ("CharBackColor", "CharColor", "CharLocale", "CharPosture", "CharHeight", "CharUnderline", "CharWeight")
         self.bgprops = ("FillColor", "FillStyle")
+        self.len_ = self.define_len()
         self.get_old_state()
         # XUndoAction attribute
         self.Title = title
+
+    def define_len(self):
+        # workaround for issue 22 (https://github.com/jmzambon/libreoffice-code-highlighter/issues/22)
+        if any(ord(char) >= 0x10000 for char in self.textbox.String):
+            return lambda s: sum(1 if ord(char) < 0x10000 else 2 for char in s)
+        return len
 
     # XUndoAction (https://www.openoffice.org/api/docs/common/ref/com/sun/star/document/XUndoAction.html)
     def undo(self):
@@ -153,7 +160,7 @@ class UndoAction(unohelper.Base, XUndoAction):
             if textportions:    # new paragraph after first one
                 textportions[-1][0] += 1
             for portion in para:
-                plen = len(portion.String)
+                plen = self.len_(portion.String)
                 pprops = portion.getPropertyValues(self.charprops)
                 if textportions and textportions[-1][1] == pprops:
                     textportions[-1][0] += plen
@@ -616,7 +623,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     code = code_block.String    # code string may have changed
                     cursor = code_block.createTextCursorByRange(code_block)
                     cursor.CharLocale = self.nolocale
-                    self.highlight_code(cursor, lexer, style)
+                    self.highlight_code(cursor, lexer, style, checkunicode=True)
                     # unlock controllers here to force left pane syncing in draw/impress
                     if self.doc.supportsService("com.sun.star.drawing.GenericDrawingDocument"):
                         self.doc.unlockControllers()
@@ -675,7 +682,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                             # cursor.ParaBackColor = self.to_int(bg_color)
                             prop = PropertyValue(Name="BackgroundColor", Value=self.to_int(bg_color))
                             self.dispatcher.executeDispatch(self.frame, ".uno:BackgroundColor", "", 0, (prop,))
-                        self.highlight_code(cursor, lexer, style, bg_color)
+                        self.highlight_code(cursor, lexer, style, inline_bg_color=bg_color)
                         if self.options['ShowLineNumbers']:
                             self.show_line_numbers(code_block, True, charcolor=lineno_color, isplaintext=True)
                         # save options as user defined attribute
@@ -926,9 +933,9 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 self.doc.unlockControllers()
                 logger.debug("Controllers unlocked.")
 
-    def highlight_code(self, cursor, lexer, style, inline_bg_color=None):
+    def highlight_code(self, cursor, lexer, style, inline_bg_color=None, checkunicode=False):
         def _highlight_code():
-            cursor.goRight(len(lastval), True)  # selects the token's text
+            cursor.goRight(len_(lastval), True)  # selects the token's text
             try:
                 if self.options["UseCharStyles"]:
                     cursor.CharStyleName = str(lasttype).replace('Token', styleprefix)
@@ -946,7 +953,14 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 pass
             finally:
                 cursor.collapseToEnd()  # deselects the selected text
+
         code = cursor.String
+
+        # workaround issue 22 (https://github.com/jmzambon/libreoffice-code-highlighter/issues/22)
+        len_ = len
+        if checkunicode and any(ord(char) >= 0x10000 for char in code):
+            len_ = lambda s: sum(1 if ord(char) < 0x10000 else 2 for char in s)
+
         # clean up any previous formatting
         cursor.setPropertyValues(("CharBackColor", "CharColor", "CharPosture", "CharUnderline", "CharWeight"),
                                  (-1, -1, SL_NONE, UL_NONE, W_NORMAL))

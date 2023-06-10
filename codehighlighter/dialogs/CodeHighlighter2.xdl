@@ -2,7 +2,7 @@
 <!DOCTYPE dlg:window PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "dialog.dtd">
 <dlg:window xmlns:dlg="http://openoffice.org/2000/dialog" xmlns:script="http://openoffice.org/2000/script" dlg:id="CodeHighlighter" dlg:left="70" dlg:top="113" dlg:width="195" dlg:height="153" dlg:page="1" dlg:closeable="true" dlg:moveable="true" dlg:title="Code Highlighter 2 - v{}">
  <dlg:styles>
-  <dlg:style dlg:style-id="0" dlg:border="simple"/>
+  <dlg:style dlg:style-id="0"/>
   <dlg:style dlg:style-id="1" dlg:text-color="0x4c4c4c" dlg:font-height="8" dlg:font-stylename="Normal" dlg:font-family="swiss"/>
   <dlg:style dlg:style-id="2" dlg:border="none"/>
  </dlg:styles>
@@ -14,11 +14,11 @@
   <dlg:checkbox dlg:id="check_col_bg" dlg:tab-index="4" dlg:left="15" dlg:top="74" dlg:width="100" dlg:height="10" dlg:page="1" dlg:help-text="Use the background color provided by the style." dlg:value="Set background color" dlg:valign="center" dlg:checked="true"/>
   <dlg:checkbox dlg:id="check_linenb" dlg:tab-index="5" dlg:left="15" dlg:top="85" dlg:width="142" dlg:height="10" dlg:page="1" dlg:checked="false"/>
   <dlg:checkbox dlg:id="check_charstyles" dlg:tab-index="6" dlg:left="15" dlg:top="96" dlg:width="142" dlg:height="10" dlg:page="1" dlg:checked="false"/>
-  <dlg:numericfield dlg:style-id="2" dlg:id="nb_start" dlg:tab-index="7" dlg:left="72" dlg:top="25" dlg:width="57" dlg:height="15" dlg:page="2" dlg:valign="center" dlg:strict-format="true" dlg:decimal-accuracy="0" dlg:value="1" dlg:value-min="1" dlg:spin="true" dlg:repeat="50"/>
-  <dlg:numericfield dlg:style-id="2" dlg:id="nb_ratio" dlg:tab-index="8" dlg:left="72" dlg:top="42" dlg:width="57" dlg:height="15" dlg:page="2" dlg:valign="center" dlg:strict-format="true" dlg:decimal-accuracy="0" dlg:value-min="50" dlg:value-max="100" dlg:spin="true" dlg:repeat="50"/>
-  <dlg:textfield dlg:style-id="2" dlg:id="nb_sep" dlg:tab-index="9" dlg:left="72" dlg:top="59" dlg:width="15" dlg:height="15" dlg:page="2" dlg:valign="center"/>
-  <dlg:textfield dlg:style-id="2" dlg:id="nb_pad" dlg:tab-index="9" dlg:left="160" dlg:top="59" dlg:width="15" dlg:height="15" dlg:page="2" dlg:maxlength="1" dlg:valign="center"/>
-  <dlg:textfield dlg:style-id="2" dlg:id="cs_rootstyle" dlg:tab-index="11" dlg:left="102" dlg:top="95" dlg:width="50" dlg:height="15" dlg:page="2" dlg:valign="center"/>
+  <dlg:numericfield dlg:id="nb_start" dlg:tab-index="7" dlg:left="72" dlg:top="25" dlg:width="57" dlg:height="15" dlg:page="2" dlg:valign="center" dlg:strict-format="true" dlg:decimal-accuracy="0" dlg:value="1" dlg:value-min="1" dlg:spin="true" dlg:repeat="50"/>
+  <dlg:numericfield dlg:id="nb_ratio" dlg:tab-index="8" dlg:left="72" dlg:top="42" dlg:width="57" dlg:height="15" dlg:page="2" dlg:valign="center" dlg:strict-format="true" dlg:decimal-accuracy="0" dlg:value-min="50" dlg:value-max="100" dlg:spin="true" dlg:repeat="50"/>
+  <dlg:textfield dlg:id="nb_sep" dlg:tab-index="9" dlg:left="72" dlg:top="59" dlg:width="15" dlg:height="15" dlg:page="2" dlg:valign="center"/>
+  <dlg:textfield dlg:id="nb_pad" dlg:tab-index="9" dlg:left="160" dlg:top="59" dlg:width="15" dlg:height="15" dlg:page="2" dlg:maxlength="1" dlg:valign="center"/>
+  <dlg:textfield dlg:id="cs_rootstyle" dlg:tab-index="11" dlg:left="102" dlg:top="95" dlg:width="50" dlg:height="15" dlg:page="2" dlg:valign="center"/>
   <dlg:button dlg:id="btn_ok" dlg:tab-index="12" dlg:left="15" dlg:top="116" dlg:width="50" dlg:height="16" dlg:default="true" dlg:button-type="ok"/>
   <dlg:button dlg:id="btn_cancel" dlg:tab-index="13" dlg:left="72" dlg:top="116" dlg:width="50" dlg:height="16" dlg:button-type="cancel"/>
   <dlg:button dlg:id="topage1" dlg:tab-index="14" dlg:left="130" dlg:top="116" dlg:width="50" dlg:height="16" dlg:page="2">

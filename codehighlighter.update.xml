@@ -3,15 +3,15 @@
 
     <identifier value="javahelps.codehighlighter"/>
 
-    <version value="2.4.9" />
+    <version value="2.4.10" />
 
     <update-download>
         <!-- direct access to release binary seems broken
         <src xlink:href="https://github.com/jmzambon/libreoffice-code-highlighter/releases/download/v2.2.3/codehighlighter2.oxt" /> -->
-        <src xlink:href="https://github.com/jmzambon/libreoffice-code-highlighter/raw/v2.4.9/codehighlighter2.oxt" />
+        <src xlink:href="https://github.com/jmzambon/libreoffice-code-highlighter/raw/v2.4.10.1/codehighlighter2.oxt" />
     </update-download>
 
     <release-notes>
-        <src xlink:href="https://github.com/jmzambon/libreoffice-code-highlighter/releases/tag/v2.4.9" lang="en" />
+        <src xlink:href="https://github.com/jmzambon/libreoffice-code-highlighter/releases/tag/v2.4.10.1" lang="en" />
     </release-notes>
 </description>

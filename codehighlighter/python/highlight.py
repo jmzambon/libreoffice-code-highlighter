@@ -445,7 +445,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             return guess_lexer(code_block.String)
         else:
             options = literal_eval(udas.getByName(SNIPPETTAGID).Value)
-            logger.info('lexer name gotten from from snippet tag')
+            logger.info('lexer name gotten from snippet tag')
             if options['Language'] == "Text only":
                 return guess_lexer(code_block.String)
             else:

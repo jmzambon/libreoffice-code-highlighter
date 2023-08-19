@@ -13,6 +13,7 @@ CH2_STRINGS = {"en": { # dialog controls (label text + help text)
                       "lbl_cs_rootstyle": ("Parent character style:", "Use an existing character style as root style."),
                       "nb_sep": ("", ""),
                       "pygments_ver": ("Build upon Pygments {}", ""),
+                      "preview": ("Preview", ""),
                       "topage1": ("Back", ""),
                       "topage2": ("More...", ""),
                        # messages
@@ -38,6 +39,7 @@ CH2_STRINGS = {"en": { # dialog controls (label text + help text)
                       "lbl_cs_rootstyle": ("Style de caractère parent :", "Utiliser un style de caractère existant comme style de base."),
                       "nb_sep": ("", ""),
                       "pygments_ver": ("Basé sur Pygments {}", ""),
+                      "preview": ("Aperçu", ""),
                       "topage1": ("Retour", ""),
                       "topage2": ("Plus...", ""),
                        # messages

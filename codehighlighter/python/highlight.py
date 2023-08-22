@@ -1091,8 +1091,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 c.gotoRange(para.Start, False)
                 c.goRight(len(prefix), True)
                 c.CharHeight = nocharheight
-                c.setPropertyValues(("CharColor", "CharPosture", "CharUnderline", "CharWeight"),
-                                    (charcolor, SL_NONE, UL_NONE, W_NORMAL))
+                c.setPropertyValues(("CharBackColor", "CharColor", "CharPosture", "CharUnderline", "CharWeight"),
+                                    (-1, charcolor, SL_NONE, UL_NONE, W_NORMAL))
 
         def hide_numbering():
             for para in code_block:

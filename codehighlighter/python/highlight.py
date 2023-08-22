@@ -1082,8 +1082,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             code = c.Text.String
 
         def show_numbering():
-            nblignes = len(code.split('\n'))
-            digits = int(log10(nblignes - 1 + startnb)) + 1
+            nblines = len(code.split('\n'))
+            digits = int(log10(nblines - 1 + startnb)) + 1
             for n, para in enumerate(code_block, start=startnb):
                 # para.Start.CharHeight = nocharheight
                 prefix = f'{n:{pad}>{digits}}{sep}'

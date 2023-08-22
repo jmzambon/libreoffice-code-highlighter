@@ -38,22 +38,14 @@ You can download the extension either from the official LibreOffice extensions p
 - or *Format -> Code Highlighter 2 -> Update selection*
   - updates an already highlighted snippet with the formatting informations stored with it
 
-#### Features and Tips
-- All languages (more then 500) and styles (more then 40) provided by Pygments are supported.
-> **Tip 1** CodeHighlighter2 contains two styles that are not part of Pygments: libreoffice-classic and libreoffice-dark, that make use of LibreOffice IDE color schemes (classic mode and dark mode). Code Highlighter also adds a "LibreOffice Basic" language, which is not a Pygments lexer but a convenient shortcut to VB.net lexer, which is perfect for parsing LOBasic.
-
-> **Tip 2** Not all language aliases that are valid names for Code Highlighter 2 appear in the option dialog: if you don't find a language, try anyway to type its name in the combobox (try for example with "R" or with "Pascal").
-- Multiselection.
-> **Tip** Choose "automatic" to highlight from different languages at the same time.
-- Line numbering.
-> **Tip 1** Click the "More..." button to access line numbers options or character styles options.
-
-> **Tip 2** Uncheck line numbering option to remove unwanted line numbers, due for example to copy-pasted code.
+#### Features
+- Supports all languages (more then 500) and styles (more then 40) provided by Pygments.
+- Supports multiselection.
+- Supports line numbering.
 - Supports all modules excepted Base.
-> **Tip** For long snippet, CodeHighlighter2 works faster with text and text frame in Writer.
-- Allows direct formatting or use of character styles.
-- Optional use of background color. 
-- In-document preview [2.4.11].
+- Supports direct formatting or character styles.
+- Allow to disable background color. 
+- Allow in-document preview [2.4.11].
 
 #### General behaviour
 - Highlighting is applied to the selected object, that can be plain text, text frame, text shape, text table cell or calc cell.
@@ -64,6 +56,14 @@ You can download the extension either from the official LibreOffice extensions p
 - Choosing "Update selection", the program will update highlighted code keeping the already applied options. If nothing is selected and the cursor is inside an already highlighted block, the whole block will be updated*.
 
 <sub>\* To allow code update, Code Highlighter 2 stores the formatting options in the document as [User Defined Attributes](https://api.libreoffice.org/docs/idl/ref/servicecom_1_1sun_1_1star_1_1xml_1_1UserDefinedAttributesSupplier.html#a7c8de9b61fff54bb35d4203618828f32). If you're not comfortable with that, you can disable it by setting the 'StoreOptionsWithSnippet' option to 0 in advanced options (Options-> Advanced-> Open Expert Configuration-> ooo.ext.code-highlighter.Registry).</sub>
+
+#### Tips
+- CodeHighlighter2 contains two styles that are not part of Pygments: libreoffice-classic and libreoffice-dark, that make use of LibreOffice IDE color schemes (classic mode and dark mode). Code Highlighter also adds a "LibreOffice Basic" language, which is not a Pygments lexer but a convenient shortcut to VB.net lexer, which is perfect for parsing LOBasic.
+- Not all language aliases that are valid names for Code Highlighter 2 appear in the option dialog: if you don't find a language, try anyway to type its name in the combobox (try for example with "R" or with "Pascal").
+- Choose "automatic" to highlight from different languages at the same time.
+- Click the "More..." button to access line numbers options or character styles options.
+- Uncheck line numbering option to remove unwanted line numbers, due for example to copy-pasted code.
+- For long snippet, CodeHighlighter2 works faster with text and text frame in Writer.
 
 ## Screenshots
 *Menu items (Writer)*

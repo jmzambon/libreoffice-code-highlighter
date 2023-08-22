@@ -653,6 +653,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             return INVALID_SELECTION
 
         code_blocks = []
+
         # TEXT SHAPES
         if selected_item.ImplementationName == "com.sun.star.drawing.SvxShapeCollection":
             logger.debug("Checking selection: com.sun.star.drawing.SvxShapeCollection.")
@@ -697,7 +698,10 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         else:
                             udas = code_block.ParaUserDefinedAttributes
                         if udas and SNIPPETTAGID in udas:
-                            code_blocks.append(code_block)
+                            cursor, _ = self.ensure_paragraphs(code_block)
+                            self.doc.CurrentController.select(cursor)
+                            code_blocks.append(self.doc.CurrentSelection[0])
+
         # TEXT FRAME
         elif selected_item.ImplementationName == "SwXTextFrame":
             logger.debug("Checking selection: SwXTextFrame.")
@@ -811,6 +815,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             # PLAIN TEXT
             elif code_block.ImplementationName == "SwXTextRange":
                 logger.debug("Dealing with plain text.")
+                self.checkinlinesnippet(code_block)
 
                 if updatecode:
                     if self.inlinesnippet:
@@ -820,6 +825,9 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     if udas and SNIPPETTAGID in udas:
                         options = literal_eval(udas.getByName(SNIPPETTAGID).Value)
                         self.options.update(options)
+                        cursor, _ = self.ensure_paragraphs(code_block)
+                        self.doc.CurrentController.select(cursor)
+                        code_block =  self.doc.CurrentSelection[0]
                     else:
                         hascode = False
 

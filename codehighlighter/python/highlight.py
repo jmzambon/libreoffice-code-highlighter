@@ -23,21 +23,31 @@ import os.path
 import logging
 from com.sun.star.uno import RuntimeException
 
-LOGLEVEL = {0: logging.WARNING, 1: logging.INFO, 2: logging.DEBUG}
-logger = logging.getLogger("codehighlighter")
-formatter = logging.Formatter("%(levelname)s [%(funcName)s::%(lineno)d] %(message)s")
-consolehandler = logging.StreamHandler()
-consolehandler.setFormatter(formatter)
 
 try:
-    userpath = uno.getComponentContext().ServiceManager.createInstance(
-                    "com.sun.star.util.PathSubstitution").substituteVariables("$(user)", True)
-    logfile = os.path.join(uno.fileUrlToSystemPath(userpath), "codehighlighter.log")
-    filehandler = logging.FileHandler(logfile, mode="w", delay=True)
-    filehandler.setFormatter(formatter)
-    logger.addHandler(consolehandler)
-    logger.setLevel(logging.INFO)
-    logger.info("Logger installed.")
+    LOGLEVEL = {0: logging.WARNING, 1: logging.INFO, 2: logging.DEBUG}
+    logger = logging.getLogger("codehighlighter")
+    formatter = logging.Formatter("%(levelname)s [%(funcName)s::%(lineno)d] %(message)s")
+    consolehandler = None
+    filehandler = None
+    for handler in logger.handlers:
+        if isinstance(handler, logging.StreamHandler):
+            consolehandler = handler
+            continue
+        if isinstance(handler, logging.FileHandler):
+            filehandler = handler
+    if not consolehandler:
+        consolehandler = logging.StreamHandler()
+        consolehandler.setFormatter(formatter)
+        logger.addHandler(consolehandler)
+        logger.setLevel(logging.INFO)
+        logger.info("Logger installed.")
+    if not filehandler:
+        userpath = uno.getComponentContext().ServiceManager.createInstance(
+                        "com.sun.star.util.PathSubstitution").substituteVariables("$(user)", True)
+        logfile = os.path.join(uno.fileUrlToSystemPath(userpath), "codehighlighter.log")
+        filehandler = logging.FileHandler(logfile, mode="w", delay=True)
+        filehandler.setFormatter(formatter)
 except RuntimeException:
     # At installation time, no context is available -> just ignore it.
     pass
@@ -333,12 +343,12 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
     def setlogger(self):
         loglevel = LOGLEVEL.get(self.options["LogLevel"], 0)
         logger.setLevel(loglevel)
-        if self.options["LogToFile"] == 0:
-            logger.removeHandler(filehandler)
-            logger.addHandler(consolehandler)
+        if self.options["LogToFile"] == 1:
+            if filehandler not in logger.handlers:
+                logger.addHandler(filehandler)
         else:
-            logger.removeHandler(consolehandler)
-            logger.addHandler(filehandler)
+            if filehandler in logger.handlers:
+                logger.removeHandler(filehandler)
 
     def create_cfg_access(self):
         '''Return an updatable instance of the codehighlighter node in LO registry. '''

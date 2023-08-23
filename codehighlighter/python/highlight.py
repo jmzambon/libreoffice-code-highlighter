@@ -344,11 +344,15 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         loglevel = LOGLEVEL.get(self.options["LogLevel"], 0)
         logger.setLevel(loglevel)
         if self.options["LogToFile"] == 1:
-            if filehandler not in logger.handlers:
-                logger.addHandler(filehandler)
+            for h in logger.handlers:
+                if isinstance(h, logging.FileHandler):
+                    return
+            logger.addHandler(filehandler)
         else:
-            if filehandler in logger.handlers:
-                logger.removeHandler(filehandler)
+            for h in logger.handlers:
+                if isinstance(h, logging.FileHandler):
+                    logger.removeHandler(h)
+                    break
 
     def create_cfg_access(self):
         '''Return an updatable instance of the codehighlighter node in LO registry. '''

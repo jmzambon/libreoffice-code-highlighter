@@ -23,34 +23,25 @@ import os.path
 import logging
 from com.sun.star.uno import RuntimeException
 
-
 try:
     LOGLEVEL = {0: logging.WARNING, 1: logging.INFO, 2: logging.DEBUG}
     logger = logging.getLogger("codehighlighter")
     formatter = logging.Formatter("%(levelname)s [%(funcName)s::%(lineno)d] %(message)s")
-    consolehandler = None
-    filehandler = None
-    for handler in logger.handlers:
-        if isinstance(handler, logging.StreamHandler):
-            consolehandler = handler
-            continue
-        if isinstance(handler, logging.FileHandler):
-            filehandler = handler
-    if not consolehandler:
-        consolehandler = logging.StreamHandler()
-        consolehandler.setFormatter(formatter)
-        logger.addHandler(consolehandler)
-        logger.setLevel(logging.INFO)
-        logger.info("Logger installed.")
-    if not filehandler:
-        userpath = uno.getComponentContext().ServiceManager.createInstance(
-                        "com.sun.star.util.PathSubstitution").substituteVariables("$(user)", True)
-        logfile = os.path.join(uno.fileUrlToSystemPath(userpath), "codehighlighter.log")
-        filehandler = logging.FileHandler(logfile, mode="w", delay=True)
-        filehandler.setFormatter(formatter)
+    logger.handlers[:] = []
+    consolehandler = logging.StreamHandler()
+    consolehandler.setFormatter(formatter)
+    logger.addHandler(consolehandler)
+    logger.setLevel(logging.INFO)
+    logger.info("Logger installed.")
+    userpath = uno.getComponentContext().ServiceManager.createInstance(
+                    "com.sun.star.util.PathSubstitution").substituteVariables("$(user)", True)
+    logfile = os.path.join(uno.fileUrlToSystemPath(userpath), "codehighlighter.log")
+    filehandler = logging.FileHandler(logfile, mode="w", delay=True)
+    filehandler.setFormatter(formatter)
 except RuntimeException:
     # At installation time, no context is available -> just ignore it.
     pass
+
 
 # simple import hook, making sure embedded pygments is found first
 try:
@@ -65,6 +56,7 @@ except NameError:
 except Exception:
     logger.exception("")
 
+# other imports
 try:
     # python standard
     import re
@@ -241,18 +233,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             dialog.getControl('nb_start').setFocus()
             return True
         elif method == "preview":
-            logger.debug("Undoing existing previews before creating new ones.")
-            while self.activepreviews:
-                self.undomanager.undo()
-                self.activepreviews -= 1
-            dialog.getControl('cb_style').setFocus()
-            choices = self.get_options_from_dialog(dialog)
-            if choices:
-                logger.debug("Creating previews.")
-                self.options.update(choices)
-                for code_block in self.selection:
-                    self.prepare_highlight(code_block)
-                    self.activepreviews += 1
+            self.do_preview(dialog)
             return True
         return False
 
@@ -299,7 +280,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         Code-blocks must have been highlighted at least once with Code Highlighter 2.'''
 
         hasupdates = False
-        selection = self.check_selection(updatecode=True)
+        selection = self.check_selection()
         if selection == INVALID_SELECTION:
             self.msgbox(self.strings["errsel1"])
         elif selection:
@@ -313,6 +294,20 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         else:
             logger.debug("Current selection contains no text.")
             self.msgbox(self.strings["errsel2"])
+
+    def do_preview(self, dialog):
+        logger.debug("Undoing existing previews before creating new ones.")
+        while self.activepreviews:
+            self.undomanager.undo()
+            self.activepreviews -= 1
+        dialog.getControl('cb_style').setFocus()
+        choices = self.get_options_from_dialog(dialog)
+        if choices:
+            logger.debug("Creating previews.")
+            self.options.update(choices)
+            for code_block in self.selection:
+                self.prepare_highlight(code_block)
+                self.activepreviews += 1
 
     def do_removealltags(self):
         '''Remove all highlighting infos inserted with Code Highlighter 2
@@ -343,16 +338,16 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
     def setlogger(self):
         loglevel = LOGLEVEL.get(self.options["LogLevel"], 0)
         logger.setLevel(loglevel)
-        if self.options["LogToFile"] == 1:
+        if self.options["LogToFile"] == 0:
+            for h in logger.handlers:
+                if isinstance(h, logging.FileHandler):
+                    logger.removeHandler(h)
+                    return
+        else:
             for h in logger.handlers:
                 if isinstance(h, logging.FileHandler):
                     return
             logger.addHandler(filehandler)
-        else:
-            for h in logger.handlers:
-                if isinstance(h, logging.FileHandler):
-                    logger.removeHandler(h)
-                    break
 
     def create_cfg_access(self):
         '''Return an updatable instance of the codehighlighter node in LO registry. '''
@@ -648,7 +643,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             logger.debug("Problem while saving user defined attributes: code block is probably mixing attributes. ")
             logger.debug(f"Code block concerned: {code_block.String}")
 
-    def check_selection(self, updatecode=False):
+    def check_selection(self):
         '''
         Check if selection is valid and contains text.
         If there is no selection but cursor is inside a text frame or
@@ -687,15 +682,6 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         elif selected_item.ImplementationName == "SwXTextRanges":
             logger.debug("Checking selection: SwXTextRanges.")
             for code_block in selected_item:
-                self.checkinlinesnippet(code_block)
-                if updatecode:
-                    if self.inlinesnippet:
-                        udas = code_block.TextUserDefinedAttributes
-                    else:
-                        udas = code_block.ParaUserDefinedAttributes
-                    if udas and SNIPPETTAGID in udas:
-                        code_blocks.append(code_block)
-                        continue
                 if code_block.String.strip():
                     code_blocks.append(code_block)
                 elif selected_item.Count == 1:
@@ -707,6 +693,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         cell = code_block.TextTable.getCellByName(cellname)
                         code_blocks.append(cell)
                     else:
+                        self.checkinlinesnippet(code_block)
                         if self.inlinesnippet:
                             udas = code_block.TextUserDefinedAttributes
                         else:
@@ -767,7 +754,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
 
         return code_blocks
 
-    def prepare_highlight(self, code_block=None, updatecode=False):
+    def prepare_highlight(self, code_block, updatecode=False):
         if not self.doc.hasControllersLocked():
             self.doc.lockControllers()
             logger.debug("Controllers locked.")
@@ -1132,11 +1119,13 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         self.inlinesnippet = False
         c = code_block.Text.createTextCursorByRange(code_block)
         if code_block.String:
-            if c.Start.TextParagraph == c.End.TextParagraph:
-                if c.Text.compareRegionStarts(c, c.Start.TextParagraph) != 0:
-                    # inline snippet
-                    logger.info('Code identified as inline snippet.')
-                    self.inlinesnippet = True
+            lines = code_block.String.splitlines()
+            if len(lines) == 1:  # this condition prevents to treat lines separated by carriage returns as a single line
+                if c.Start.TextParagraph == c.End.TextParagraph:
+                    if c.Text.compareRegionStarts(c, c.Start.TextParagraph) != 0:
+                        # inline snippet
+                        logger.info('Code identified as inline snippet.')
+                        self.inlinesnippet = True
         else:
             udas = code_block.TextUserDefinedAttributes
             if udas and SNIPPETTAGID in udas:

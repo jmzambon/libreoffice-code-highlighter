@@ -438,7 +438,6 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     return e[1]
             return ''
         dialog.Title = dialog.Title.format(getextver())
-        dialog.Model.PositionX *= 5  # keep dialog on the right to ease previewing.
         pygments_ver.Text = pygments_ver.Text.format(pygments.__version__)
         logger.debug("Dialog returned.")
 

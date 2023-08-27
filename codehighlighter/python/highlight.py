@@ -233,7 +233,9 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             dialog.getControl('nb_start').setFocus()
             return True
         elif method == "preview":
+            focus = {1: 'cb_style', 2: 'nb_start'}
             self.do_preview(dialog)
+            dialog.getControl(focus[dialog.Model.Step]).setFocus()
             return True
         return False
 
@@ -300,7 +302,6 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         while self.activepreviews:
             self.undomanager.undo()
             self.activepreviews -= 1
-        dialog.getControl('cb_style').setFocus()
         choices = self.get_options_from_dialog(dialog)
         if choices:
             logger.debug("Creating previews.")

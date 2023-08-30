@@ -1014,14 +1014,18 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     cursor.CharStyleName = str(lasttype).replace('Token', styleprefix)
                 else:
                     tok_style = style.style_for_token(lasttype)
-                    cursor.CharColor = self.to_int(tok_style['color'])
-                    cursor.CharWeight = W_BOLD if tok_style['bold'] else W_NORMAL
-                    cursor.CharPosture = SL_ITALIC if tok_style['italic'] else SL_NONE
-                    cursor.CharUnderline = UL_SINGLE if tok_style['underline'] else UL_NONE
+                    properties = ['CharColor', 'CharWeight', 'CharPosture', 'CharUnderline']
+                    values = [self.to_int(tok_style['color']),
+                              W_BOLD if tok_style['bold'] else W_NORMAL,
+                              SL_ITALIC if tok_style['italic'] else SL_NONE,
+                              UL_SINGLE if tok_style['underline'] else UL_NONE]
                     if tok_style["bgcolor"]:
-                        cursor.CharBackColor = self.to_int(tok_style["bgcolor"])
+                        properties.append('CharBackColor')
+                        values.append(self.to_int(tok_style["bgcolor"]))
                     elif self.inlinesnippet and inline_bg_color:
-                        cursor.CharBackColor = self.to_int(inline_bg_color)
+                        properties.append('CharBackColor')
+                        values.append(self.to_int(inline_bg_color))
+                    cursor.setPropertyValues(properties, values)
             except Exception:
                 pass
             finally:

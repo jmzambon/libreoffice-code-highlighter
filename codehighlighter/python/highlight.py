@@ -829,7 +829,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         self.options.update(options)
                         cursor, _ = self.ensure_paragraphs(code_block)
                         self.doc.CurrentController.select(cursor)
-                        code_block =  self.doc.CurrentSelection[0]
+                        code_block = self.doc.CurrentSelection[0]
                     else:
                         hascode = False
 

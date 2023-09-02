@@ -958,6 +958,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         self.undomanager.leaveUndoContext()
 
             # CALC CELL
+            # see this for info: https://bugs.documentfoundation.org/show_bug.cgi?id=151839
             elif code_block.ImplementationName in ("ScCellObj"):
                 logger.debug('Dealing with Calc cell.')
                 hascode = True

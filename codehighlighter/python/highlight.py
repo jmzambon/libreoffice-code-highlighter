@@ -841,12 +841,12 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     if self.options['ShowLineNumbers']:
                         _style = style.style_for_token(("Comment",))
                         lineno_color = self.to_int(_style['color'])
-                    lexer = self.getlexer(code_block)
 
                     try:
-                        self.undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
                         self.show_line_numbers(code_block, False, isplaintext=True)
                         cursor, code = self.ensure_paragraphs(code_block)
+                        lexer = self.getlexer(cursor)
+                        self.undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
                         # ParaBackColor does not work anymore, and new FillProperties isn't available from API
                         # see https://bugs.documentfoundation.org/show_bug.cgi?id=99125
                         # so let's use the dispatcher as workaround
@@ -898,7 +898,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
 
                     hascode = True
                     cursor = code_block.createTextCursorByRange(code_block)
-                    lexer = self.getlexer(cursor)
+                    # lexer = self.getlexer(cursor)
                     self.undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
                     self.show_line_numbers(code_block, False)
                     cursor = code_block.createTextCursorByRange(code_block)

@@ -4,7 +4,7 @@
 
     Lexer for the `Elpi <http://github.com/LPCIC/elpi>`_ programming language.
 
-    :copyright: Copyright 2006-2023 by the Pygments team, see AUTHORS.
+    :copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -18,8 +18,6 @@ __all__ = ['ElpiLexer']
 class ElpiLexer(RegexLexer):
     """
     Lexer for the Elpi programming language.
-
-    .. versionadded:: 2.11
     """
 
     name = 'Elpi'
@@ -27,6 +25,7 @@ class ElpiLexer(RegexLexer):
     aliases = ['elpi']
     filenames = ['*.elpi']
     mimetypes = ['text/x-elpi']
+    version_added = '2.11'
 
     lcase_re = r"[a-z]"
     ucase_re = r"[A-Z]"

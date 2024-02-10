@@ -8,7 +8,7 @@
     More information:
     https://datatracker.ietf.org/doc/rfc8610/
 
-    :copyright: Copyright 2006-2023 by the Pygments team, see AUTHORS.
+    :copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -22,14 +22,13 @@ __all__ = ['CddlLexer']
 class CddlLexer(RegexLexer):
     """
     Lexer for CDDL definitions.
-
-    .. versionadded:: 2.8
     """
     name = "CDDL"
     url = 'https://datatracker.ietf.org/doc/rfc8610/'
     aliases = ["cddl"]
     filenames = ["*.cddl"]
     mimetypes = ["text/x-cddl"]
+    version_added = '2.8'
 
     _prelude_types = [
         "any",

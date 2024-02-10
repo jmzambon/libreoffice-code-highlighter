@@ -4,7 +4,7 @@
 
     Lexers for the X10 programming language.
 
-    :copyright: Copyright 2006-2023 by the Pygments team, see AUTHORS.
+    :copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -17,8 +17,6 @@ __all__ = ['X10Lexer']
 class X10Lexer(RegexLexer):
     """
     For the X10 language.
-
-    .. versionadded:: 2.2
     """
 
     name = 'X10'
@@ -26,6 +24,7 @@ class X10Lexer(RegexLexer):
     aliases = ['x10', 'xten']
     filenames = ['*.x10']
     mimetypes = ['text/x-x10']
+    version_added = '2.2'
 
     keywords = (
         'as', 'assert', 'async', 'at', 'athome', 'ateach', 'atomic',

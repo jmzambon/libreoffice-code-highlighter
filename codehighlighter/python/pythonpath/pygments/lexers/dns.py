@@ -4,7 +4,7 @@
 
     Pygments lexers for DNS
 
-    :copyright: Copyright 2006-2023 by the Pygments team, see AUTHORS.
+    :copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -31,8 +31,6 @@ class DnsZoneLexer(RegexLexer):
 
     """
     Lexer for DNS zone file
-
-    .. versionadded:: 2.16
     """
 
     flags = re.MULTILINE
@@ -42,6 +40,7 @@ class DnsZoneLexer(RegexLexer):
     filenames = [ "*.zone" ]
     url = "https://datatracker.ietf.org/doc/html/rfc1035"
     mimetypes = ['text/dns']
+    version_added = '2.16'
 
     tokens = {
        'root': [

@@ -4,7 +4,7 @@
 
     Lexer for Jsonnet data templating language.
 
-    :copyright: Copyright 2006-2023 by the Pygments team, see AUTHORS.
+    :copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -40,6 +40,7 @@ class JsonnetLexer(RegexLexer):
     aliases = ['jsonnet']
     filenames = ['*.jsonnet', '*.libsonnet']
     url = "https://jsonnet.org"
+    version_added = ''
     tokens = {
         # Not used by itself
         '_comments': [

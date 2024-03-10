@@ -555,34 +555,23 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     master = self.doc.createInstance("com.sun.star.style.CharacterStyle")
                     charstyles.insertByName(mastercharstyle, master)
                 newcharstyle.ParentStyle = mastercharstyle
-            for d in style.styles.get(ttype, '').split():
-                tok_style = style.style_for_token(ttype)
-                if d == "noinherit":
-                    break
-                elif d == 'italic':
-                    newcharstyle.CharPosture = SL_ITALIC
-                elif d == 'noitalic':
-                    newcharstyle.CharPosture = SL_NONE
-                elif d == 'bold':
-                    newcharstyle.CharWeight = W_BOLD
-                elif d == 'nobold':
-                    newcharstyle.CharWeight = W_NORMAL
-                elif d == 'underline':
-                    newcharstyle.CharUnderline = UL_SINGLE
-                elif d == 'nounderline':
-                    newcharstyle.CharUnderline = UL_NONE
-                elif d in ('roman', 'sans', 'mono'):
-                    pass
-                elif d.startswith('bg:'):
-                    # let's Pygments make the hard job here
-                    if tok_style["bgcolor"]:
-                        newcharstyle.CharBackColor = self.to_int(tok_style["bgcolor"])
-                elif d.startswith('border:'):
-                    pass
-                elif d:
-                    # let's Pygments make the hard job here
-                    if tok_style["color"]:
-                        newcharstyle.CharColor = self.to_int(tok_style["color"])
+            tok_style = style.style_for_token(ttype)
+            if tok_style.get('italic', ''):
+                newcharstyle.CharPosture = SL_ITALIC
+            if tok_style.get('noitalic', ''):
+                newcharstyle.CharPosture = SL_NONE
+            if tok_style.get('bold', ''):
+                newcharstyle.CharWeight = W_BOLD
+            if tok_style.get('nobold', ''):
+                newcharstyle.CharWeight = W_NORMAL
+            if tok_style.get('underline', ''):
+                newcharstyle.CharUnderline = UL_SINGLE
+            if tok_style.get('nounderline', ''):
+                newcharstyle.CharUnderline = UL_NONE
+            if tok_style.get("bgcolor", ''):
+                newcharstyle.CharBackColor = self.to_int(tok_style["bgcolor"])
+            if tok_style.get("color", ''):
+                newcharstyle.CharColor = self.to_int(tok_style["color"])
 
         mastercharstyle = self.options["MasterCharStyle"].strip()
         stylefamilies = self.doc.StyleFamilies

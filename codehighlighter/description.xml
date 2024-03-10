@@ -6,7 +6,7 @@
 
   <identifier value="javahelps.codehighlighter"/>
 
-  <version value="2.5.4"/>
+  <version value="2.5.5"/>
 
   <update-information>
     <src xlink:href="https://raw.githubusercontent.com/jmzambon/libreoffice-code-highlighter/master/codehighlighter.update.xml" />
@@ -28,7 +28,7 @@
   </extension-description>
 
   <dependencies>
-    <l:LibreOffice-minimal-version value="6.4" d:name="LibreOffice.org 6.4 or higher" />
+    <l:LibreOffice-minimal-version value="7.1" d:name="LibreOffice.org 7.1 or higher" />
   </dependencies>
 
   <registration>

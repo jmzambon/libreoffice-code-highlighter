@@ -689,7 +689,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         else:
                             udas = code_block.ParaUserDefinedAttributes
                         if udas and SNIPPETTAGID in udas:
-                            cursor, _ = self.ensure_paragraphs(code_block)
+                            cursor = self.ensure_paragraphs(code_block)
                             self.doc.CurrentController.select(cursor)
                             code_blocks.append(self.doc.CurrentSelection[0])
 
@@ -816,7 +816,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     if udas and SNIPPETTAGID in udas:
                         options = literal_eval(udas.getByName(SNIPPETTAGID).Value)
                         self.options.update(options)
-                        cursor, _ = self.ensure_paragraphs(code_block)
+                        cursor = self.ensure_paragraphs(code_block)
                         self.doc.CurrentController.select(cursor)
                         code_block = self.doc.CurrentSelection[0]
                     else:
@@ -832,10 +832,11 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         lineno_color = self.to_int(_style['color'])
 
                     try:
-                        self.show_line_numbers(code_block, False, isplaintext=True)
-                        cursor, code = self.ensure_paragraphs(code_block)
+                        cursor = self.ensure_paragraphs(code_block)
                         lexer = self.getlexer(cursor)
                         self.undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
+                        self.show_line_numbers(code_block, False, isplaintext=True)
+                        cursor = self.ensure_paragraphs(code_block)  # in case numbering was removed, code_block has changed
                         # ParaBackColor does not work anymore, and new FillProperties isn't available from API
                         # see https://bugs.documentfoundation.org/show_bug.cgi?id=99125
                         # so let's use the dispatcher as workaround
@@ -1139,7 +1140,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         if selected_code.String:
             if self.inlinesnippet:
                 # inline snippet, abort expansion
-                return c, c.String
+                return c
             c.gotoStartOfParagraph(False)
             c.gotoRange(selected_code.End, True)
             c.gotoEndOfParagraph(True)
@@ -1179,7 +1180,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         break
                 c.gotoRange(startpara.Start, False)
                 c.gotoRange(endpara.End, True)
-        return c, c.String
+        return c
 
     # dev tools
     def update_all(self, usetags):

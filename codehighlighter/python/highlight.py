@@ -1106,7 +1106,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             show_numbering()
         else:
             # check for existing line numbering and its width
-            p = re.compile(r"^\s*[0-9]+[\W]?\s+", re.MULTILINE)
+            p = re.compile(r"^\s*[0-9]+[\W]?[^\S\n]+", re.MULTILINE)
             try:
                 lenno = min(len(f) for f in p.findall(code))
             except ValueError:

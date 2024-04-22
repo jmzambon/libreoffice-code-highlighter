@@ -210,6 +210,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             self.nolocale = Locale("zxx", "", "")
             self.inlinesnippet = False
             self.activepreviews = 0
+            self.lexername = None
         except Exception:
             logger.exception("")
 
@@ -535,6 +536,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             lexer = self.getlexerbyname(lang)
         # prevent offset color if selection start with empty line
         lexer.stripnl = False
+        self.lexername = lexer.name
         return lexer
 
     def createcharstyles(self, style, styleprefix):
@@ -781,7 +783,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     undoaction = UndoAction(self.doc, code_block,
                                             f"code highlight (lang: {lexer.name}, style: {stylename})")
                     logger.debug("Custom undo action created.")
-                    self.show_line_numbers(code_block, False, lexer.name)
+                    self.show_line_numbers(code_block, False)
                     cursor = code_block.createTextCursorByRange(code_block)
                     cursor.CharLocale = self.nolocale
                     self.highlight_code(cursor, lexer, style, checkunicode=True)
@@ -794,7 +796,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         code_block.FillStyle = FS_SOLID
                         code_block.FillColor = self.to_int(bg_color)
                     if self.options['ShowLineNumbers']:
-                        self.show_line_numbers(code_block, True, lexer.name, charcolor=lineno_color)
+                        self.show_line_numbers(code_block, True, charcolor=lineno_color)
                     # save options as user defined attribute
                     self.tagcodeblock(code_block, lexer.name)
                     # model is not considered as modified after textbox formatting
@@ -835,7 +837,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         cursor = self.ensure_paragraphs(code_block)
                         lexer = self.getlexer(cursor)
                         self.undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
-                        self.show_line_numbers(code_block, False, lexer.name, isplaintext=True)
+                        self.show_line_numbers(code_block, False, isplaintext=True)
                         cursor = self.ensure_paragraphs(code_block)  # in case numbering was removed, code_block has changed
                         # ParaBackColor does not work anymore, and new FillProperties isn't available from API
                         # see https://bugs.documentfoundation.org/show_bug.cgi?id=99125
@@ -854,7 +856,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                             char_bg_color = bg_color
                         self.highlight_code(cursor, lexer, style, char_bg_color=char_bg_color)
                         if self.options['ShowLineNumbers']:
-                            self.show_line_numbers(code_block, True, lexer.name, charcolor=lineno_color, isplaintext=True)
+                            self.show_line_numbers(code_block, True, charcolor=lineno_color, isplaintext=True)
                         # save options as user defined attribute
                         self.tagcodeblock(code_block, lexer.name)
                         controller.ViewCursor.collapseToEnd()
@@ -890,7 +892,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     cursor = code_block.createTextCursorByRange(code_block)
                     # lexer = self.getlexer(cursor)
                     self.undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
-                    self.show_line_numbers(code_block, False, lexer.name)
+                    self.show_line_numbers(code_block, False)
                     cursor = code_block.createTextCursorByRange(code_block)
                     try:
                         # code_block.BackColor = -1
@@ -899,7 +901,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         cursor.CharLocale = self.nolocale
                         self.highlight_code(cursor, lexer, style)
                         if self.options['ShowLineNumbers']:
-                            self.show_line_numbers(code_block, True, lexer.name, charcolor=lineno_color)
+                            self.show_line_numbers(code_block, True, charcolor=lineno_color)
                         # save options as user defined attribute
                         cursor = code_block.createTextCursorByRange(code_block)
                         self.tagcodeblock(cursor, lexer.name)
@@ -931,7 +933,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     lexer = self.getlexer(code_block)
 
                     self.undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
-                    self.show_line_numbers(code_block, False, lexer.name)
+                    self.show_line_numbers(code_block, False)
                     try:
                         # code_block.BackColor = -1
                         if bg_color:
@@ -940,7 +942,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         cursor.CharLocale = self.nolocale
                         self.highlight_code(cursor, lexer, style)
                         if self.options['ShowLineNumbers']:
-                            self.show_line_numbers(code_block, True, lexer.name, charcolor=lineno_color)
+                            self.show_line_numbers(code_block, True, charcolor=lineno_color)
                         # save options as user defined attribute
                         self.tagcodeblock(code_block, lexer.name)
                         controller.ViewCursor.collapseToEnd()
@@ -972,7 +974,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     lexer = self.getlexer(code_block)
 
                     self.undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
-                    self.show_line_numbers(code_block, False, lexer.name)
+                    self.show_line_numbers(code_block, False)
                     try:
                         # code_block.CellBackColor = -1
                         code_block.CharLocale = self.nolocale
@@ -981,7 +983,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         cursor = code_block.createTextCursor()
                         self.highlight_code(cursor, lexer, style, char_bg_color=bg_color, checkunicode=True)
                         if self.options['ShowLineNumbers']:
-                            self.show_line_numbers(code_block, True, lexer.name, charcolor=lineno_color, char_bg_color=bg_color)
+                            self.show_line_numbers(code_block, True, charcolor=lineno_color, char_bg_color=bg_color)
                         # save options as user defined attribute
                         self.tagcodeblock(code_block, lexer.name)
                     finally:
@@ -1062,13 +1064,13 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         self.cleancharstyles(styleprefix)
         logger.debug("Terminating code block highlighting.")
 
-    def show_line_numbers(self, code_block, show, lexer, charcolor=-1, isplaintext=False, char_bg_color=None):
+    def show_line_numbers(self, code_block, show, charcolor=-1, isplaintext=False, char_bg_color=None):
         if self.inlinesnippet:
             return
         startnb = self.options["LineNumberStart"]
         ratio = self.options["LineNumberRatio"]
         sep = self.options["LineNumberSeparator"]
-        if lexer.startswith("LLVM") and ':' in sep:    # see issue https://github.com/jmzambon/libreoffice-code-highlighter/issues/27
+        if self.lexername.startswith("LLVM") and ':' in sep:    # see issue https://github.com/jmzambon/libreoffice-code-highlighter/issues/27
             sep = '\t'
         pad = self.options["LineNumberPaddingSymbol"]
         logger.debug(f"Starting code block numbering (show: {show}).")
@@ -1108,9 +1110,9 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             show_numbering()
         else:
             # check for existing line numbering and its width
-            p = re.compile(r"^\s*[0-9]+[\W]?[^\S\n]+", re.MULTILINE)
-            if lexer.startswith("LLVM"):    # see issue https://github.com/jmzambon/libreoffice-code-highlighter/issues/27
-                p = re.compile(r"^\s*[0-9]+[^a-zA-Z0-9_:]?[^\S\n]+", re.MULTILINE)
+            p = re.compile(r"^\s*\d+\W?[^\S\n]*", re.MULTILINE)
+            if self.lexername.startswith("LLVM"):    # see issue https://github.com/jmzambon/libreoffice-code-highlighter/issues/27
+                p = re.compile(r"^\s*\d+(?![\d:])\W?[^\S\n]*", re.MULTILINE)
             try:
                 lenno = min(len(f) for f in p.findall(code))
             except ValueError:

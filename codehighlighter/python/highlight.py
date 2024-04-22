@@ -1104,15 +1104,21 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     para.CharHeight = codecharheight
                     para.String = para.String[lenno:]
 
+        def getregexstring():
+            padsymbol = re.escape(pad)
+            regexstring = fr"^[\s|{padsymbol}]*\d+\W?[^\S\n]*"
+            if self.lexername.startswith("LLVM"):    # see issue https://github.com/jmzambon/libreoffice-code-highlighter/issues/27
+                regexstring = fr"^[\s|{padsymbol}]*\d+(?![\d:])\W?[^\S\n]*"
+            return regexstring
+
         if show:
             logger.debug("Showing code block numbering.")
             bg_color = self.to_int(char_bg_color) or -1
             show_numbering()
         else:
             # check for existing line numbering and its width
-            p = re.compile(r"^\s*\d+\W?[^\S\n]*", re.MULTILINE)
-            if self.lexername.startswith("LLVM"):    # see issue https://github.com/jmzambon/libreoffice-code-highlighter/issues/27
-                p = re.compile(r"^\s*\d+(?![\d:])\W?[^\S\n]*", re.MULTILINE)
+            regexstring = getregexstring()
+            p = re.compile(regexstring, re.MULTILINE)
             try:
                 lenno = min(len(f) for f in p.findall(code))
             except ValueError:

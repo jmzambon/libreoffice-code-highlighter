@@ -400,7 +400,7 @@ class VbNetLexer(RegexLexer):
 
     name = 'VB.net'
     url = 'https://docs.microsoft.com/en-us/dotnet/visual-basic/'
-    aliases = ['vb.net', 'vbnet', 'lobas', 'oobas', 'sobas']
+    aliases = ['vb.net', 'vbnet', 'lobas', 'oobas', 'sobas', 'visual-basic', 'visualbasic']
     filenames = ['*.vb', '*.bas']
     mimetypes = ['text/x-vbnet', 'text/x-vba']  # (?)
     version_added = ''
@@ -655,12 +655,12 @@ class FSharpLexer(RegexLexer):
              bygroups(Keyword, Whitespace, Name.Class)),
             (r'\b(member|override)(\s+)(\w+)(\.)(\w+)',
              bygroups(Keyword, Whitespace, Name, Punctuation, Name.Function)),
-            (r'\b(%s)\b' % '|'.join(keywords), Keyword),
+            (r'\b({})\b'.format('|'.join(keywords)), Keyword),
             (r'``([^`\n\r\t]|`[^`\n\r\t])+``', Name),
-            (r'(%s)' % '|'.join(keyopts), Operator),
-            (r'(%s|%s)?%s' % (infix_syms, prefix_syms, operators), Operator),
-            (r'\b(%s)\b' % '|'.join(word_operators), Operator.Word),
-            (r'\b(%s)\b' % '|'.join(primitives), Keyword.Type),
+            (r'({})'.format('|'.join(keyopts)), Operator),
+            (rf'({infix_syms}|{prefix_syms})?{operators}', Operator),
+            (r'\b({})\b'.format('|'.join(word_operators)), Operator.Word),
+            (r'\b({})\b'.format('|'.join(primitives)), Keyword.Type),
             (r'(#)([ \t]*)(if|endif|else|line|nowarn|light|\d+)\b(.*?)(\n)',
              bygroups(Comment.Preproc, Whitespace, Comment.Preproc,
                       Comment.Preproc, Whitespace)),

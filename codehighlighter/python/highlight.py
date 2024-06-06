@@ -91,6 +91,7 @@ try:
     import ch2_i18n
 except Exception:
     logger.exception("")
+    raise
 
 
 CHARSTYLEID = "ch2_"
@@ -213,6 +214,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             self.lexername = None
         except Exception:
             logger.exception("")
+            raise
 
     # XJobExecutor (https://www.openoffice.org/api/docs/common/ref/com/sun/star/task/XJobExecutor.html)
     def trigger(self, arg):
@@ -221,6 +223,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             getattr(self, 'do_'+arg)()
         except Exception:
             logger.exception("")
+            raise
 
     # XDialogEventHandler (http://www.openoffice.org/api/docs/common/ref/com/sun/star/awt/XDialogEventHandler.html)
     def callHandlerMethod(self, dialog, event, method):

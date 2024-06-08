@@ -90,7 +90,7 @@ try:
     # internal
     import ch2_i18n
 except Exception:
-    logger.exception("")
+    logger.exception("Something went wrong while loading python modules:")   # see issue #28
     raise
 
 
@@ -213,7 +213,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             self.activepreviews = 0
             self.lexername = None
         except Exception:
-            logger.exception("")
+            logger.exception("Error initializing python class CodeHighlighter:")
             raise
 
     # XJobExecutor (https://www.openoffice.org/api/docs/common/ref/com/sun/star/task/XJobExecutor.html)
@@ -222,7 +222,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         try:
             getattr(self, 'do_'+arg)()
         except Exception:
-            logger.exception("")
+            logger.exception(f"Error triggering < self.do_{arg}() > function:")
             raise
 
     # XDialogEventHandler (http://www.openoffice.org/api/docs/common/ref/com/sun/star/awt/XDialogEventHandler.html)

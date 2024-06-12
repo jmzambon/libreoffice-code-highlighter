@@ -1,11 +1,11 @@
 """
-    pygments.lexers.mime
-    ~~~~~~~~~~~~~~~~~~~~
+pygments.lexers.mime
+~~~~~~~~~~~~~~~~~~~~
 
-    Lexer for Multipurpose Internet Mail Extensions (MIME) data.
+Lexer for Multipurpose Internet Mail Extensions (MIME) data.
 
-    :copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+:copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
+:license: BSD, see LICENSE for details.
 """
 
 import re
@@ -50,11 +50,9 @@ class MIMELexer(RegexLexer):
 
     name = "MIME"
     aliases = ["mime"]
-    mimetypes = ["multipart/mixed",
-                 "multipart/related",
-                 "multipart/alternative"]
-    url = 'https://en.wikipedia.org/wiki/MIME'
-    version_added = '2.5'
+    mimetypes = ["multipart/mixed", "multipart/related", "multipart/alternative"]
+    url = "https://en.wikipedia.org/wiki/MIME"
+    version_added = "2.5"
 
     def __init__(self, **options):
         super().__init__(**options)
@@ -83,8 +81,8 @@ class MIMELexer(RegexLexer):
         entire_body = match.group()
 
         # skip first newline
-        if entire_body[0] == '\n':
-            yield pos_body_start, Text.Whitespace, '\n'
+        if entire_body[0] == "\n":
+            yield pos_body_start, Text.Whitespace, "\n"
             pos_body_start = pos_body_start + 1
             entire_body = entire_body[1:]
 
@@ -103,7 +101,7 @@ class MIMELexer(RegexLexer):
         if m:
             pos_part_start = pos_body_start + m.end()
             pos_iter_start = lpos_end = m.end()
-            yield pos_body_start, Text, entire_body[:m.start()]
+            yield pos_body_start, Text, entire_body[: m.start()]
             yield pos_body_start + lpos_end, String.Delimiter, m.group()
         else:
             pos_part_start = pos_body_start
@@ -160,7 +158,7 @@ class MIMELexer(RegexLexer):
         prefix_len = match.start(1) - match.start(0)
         yield match.start(0), Text.Whitespace, match.group(0)[:prefix_len]
         yield match.start(1), Name.Label, match.group(2)
-        yield match.end(2), String.Delimiter, '/'
+        yield match.end(2), String.Delimiter, "/"
         yield match.start(3), Name.Label, match.group(3)
 
     def get_content_type_subtokens(self, match):
@@ -199,9 +197,11 @@ class MIMELexer(RegexLexer):
                 r"|message)/([\w-]+))",
                 store_content_type,
             ),
-            (r'(;)((?:[ \t]|\n[ \t])*)([\w:-]+)(=)([\s\S]*?)(?=;|\n(?![ \t]))',
-             get_content_type_subtokens),
-            (r';[ \t]*\n(?![ \t])', Text, '#pop'),
+            (
+                r"(;)((?:[ \t]|\n[ \t])*)([\w:-]+)(=)([\s\S]*?)(?=;|\n(?![ \t]))",
+                get_content_type_subtokens,
+            ),
+            (r";[ \t]*\n(?![ \t])", Text, "#pop"),
         ],
         "content-transfer-encoding": [
             include("header"),

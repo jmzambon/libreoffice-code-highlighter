@@ -1,11 +1,11 @@
 """
-    pygments.styles
-    ~~~~~~~~~~~~~~~
+pygments.styles
+~~~~~~~~~~~~~~~
 
-    Contains built-in styles.
+Contains built-in styles.
 
-    :copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+:copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
+:license: BSD, see LICENSE for details.
 """
 
 from pygments.plugin import find_plugin_styles
@@ -15,7 +15,7 @@ from pygments.styles._mapping import STYLES
 #: A dictionary of built-in styles, mapping style names to
 #: ``'submodule::classname'`` strings.
 #: This list is deprecated. Use `pygments.styles.STYLES` instead
-STYLE_MAP = {v[1]: v[0].split('.')[-1] + '::' + k for k, v in STYLES.items()}
+STYLE_MAP = {v[1]: v[0].split(".")[-1] + "::" + k for k, v in STYLES.items()}
 
 #: Internal reverse mapping to make `get_style_by_name` more efficient
 _STYLE_NAME_TO_MODULE_MAP = {v[1]: (v[0], k) for k, v in STYLES.items()}
@@ -38,15 +38,17 @@ def get_style_by_name(name):
                 return style
         # perhaps it got dropped into our styles package
         builtin = ""
-        mod = 'pygments.styles.' + name
+        mod = "pygments.styles." + name
         cls = name.title() + "Style"
 
     try:
         mod = __import__(mod, None, None, [cls])
     except ImportError:
-        raise ClassNotFound(f"Could not find style module {mod!r}" +
-                            (builtin and ", though it should be builtin")
-                            + ".")
+        raise ClassNotFound(
+            f"Could not find style module {mod!r}"
+            + (builtin and ", though it should be builtin")
+            + "."
+        )
     try:
         return getattr(mod, cls)
     except AttributeError:

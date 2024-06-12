@@ -1,50 +1,63 @@
 """
-    pygments.lexers.wgsl
-    ~~~~~~~~~~~~~~~~~~~~
+pygments.lexers.wgsl
+~~~~~~~~~~~~~~~~~~~~
 
-    Lexer for the WebGPU Shading Language.
+Lexer for the WebGPU Shading Language.
 
-    :copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+:copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
+:license: BSD, see LICENSE for details.
 """
 
 from pygments.lexer import RegexLexer, include, words, default
-from pygments.token import Comment, Operator, Keyword, Name, \
-    Number, Punctuation, Whitespace
+from pygments.token import (
+    Comment,
+    Operator,
+    Keyword,
+    Name,
+    Number,
+    Punctuation,
+    Whitespace,
+)
 from pygments import unistring as uni
 
-__all__ = ['WgslLexer']
+__all__ = ["WgslLexer"]
 
-LF = '\\u000a'
-VT = '\\u000b'
-FF = '\\u000c'
-CR = '\\u000d'
-NextLine = '\\u0085'
-LineSep = '\\u2028'
-ParaSep = '\\u2029'
-LineEndCodePoints = [LF,VT,FF,CR,NextLine,LineSep,ParaSep]
-NotLineEndRE = '[^' + "".join(LineEndCodePoints) + ']'
-LineEndRE = '[' + "".join(LineEndCodePoints) + ']'
+LF = "\\u000a"
+VT = "\\u000b"
+FF = "\\u000c"
+CR = "\\u000d"
+NextLine = "\\u0085"
+LineSep = "\\u2028"
+ParaSep = "\\u2029"
+LineEndCodePoints = [LF, VT, FF, CR, NextLine, LineSep, ParaSep]
+NotLineEndRE = "[^" + "".join(LineEndCodePoints) + "]"
+LineEndRE = "[" + "".join(LineEndCodePoints) + "]"
 
 # https://www.w3.org/TR/WGSL/#syntax-ident_pattern_token
-ident_pattern_token = f'([{uni.xid_start}][{uni.xid_continue}]+)|[{uni.xid_start}]'
+ident_pattern_token = f"([{uni.xid_start}][{uni.xid_continue}]+)|[{uni.xid_start}]"
 
 
 class WgslLexer(RegexLexer):
     """
     Lexer for the WebGPU Shading Language.
     """
-    name = 'WebGPU Shading Language'
-    url = 'https://www.w3.org/TR/WGSL/'
-    aliases = ['wgsl']
-    filenames = ['*.wgsl']
-    mimetypes = ['text/wgsl']
-    version_added = '2.15'
+
+    name = "WebGPU Shading Language"
+    url = "https://www.w3.org/TR/WGSL/"
+    aliases = ["wgsl"]
+    filenames = ["*.wgsl"]
+    mimetypes = ["text/wgsl"]
+    version_added = "2.15"
 
     # https://www.w3.org/TR/WGSL/#var-and-value
-    keyword_decl = (words('var let const override'.split(),suffix=r'\b'), Keyword.Declaration)
+    keyword_decl = (
+        words("var let const override".split(), suffix=r"\b"),
+        Keyword.Declaration,
+    )
     # https://www.w3.org/TR/WGSL/#keyword-summary
-    keywords = (words("""
+    keywords = (
+        words(
+            """
                 alias
                 break
                 case
@@ -67,10 +80,16 @@ class WgslLexer(RegexLexer):
                 switch
                 true
                 while
-                """.split(), suffix=r'\b'), Keyword)
+                """.split(),
+            suffix=r"\b",
+        ),
+        Keyword,
+    )
 
     # https://www.w3.org/TR/WGSL/#reserved-words
-    keyword_reserved = (words("""
+    keyword_reserved = (
+        words(
+            """
                 NULL
                 Self
                 abstract
@@ -216,10 +235,16 @@ class WgslLexer(RegexLexer):
                 with
                 writeonly
                 yield
-                """.split(), suffix=r'\b'), Keyword.Reserved)
+                """.split(),
+            suffix=r"\b",
+        ),
+        Keyword.Reserved,
+    )
 
     # https://www.w3.org/TR/WGSL/#predeclared-enumerants
-    predeclared_enums = (words("""
+    predeclared_enums = (
+        words(
+            """
           read write read_write
           function private workgroup uniform storage
           perspective linear flat
@@ -245,10 +270,16 @@ class WgslLexer(RegexLexer):
           rgba32sint
           rgba32float
           bgra8unorm
-          """.split(), suffix=r'\b'), Name.Builtin)
+          """.split(),
+            suffix=r"\b",
+        ),
+        Name.Builtin,
+    )
 
     # https://www.w3.org/TR/WGSL/#predeclared-types
-    predeclared_types = (words("""
+    predeclared_types = (
+        words(
+            """
           bool
           f16
           f32
@@ -262,10 +293,16 @@ class WgslLexer(RegexLexer):
           texture_external
           texture_external
           u32
-          """.split(), suffix=r'\b'), Name.Builtin)
+          """.split(),
+            suffix=r"\b",
+        ),
+        Name.Builtin,
+    )
 
     # https://www.w3.org/TR/WGSL/#predeclared-types
-    predeclared_type_generators = (words("""
+    predeclared_type_generators = (
+        words(
+            """
           array
           atomic
           mat2x2
@@ -292,115 +329,124 @@ class WgslLexer(RegexLexer):
           vec2
           vec3
           vec4
-          """.split(), suffix=r'\b'), Name.Builtin)
+          """.split(),
+            suffix=r"\b",
+        ),
+        Name.Builtin,
+    )
 
     # Predeclared type aliases for vectors
     # https://www.w3.org/TR/WGSL/#vector-types
-    predeclared_type_alias_vectors = (words("""
+    predeclared_type_alias_vectors = (
+        words(
+            """
           vec2i vec3i vec4i
           vec2u vec3u vec4u
           vec2f vec3f vec4f
           vec2h vec3h vec4h
-          """.split(), suffix=r'\b'), Name.Builtin)
+          """.split(),
+            suffix=r"\b",
+        ),
+        Name.Builtin,
+    )
 
     # Predeclared type aliases for matrices
     # https://www.w3.org/TR/WGSL/#matrix-types
-    predeclared_type_alias_matrices = (words("""
+    predeclared_type_alias_matrices = (
+        words(
+            """
           mat2x2f mat2x3f mat2x4f
           mat3x2f mat3x3f mat3x4f
           mat4x2f mat4x3f mat4x4f
           mat2x2h mat2x3h mat2x4h
           mat3x2h mat3x3h mat3x4h
           mat4x2h mat4x3h mat4x4h
-          """.split(), suffix=r'\b'), Name.Builtin)
+          """.split(),
+            suffix=r"\b",
+        ),
+        Name.Builtin,
+    )
 
     tokens = {
-        'blankspace': [
+        "blankspace": [
             # https://www.w3.org/TR/WGSL/#blankspace
-            (r'[\u0020\u0009\u000a\u000b\u000c\u000d\u0085\u200e\u200f\u2028\u2029]+', Whitespace),
+            (
+                r"[\u0020\u0009\u000a\u000b\u000c\u000d\u0085\u200e\u200f\u2028\u2029]+",
+                Whitespace,
+            ),
         ],
-        'comments': [
+        "comments": [
             # Line ending comments
             # Match up CR/LF pair first.
-            (rf'//{NotLineEndRE}*{CR}{LF}', Comment.Single),
-            (rf'//{NotLineEndRE}*{LineEndRE}', Comment.Single),
-            (r'/\*', Comment.Multiline, 'block_comment'),
+            (rf"//{NotLineEndRE}*{CR}{LF}", Comment.Single),
+            (rf"//{NotLineEndRE}*{LineEndRE}", Comment.Single),
+            (r"/\*", Comment.Multiline, "block_comment"),
         ],
-        'attribute': [
-            include('blankspace'),
-            include('comments'),
-            (ident_pattern_token, Name.Decorator,'#pop'),
-            default('#pop'),
+        "attribute": [
+            include("blankspace"),
+            include("comments"),
+            (ident_pattern_token, Name.Decorator, "#pop"),
+            default("#pop"),
         ],
-        'root': [
-            include('blankspace'),
-            include('comments'),
-
+        "root": [
+            include("blankspace"),
+            include("comments"),
             # Attributes.
             # https://www.w3.org/TR/WGSL/#attributes
             # Mark the '@' and the attribute name as a decorator.
-            (r'@', Name.Decorator, 'attribute'),
-
+            (r"@", Name.Decorator, "attribute"),
             # Keywords
-            (r'(true|false)\b', Keyword.Constant),
+            (r"(true|false)\b", Keyword.Constant),
             keyword_decl,
             keywords,
             keyword_reserved,
-
             # Predeclared
             predeclared_enums,
             predeclared_types,
             predeclared_type_generators,
             predeclared_type_alias_vectors,
             predeclared_type_alias_matrices,
-
             # Decimal float literals
             # https://www.w3.org/TR/WGSL/#syntax-decimal_float_literal
             # 0, with type-specifying suffix.
-            (r'0[fh]', Number.Float),
+            (r"0[fh]", Number.Float),
             # Other decimal integer, with type-specifying suffix.
-            (r'[1-9][0-9]*[fh]', Number.Float),
+            (r"[1-9][0-9]*[fh]", Number.Float),
             #    Has decimal point, at least one digit after decimal.
-            (r'[0-9]*\.[0-9]+([eE][+-]?[0-9]+)?[fh]?', Number.Float),
+            (r"[0-9]*\.[0-9]+([eE][+-]?[0-9]+)?[fh]?", Number.Float),
             #    Has decimal point, at least one digit before decimal.
-            (r'[0-9]+\.[0-9]*([eE][+-]?[0-9]+)?[fh]?', Number.Float),
+            (r"[0-9]+\.[0-9]*([eE][+-]?[0-9]+)?[fh]?", Number.Float),
             #    Has at least one digit, and has an exponent.
-            (r'[0-9]+[eE][+-]?[0-9]+[fh]?', Number.Float),
-
+            (r"[0-9]+[eE][+-]?[0-9]+[fh]?", Number.Float),
             # Hex float literals
             # https://www.w3.org/TR/WGSL/#syntax-hex_float_literal
-            (r'0[xX][0-9a-fA-F]*\.[0-9a-fA-F]+([pP][+-]?[0-9]+[fh]?)?', Number.Float),
-            (r'0[xX][0-9a-fA-F]+\.[0-9a-fA-F]*([pP][+-]?[0-9]+[fh]?)?', Number.Float),
-            (r'0[xX][0-9a-fA-F]+[pP][+-]?[0-9]+[fh]?', Number.Float),
-
+            (r"0[xX][0-9a-fA-F]*\.[0-9a-fA-F]+([pP][+-]?[0-9]+[fh]?)?", Number.Float),
+            (r"0[xX][0-9a-fA-F]+\.[0-9a-fA-F]*([pP][+-]?[0-9]+[fh]?)?", Number.Float),
+            (r"0[xX][0-9a-fA-F]+[pP][+-]?[0-9]+[fh]?", Number.Float),
             # Hexadecimal integer literals
             # https://www.w3.org/TR/WGSL/#syntax-hex_int_literal
-            (r'0[xX][0-9a-fA-F]+[iu]?', Number.Hex),
+            (r"0[xX][0-9a-fA-F]+[iu]?", Number.Hex),
             # Decimal integer literals
             # https://www.w3.org/TR/WGSL/#syntax-decimal_int_literal
             # We need two rules here because 01 is not valid.
-            (r'[1-9][0-9]*[iu]?', Number.Integer),
-            (r'0[iu]?', Number.Integer), # Must match last.
-
+            (r"[1-9][0-9]*[iu]?", Number.Integer),
+            (r"0[iu]?", Number.Integer),  # Must match last.
             # Operators and Punctuation
-            (r'[{}()\[\],\.;:]', Punctuation),
-            (r'->', Punctuation), # Return-type arrow
-            (r'[+\-*/%&|<>^!~=]', Operator),
-
+            (r"[{}()\[\],\.;:]", Punctuation),
+            (r"->", Punctuation),  # Return-type arrow
+            (r"[+\-*/%&|<>^!~=]", Operator),
             # TODO: Treat context-depedendent names specially
             # https://www.w3.org/TR/WGSL/#context-dependent-name
-
             # Identifiers
             (ident_pattern_token, Name),
-
             # TODO: templates start and end tokens.
             # https://www.w3.org/TR/WGSL/#template-lists-sec
         ],
-        'block_comment': [
+        "block_comment": [
             # https://www.w3.org/TR/WGSL/#block-comment
-            (r'[^*/]+', Comment.Multiline),
-            (r'/\*', Comment.Multiline, '#push'),
-            (r'\*/', Comment.Multiline, '#pop'),
-            (r'[*/]', Comment.Multiline),
+            (r"[^*/]+", Comment.Multiline),
+            (r"/\*", Comment.Multiline, "#push"),
+            (r"\*/", Comment.Multiline, "#pop"),
+            (r"[*/]", Comment.Multiline),
         ],
     }

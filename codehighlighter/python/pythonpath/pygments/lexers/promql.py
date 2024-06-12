@@ -1,16 +1,24 @@
 """
-    pygments.lexers.promql
-    ~~~~~~~~~~~~~~~~~~~~~~
+pygments.lexers.promql
+~~~~~~~~~~~~~~~~~~~~~~
 
-    Lexer for Prometheus Query Language.
+Lexer for Prometheus Query Language.
 
-    :copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+:copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
+:license: BSD, see LICENSE for details.
 """
 
 from pygments.lexer import RegexLexer, bygroups, default, words
-from pygments.token import Comment, Keyword, Name, Number, Operator, \
-    Punctuation, String, Whitespace
+from pygments.token import (
+    Comment,
+    Keyword,
+    Name,
+    Number,
+    Operator,
+    Punctuation,
+    String,
+    Whitespace,
+)
 
 __all__ = ["PromQLLexer"]
 
@@ -26,10 +34,10 @@ class PromQLLexer(RegexLexer):
     """
 
     name = "PromQL"
-    url = 'https://prometheus.io/docs/prometheus/latest/querying/basics/'
+    url = "https://prometheus.io/docs/prometheus/latest/querying/basics/"
     aliases = ["promql"]
     filenames = ["*.promql"]
-    version_added = ''
+    version_added = ""
 
     base_keywords = (
         words(
@@ -160,9 +168,18 @@ class PromQLLexer(RegexLexer):
             (r"\n", Whitespace),
             (r"\s+", Whitespace),
             (r",", Punctuation),
-            (r'([_a-zA-Z][a-zA-Z0-9_]*?)(\s*?)(=~|!=|=|!~)(\s*?)("|\')(.*?)("|\')',
-             bygroups(Name.Label, Whitespace, Operator, Whitespace,
-                      Punctuation, String, Punctuation)),
+            (
+                r'([_a-zA-Z][a-zA-Z0-9_]*?)(\s*?)(=~|!=|=|!~)(\s*?)("|\')(.*?)("|\')',
+                bygroups(
+                    Name.Label,
+                    Whitespace,
+                    Operator,
+                    Whitespace,
+                    Punctuation,
+                    String,
+                    Punctuation,
+                ),
+            ),
         ],
         "range": [
             (r"\]", Punctuation, "#pop"),

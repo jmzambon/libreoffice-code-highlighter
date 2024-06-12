@@ -1,54 +1,68 @@
 """
-    pygments.lexers.tls
-    ~~~~~~~~~~~~~~~~~~~
+pygments.lexers.tls
+~~~~~~~~~~~~~~~~~~~
 
-    Lexers for the TLS presentation language.
+Lexers for the TLS presentation language.
 
-    :copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+:copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
+:license: BSD, see LICENSE for details.
 """
+
 import re
 
 from pygments.lexer import RegexLexer, words
-from pygments.token import Comment, Operator, Keyword, Name, String, \
-    Number, Punctuation, Whitespace
+from pygments.token import (
+    Comment,
+    Operator,
+    Keyword,
+    Name,
+    String,
+    Number,
+    Punctuation,
+    Whitespace,
+)
 
-__all__ = ['TlsLexer']
+__all__ = ["TlsLexer"]
 
 
 class TlsLexer(RegexLexer):
     """
     The TLS presentation language, described in RFC 8446.
     """
-    name = 'TLS Presentation Language'
-    url = 'https://www.rfc-editor.org/rfc/rfc8446#section-3'
+
+    name = "TLS Presentation Language"
+    url = "https://www.rfc-editor.org/rfc/rfc8446#section-3"
     filenames = []
-    aliases = ['tls']
+    aliases = ["tls"]
     mimetypes = []
-    version_added = '2.16'
+    version_added = "2.16"
 
     flags = re.MULTILINE | re.DOTALL
 
     tokens = {
-        'root': [
-            (r'\s+', Whitespace),
+        "root": [
+            (r"\s+", Whitespace),
             # comments
-            (r'/[*].*?[*]/', Comment.Multiline),
+            (r"/[*].*?[*]/", Comment.Multiline),
             # Keywords
-            (words(('struct', 'enum', 'select', 'case'), suffix=r'\b'),
-             Keyword),
-            (words(('uint8', 'uint16', 'uint24', 'uint32', 'uint64', 'opaque'),
-                   suffix=r'\b'), Keyword.Type),
+            (words(("struct", "enum", "select", "case"), suffix=r"\b"), Keyword),
+            (
+                words(
+                    ("uint8", "uint16", "uint24", "uint32", "uint64", "opaque"),
+                    suffix=r"\b",
+                ),
+                Keyword.Type,
+            ),
             # numeric literals
-            (r'0x[0-9a-fA-F]+', Number.Hex),
-            (r'[0-9]+', Number.Integer),
+            (r"0x[0-9a-fA-F]+", Number.Hex),
+            (r"[0-9]+", Number.Integer),
             # string literal
             (r'"(\\.|[^"\\])*"', String),
             # tokens
-            (r'[.]{2}', Operator),
-            (r'[+\-*/&^]', Operator),
-            (r'[|<>=!()\[\]{}.,;:\?]', Punctuation),
+            (r"[.]{2}", Operator),
+            (r"[+\-*/&^]", Operator),
+            (r"[|<>=!()\[\]{}.,;:\?]", Punctuation),
             # identifiers
-            (r'[^\W\d]\w*', Name.Other),
+            (r"[^\W\d]\w*", Name.Other),
         ]
     }

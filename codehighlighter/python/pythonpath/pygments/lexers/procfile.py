@@ -1,11 +1,11 @@
 """
-    pygments.lexers.procfile
-    ~~~~~~~~~~~~~~~~~~~~~~~~
+pygments.lexers.procfile
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-    Lexer for Procfile file format.
+Lexer for Procfile file format.
 
-    :copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+:copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
+:license: BSD, see LICENSE for details.
 """
 
 from pygments.lexer import RegexLexer, bygroups
@@ -21,21 +21,22 @@ class ProcfileLexer(RegexLexer):
     The format is used to run processes on Heroku or is used by Foreman or
     Honcho tools.
     """
-    name = 'Procfile'
-    url = 'https://devcenter.heroku.com/articles/procfile#procfile-format'
-    aliases = ['procfile']
-    filenames = ['Procfile']
-    version_added = '2.10'
+
+    name = "Procfile"
+    url = "https://devcenter.heroku.com/articles/procfile#procfile-format"
+    aliases = ["procfile"]
+    filenames = ["Procfile"]
+    version_added = "2.10"
 
     tokens = {
-        'root': [
-            (r'^([a-z]+)(:)', bygroups(Name.Label, Punctuation)),
-            (r'\s+', Text.Whitespace),
+        "root": [
+            (r"^([a-z]+)(:)", bygroups(Name.Label, Punctuation)),
+            (r"\s+", Text.Whitespace),
             (r'"[^"]*"', String),
             (r"'[^']*'", String),
-            (r'[0-9]+', Number.Integer),
-            (r'\$[a-zA-Z_][\w]*', Name.Variable),
-            (r'(\w+)(=)(\w+)', bygroups(Name.Variable, Punctuation, String)),
-            (r'([\w\-\./]+)', Text),
+            (r"[0-9]+", Number.Integer),
+            (r"\$[a-zA-Z_][\w]*", Name.Variable),
+            (r"(\w+)(=)(\w+)", bygroups(Name.Variable, Punctuation, String)),
+            (r"([\w\-\./]+)", Text),
         ],
     }

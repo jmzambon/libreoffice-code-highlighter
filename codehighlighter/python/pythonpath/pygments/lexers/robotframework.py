@@ -1,11 +1,11 @@
 """
-    pygments.lexers.robotframework
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+pygments.lexers.robotframework
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    Lexer for Robot Framework.
+Lexer for Robot Framework.
 
-    :copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+:copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
+:license: BSD, see LICENSE for details.
 """
 
 #  Copyright 2012 Nokia Siemens Networks Oyj
@@ -27,7 +27,7 @@ import re
 from pygments.lexer import Lexer
 from pygments.token import Token
 
-__all__ = ['RobotFrameworkLexer']
+__all__ = ["RobotFrameworkLexer"]
 
 
 HEADING = Token.Generic.Heading
@@ -44,11 +44,11 @@ GHERKIN = Token.Generic.Emph
 ERROR = Token.Error
 
 
-def normalize(string, remove=''):
+def normalize(string, remove=""):
     string = string.lower()
-    for char in remove + ' ':
+    for char in remove + " ":
         if char in string:
-            string = string.replace(char, '')
+            string = string.replace(char, "")
     return string
 
 
@@ -58,16 +58,17 @@ class RobotFrameworkLexer(Lexer):
 
     Supports both space and pipe separated plain text formats.
     """
-    name = 'RobotFramework'
-    url = 'http://robotframework.org'
-    aliases = ['robotframework']
-    filenames = ['*.robot', '*.resource']
-    mimetypes = ['text/x-robotframework']
-    version_added = '1.6'
+
+    name = "RobotFramework"
+    url = "http://robotframework.org"
+    aliases = ["robotframework"]
+    filenames = ["*.robot", "*.resource"]
+    mimetypes = ["text/x-robotframework"]
+    version_added = "1.6"
 
     def __init__(self, **options):
-        options['tabsize'] = 2
-        options['encoding'] = 'UTF-8'
+        options["tabsize"] = 2
+        options["encoding"] = "UTF-8"
         Lexer.__init__(self, **options)
 
     def get_tokens_unprocessed(self, text):
@@ -83,9 +84,8 @@ class RobotFrameworkLexer(Lexer):
 
 
 class VariableTokenizer:
-
     def tokenize(self, string, token):
-        var = VariableSplitter(string, identifiers='$@%&')
+        var = VariableSplitter(string, identifiers="$@%&")
         if var.start < 0 or token in (COMMENT, ERROR):
             yield string, token
             return
@@ -94,20 +94,19 @@ class VariableTokenizer:
                 yield value, token
 
     def _tokenize(self, var, string, orig_token):
-        before = string[:var.start]
+        before = string[: var.start]
         yield before, orig_token
-        yield var.identifier + '{', SYNTAX
+        yield var.identifier + "{", SYNTAX
         yield from self.tokenize(var.base, VARIABLE)
-        yield '}', SYNTAX
+        yield "}", SYNTAX
         if var.index is not None:
-            yield '[', SYNTAX
+            yield "[", SYNTAX
             yield from self.tokenize(var.index, VARIABLE)
-            yield ']', SYNTAX
-        yield from self.tokenize(string[var.end:], orig_token)
+            yield "]", SYNTAX
+        yield from self.tokenize(string[var.end :], orig_token)
 
 
 class RowTokenizer:
-
     def __init__(self):
         self._table = UnknownTable()
         self._splitter = RowSplitter()
@@ -115,31 +114,38 @@ class RowTokenizer:
         settings = SettingTable(testcases.set_default_template)
         variables = VariableTable()
         keywords = KeywordTable()
-        self._tables = {'settings': settings, 'setting': settings,
-                        'metadata': settings,
-                        'variables': variables, 'variable': variables,
-                        'testcases': testcases, 'testcase': testcases,
-                        'tasks': testcases, 'task': testcases,
-                        'keywords': keywords, 'keyword': keywords,
-                        'userkeywords': keywords, 'userkeyword': keywords}
+        self._tables = {
+            "settings": settings,
+            "setting": settings,
+            "metadata": settings,
+            "variables": variables,
+            "variable": variables,
+            "testcases": testcases,
+            "testcase": testcases,
+            "tasks": testcases,
+            "task": testcases,
+            "keywords": keywords,
+            "keyword": keywords,
+            "userkeywords": keywords,
+            "userkeyword": keywords,
+        }
 
     def tokenize(self, row):
         commented = False
         heading = False
         for index, value in enumerate(self._splitter.split(row)):
             # First value, and every second after that, is a separator.
-            index, separator = divmod(index-1, 2)
-            if value.startswith('#'):
+            index, separator = divmod(index - 1, 2)
+            if value.startswith("#"):
                 commented = True
-            elif index == 0 and value.startswith('*'):
+            elif index == 0 and value.startswith("*"):
                 self._table = self._start_table(value)
                 heading = True
-            yield from self._tokenize(value, index, commented,
-                                      separator, heading)
+            yield from self._tokenize(value, index, commented, separator, heading)
         self._table.end_row()
 
     def _start_table(self, header):
-        name = normalize(header, remove='*')
+        name = normalize(header, remove="*")
         return self._tables.get(name, UnknownTable())
 
     def _tokenize(self, value, index, commented, separator, heading):
@@ -154,17 +160,18 @@ class RowTokenizer:
 
 
 class RowSplitter:
-    _space_splitter = re.compile('( {2,})')
-    _pipe_splitter = re.compile(r'((?:^| +)\|(?: +|$))')
+    _space_splitter = re.compile("( {2,})")
+    _pipe_splitter = re.compile(r"((?:^| +)\|(?: +|$))")
 
     def split(self, row):
-        splitter = (row.startswith('| ') and self._split_from_pipes
-                    or self._split_from_spaces)
+        splitter = (
+            row.startswith("| ") and self._split_from_pipes or self._split_from_spaces
+        )
         yield from splitter(row)
-        yield '\n'
+        yield "\n"
 
     def _split_from_spaces(self, row):
-        yield ''  # Start with (pseudo)separator similarly as with pipes
+        yield ""  # Start with (pseudo)separator similarly as with pipes
         yield from self._space_splitter.split(row)
 
     def _split_from_pipes(self, row):
@@ -195,9 +202,9 @@ class Tokenizer:
         return self._tokens[index]
 
     def _is_assign(self, value):
-        if value.endswith('='):
+        if value.endswith("="):
             value = value[:-1].strip()
-        var = VariableSplitter(value, identifiers='$@&')
+        var = VariableSplitter(value, identifiers="$@&")
         return var.start == 0 and var.end == len(value)
 
 
@@ -207,12 +214,29 @@ class Comment(Tokenizer):
 
 class Setting(Tokenizer):
     _tokens = (SETTING, ARGUMENT)
-    _keyword_settings = ('suitesetup', 'suiteprecondition', 'suiteteardown',
-                         'suitepostcondition', 'testsetup', 'tasksetup', 'testprecondition',
-                         'testteardown','taskteardown', 'testpostcondition', 'testtemplate', 'tasktemplate')
-    _import_settings = ('library', 'resource', 'variables')
-    _other_settings = ('documentation', 'metadata', 'forcetags', 'defaulttags',
-                       'testtimeout','tasktimeout')
+    _keyword_settings = (
+        "suitesetup",
+        "suiteprecondition",
+        "suiteteardown",
+        "suitepostcondition",
+        "testsetup",
+        "tasksetup",
+        "testprecondition",
+        "testteardown",
+        "taskteardown",
+        "testpostcondition",
+        "testtemplate",
+        "tasktemplate",
+    )
+    _import_settings = ("library", "resource", "variables")
+    _other_settings = (
+        "documentation",
+        "metadata",
+        "forcetags",
+        "defaulttags",
+        "testtimeout",
+        "tasktimeout",
+    )
     _custom_tokenizer = None
 
     def __init__(self, template_setter=None):
@@ -240,21 +264,26 @@ class ImportSetting(Tokenizer):
 
 
 class TestCaseSetting(Setting):
-    _keyword_settings = ('setup', 'precondition', 'teardown', 'postcondition',
-                         'template')
+    _keyword_settings = (
+        "setup",
+        "precondition",
+        "teardown",
+        "postcondition",
+        "template",
+    )
     _import_settings = ()
-    _other_settings = ('documentation', 'tags', 'timeout')
+    _other_settings = ("documentation", "tags", "timeout")
 
     def _tokenize(self, value, index):
         if index == 0:
             type = Setting._tokenize(self, value[1:-1], index)
-            return [('[', SYNTAX), (value[1:-1], type), (']', SYNTAX)]
+            return [("[", SYNTAX), (value[1:-1], type), ("]", SYNTAX)]
         return Setting._tokenize(self, value, index)
 
 
 class KeywordSetting(TestCaseSetting):
-    _keyword_settings = ('teardown',)
-    _other_settings = ('documentation', 'arguments', 'return', 'timeout', 'tags')
+    _keyword_settings = ("teardown",)
+    _other_settings = ("documentation", "arguments", "return", "timeout", "tags")
 
 
 class Variable(Tokenizer):
@@ -285,7 +314,7 @@ class KeywordCall(Tokenizer):
 
 
 class GherkinTokenizer:
-    _gherkin_prefix = re.compile('^(Given|When|Then|And|But) ', re.IGNORECASE)
+    _gherkin_prefix = re.compile("^(Given|When|Then|And|But) ", re.IGNORECASE)
 
     def tokenize(self, value, token):
         match = self._gherkin_prefix.match(value)
@@ -300,14 +329,13 @@ class TemplatedKeywordCall(Tokenizer):
 
 
 class ForLoop(Tokenizer):
-
     def __init__(self):
         Tokenizer.__init__(self)
         self._in_arguments = False
 
     def _tokenize(self, value, index):
         token = self._in_arguments and ARGUMENT or SYNTAX
-        if value.upper() in ('IN', 'IN RANGE'):
+        if value.upper() in ("IN", "IN RANGE"):
             self._in_arguments = True
         return token
 
@@ -329,11 +357,12 @@ class _Table:
         self._prev_values_on_row.append(value)
 
     def _continues(self, value, index):
-        return value == '...' and all(self._is_empty(t)
-                                      for t in self._prev_values_on_row)
+        return value == "..." and all(
+            self._is_empty(t) for t in self._prev_values_on_row
+        )
 
     def _is_empty(self, value):
-        return value in ('', '\\')
+        return value in ("", "\\")
 
     def _tokenize(self, value, index):
         return self._tokenizer.tokenize(value)
@@ -361,7 +390,7 @@ class SettingTable(_Table):
         self._template_setter = template_setter
 
     def _tokenize(self, value, index):
-        if index == 0 and normalize(value) == 'testtemplate':
+        if index == 0 and normalize(value) == "testtemplate":
             self._tokenizer = Setting(self._template_setter)
         return _Table._tokenize(self, value, index)
 
@@ -376,8 +405,9 @@ class TestCaseTable(_Table):
 
     @property
     def _tokenizer_class(self):
-        if self._test_template or (self._default_template and
-                                   self._test_template is not False):
+        if self._test_template or (
+            self._default_template and self._test_template is not False
+        ):
             return TemplatedKeywordCall
         return KeywordCall
 
@@ -402,13 +432,13 @@ class TestCaseTable(_Table):
         return _Table._tokenize(self, value, index)
 
     def _is_setting(self, value):
-        return value.startswith('[') and value.endswith(']')
+        return value.startswith("[") and value.endswith("]")
 
     def _is_template(self, value):
-        return normalize(value) == '[template]'
+        return normalize(value) == "[template]"
 
     def _is_for_loop(self, value):
-        return value.startswith(':') and normalize(value, remove=':') == 'for'
+        return value.startswith(":") and normalize(value, remove=":") == "for"
 
     def set_test_template(self, template):
         self._test_template = self._is_template_set(template)
@@ -417,7 +447,7 @@ class TestCaseTable(_Table):
         self._default_template = self._is_template_set(template)
 
     def _is_template_set(self, template):
-        return normalize(template) not in ('', '\\', 'none', '${empty}')
+        return normalize(template) not in ("", "\\", "none", "${empty}")
 
 
 class KeywordTable(TestCaseTable):
@@ -430,8 +460,8 @@ class KeywordTable(TestCaseTable):
 
 # Following code copied directly from Robot Framework 2.7.5.
 
-class VariableSplitter:
 
+class VariableSplitter:
     def __init__(self, string, identifiers):
         self.identifier = None
         self.base = None
@@ -454,22 +484,24 @@ class VariableSplitter:
 
     def _finalize(self):
         self.identifier = self._variable_chars[0]
-        self.base = ''.join(self._variable_chars[2:-1])
+        self.base = "".join(self._variable_chars[2:-1])
         self.end = self.start + len(self._variable_chars)
         if self._has_list_or_dict_variable_index():
-            self.index = ''.join(self._list_and_dict_variable_index_chars[1:-1])
+            self.index = "".join(self._list_and_dict_variable_index_chars[1:-1])
             self.end += len(self._list_and_dict_variable_index_chars)
 
     def _has_list_or_dict_variable_index(self):
-        return self._list_and_dict_variable_index_chars\
-        and self._list_and_dict_variable_index_chars[-1] == ']'
+        return (
+            self._list_and_dict_variable_index_chars
+            and self._list_and_dict_variable_index_chars[-1] == "]"
+        )
 
     def _split(self, string):
         start_index, max_index = self._find_variable(string)
         self.start = start_index
         self._open_curly = 1
         self._state = self._variable_state
-        self._variable_chars = [string[start_index], '{']
+        self._variable_chars = [string[start_index], "{"]
         self._list_and_dict_variable_index_chars = []
         self._string = string
         start_index += 2
@@ -479,46 +511,49 @@ class VariableSplitter:
                 self._state(char, index)
             except StopIteration:
                 return
-            if index  == max_index and not self._scanning_list_variable_index():
+            if index == max_index and not self._scanning_list_variable_index():
                 return
 
     def _scanning_list_variable_index(self):
-        return self._state in [self._waiting_list_variable_index_state,
-                               self._list_variable_index_state]
+        return self._state in [
+            self._waiting_list_variable_index_state,
+            self._list_variable_index_state,
+        ]
 
     def _find_variable(self, string):
-        max_end_index = string.rfind('}')
+        max_end_index = string.rfind("}")
         if max_end_index == -1:
-            raise ValueError('No variable end found')
+            raise ValueError("No variable end found")
         if self._is_escaped(string, max_end_index):
             return self._find_variable(string[:max_end_index])
         start_index = self._find_start_index(string, 1, max_end_index)
         if start_index == -1:
-            raise ValueError('No variable start found')
+            raise ValueError("No variable start found")
         return start_index, max_end_index
 
     def _find_start_index(self, string, start, end):
-        index = string.find('{', start, end) - 1
+        index = string.find("{", start, end) - 1
         if index < 0:
             return -1
         if self._start_index_is_ok(string, index):
             return index
-        return self._find_start_index(string, index+2, end)
+        return self._find_start_index(string, index + 2, end)
 
     def _start_index_is_ok(self, string, index):
-        return string[index] in self._identifiers\
-        and not self._is_escaped(string, index)
+        return string[index] in self._identifiers and not self._is_escaped(
+            string, index
+        )
 
     def _is_escaped(self, string, index):
         escaped = False
-        while index > 0 and string[index-1] == '\\':
+        while index > 0 and string[index - 1] == "\\":
             index -= 1
             escaped = not escaped
         return escaped
 
     def _variable_state(self, char, index):
         self._variable_chars.append(char)
-        if char == '}' and not self._is_escaped(self._string, index):
+        if char == "}" and not self._is_escaped(self._string, index):
             self._open_curly -= 1
             if self._open_curly == 0:
                 if not self._is_list_or_dict_variable():
@@ -528,11 +563,11 @@ class VariableSplitter:
             self._state = self._internal_variable_start_state
 
     def _is_list_or_dict_variable(self):
-        return self._variable_chars[0] in ('@','&')
+        return self._variable_chars[0] in ("@", "&")
 
     def _internal_variable_start_state(self, char, index):
         self._state = self._variable_state
-        if char == '{':
+        if char == "{":
             self._variable_chars.append(char)
             self._open_curly += 1
             self._may_have_internal_variables = True
@@ -540,12 +575,12 @@ class VariableSplitter:
             self._variable_state(char, index)
 
     def _waiting_list_variable_index_state(self, char, index):
-        if char != '[':
+        if char != "[":
             raise StopIteration
         self._list_and_dict_variable_index_chars.append(char)
         self._state = self._list_variable_index_state
 
     def _list_variable_index_state(self, char, index):
         self._list_and_dict_variable_index_chars.append(char)
-        if char == ']':
+        if char == "]":
             raise StopIteration

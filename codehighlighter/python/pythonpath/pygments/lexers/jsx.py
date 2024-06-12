@@ -1,33 +1,31 @@
 """
-    pygments.lexers.jsx
-    ~~~~~~~~~~~~~~~~~~~
+pygments.lexers.jsx
+~~~~~~~~~~~~~~~~~~~
 
-    Lexers for JSX (React).
+Lexers for JSX (React).
 
-    :copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+:copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
+:license: BSD, see LICENSE for details.
 """
 
 import re
 
 from pygments.lexer import bygroups, default, include, inherit
 from pygments.lexers.javascript import JavascriptLexer
-from pygments.token import Name, Operator, Punctuation, String, Text, \
-    Whitespace
+from pygments.token import Name, Operator, Punctuation, String, Text, Whitespace
 
-__all__ = ['JsxLexer']
+__all__ = ["JsxLexer"]
 
 
 class JsxLexer(JavascriptLexer):
-    """For JavaScript Syntax Extension (JSX).
-    """
+    """For JavaScript Syntax Extension (JSX)."""
 
     name = "JSX"
     aliases = ["jsx", "react"]
     filenames = ["*.jsx", "*.react"]
     mimetypes = ["text/jsx", "text/typescript-jsx"]
     url = "https://facebook.github.io/jsx/"
-    version_added = '2.17'
+    version_added = "2.17"
 
     flags = re.MULTILINE | re.DOTALL
 
@@ -52,7 +50,11 @@ class JsxLexer(JavascriptLexer):
         ],
         "tag": [
             (r"\s+", Whitespace),
-            (r"([\w-]+)(\s*)(=)(\s*)", bygroups(Name.Attribute, Whitespace, Operator, Whitespace), "attr"),
+            (
+                r"([\w-]+)(\s*)(=)(\s*)",
+                bygroups(Name.Attribute, Whitespace, Operator, Whitespace),
+                "attr",
+            ),
             (r"[{}]+", Punctuation),
             (r"[\w\.]+", Name.Attribute),
             (r"(/?)(\s*)(>)", bygroups(Punctuation, Text, Punctuation), "#pop"),

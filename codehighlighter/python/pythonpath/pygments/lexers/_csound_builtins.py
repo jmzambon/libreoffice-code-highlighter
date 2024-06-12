@@ -1,12 +1,13 @@
 """
-    pygments.lexers._csound_builtins
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+pygments.lexers._csound_builtins
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+:copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
+:license: BSD, see LICENSE for details.
 """
 
-REMOVED_OPCODES = set('''
+REMOVED_OPCODES = set(
+    """
 OSCsendA
 beadsynt
 beosc
@@ -32,7 +33,8 @@ sumTableFilter
 systime
 tabrowlin
 vbap1move
-'''.split())
+""".split()
+)
 
 # Opcodes in Csound 6.18.0 using:
 #   python3 -c "
@@ -81,7 +83,8 @@ vbap1move
 #   ''')
 #   "
 
-OPCODES = set('''
+OPCODES = set(
+    """
 ATSadd
 ATSaddnz
 ATSbufread
@@ -1694,9 +1697,11 @@ zkmod
 zkr
 zkw
 zkwm
-'''.split())
+""".split()
+)
 
-DEPRECATED_OPCODES = set('''
+DEPRECATED_OPCODES = set(
+    """
 array
 bformdec
 bformenc
@@ -1777,4 +1782,5 @@ xscans
 xscansmap
 xscanu
 xyin
-'''.split())
+""".split()
+)

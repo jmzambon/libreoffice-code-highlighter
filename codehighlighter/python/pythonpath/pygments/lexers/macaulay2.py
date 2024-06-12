@@ -1,17 +1,17 @@
 """
-    pygments.lexers.macaulay2
-    ~~~~~~~~~~~~~~~~~~~~~~~~~
+pygments.lexers.macaulay2
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    Lexer for Macaulay2.
+Lexer for Macaulay2.
 
-    :copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+:copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
+:license: BSD, see LICENSE for details.
 """
 
 from pygments.lexer import RegexLexer, words
 from pygments.token import Comment, Keyword, Name, String, Text
 
-__all__ = ['Macaulay2Lexer']
+__all__ = ["Macaulay2Lexer"]
 
 # Auto-generated for Macaulay2-1.23. Do not modify this file manually.
 
@@ -49,8 +49,8 @@ M2KEYWORDS = (
     "try",
     "when",
     "while",
-    "xor"
-    )
+    "xor",
+)
 
 M2DATATYPES = (
     "Adjacent",
@@ -270,8 +270,8 @@ M2DATATYPES = (
     "VisibleList",
     "WrapperType",
     "ZeroExpression",
-    "ZZ"
-    )
+    "ZZ",
+)
 
 M2FUNCTIONS = (
     "about",
@@ -1083,8 +1083,8 @@ M2FUNCTIONS = (
     "youngest",
     "zero",
     "zeta",
-    "ZZParser"
-    )
+    "ZZParser",
+)
 
 M2CONSTANTS = (
     "A1BrouwerDegrees",
@@ -1744,45 +1744,46 @@ M2CONSTANTS = (
     "WeylGroups",
     "WhitneyStratifications",
     "Wrap",
-    "XML"
-    )
+    "XML",
+)
+
 
 class Macaulay2Lexer(RegexLexer):
     """Lexer for Macaulay2, a software system for research in algebraic geometry."""
 
-    name = 'Macaulay2'
-    url = 'https://macaulay2.com/'
-    aliases = ['macaulay2']
-    filenames = ['*.m2']
-    version_added = '2.12'
+    name = "Macaulay2"
+    url = "https://macaulay2.com/"
+    aliases = ["macaulay2"]
+    filenames = ["*.m2"]
+    version_added = "2.12"
 
     tokens = {
-        'root': [
-            (r'--.*$', Comment.Single),
-            (r'-\*', Comment.Multiline, 'block comment'),
-            (r'"', String, 'quote string'),
-            (r'///', String, 'slash string'),
-            (words(M2KEYWORDS, prefix=r'\b', suffix=r'\b'), Keyword),
-            (words(M2DATATYPES, prefix=r'\b', suffix=r'\b'), Name.Builtin),
-            (words(M2FUNCTIONS, prefix=r'\b', suffix=r'\b'), Name.Function),
-            (words(M2CONSTANTS, prefix=r'\b', suffix=r'\b'), Name.Constant),
-            (r'\s+', Text.Whitespace),
-            (r'.', Text)
+        "root": [
+            (r"--.*$", Comment.Single),
+            (r"-\*", Comment.Multiline, "block comment"),
+            (r'"', String, "quote string"),
+            (r"///", String, "slash string"),
+            (words(M2KEYWORDS, prefix=r"\b", suffix=r"\b"), Keyword),
+            (words(M2DATATYPES, prefix=r"\b", suffix=r"\b"), Name.Builtin),
+            (words(M2FUNCTIONS, prefix=r"\b", suffix=r"\b"), Name.Function),
+            (words(M2CONSTANTS, prefix=r"\b", suffix=r"\b"), Name.Constant),
+            (r"\s+", Text.Whitespace),
+            (r".", Text),
         ],
-        'block comment' : [
-            (r'[^*-]+', Comment.Multiline),
-            (r'\*-', Comment.Multiline, '#pop'),
-            (r'[*-]', Comment.Multiline)
+        "block comment": [
+            (r"[^*-]+", Comment.Multiline),
+            (r"\*-", Comment.Multiline, "#pop"),
+            (r"[*-]", Comment.Multiline),
         ],
-        'quote string' : [
+        "quote string": [
             (r'[^\\"]+', String),
-            (r'"', String, '#pop'),
+            (r'"', String, "#pop"),
             (r'\\"?', String),
         ],
-        'slash string' : [
-            (r'[^/]+', String),
-            (r'(//)+(?!/)', String),
-            (r'/(//)+(?!/)', String, '#pop'),
-            (r'/', String)
-        ]
+        "slash string": [
+            (r"[^/]+", String),
+            (r"(//)+(?!/)", String),
+            (r"/(//)+(?!/)", String, "#pop"),
+            (r"/", String),
+        ],
     }

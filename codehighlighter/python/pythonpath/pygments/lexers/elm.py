@@ -1,18 +1,25 @@
 """
-    pygments.lexers.elm
-    ~~~~~~~~~~~~~~~~~~~
+pygments.lexers.elm
+~~~~~~~~~~~~~~~~~~~
 
-    Lexer for the Elm programming language.
+Lexer for the Elm programming language.
 
-    :copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+:copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
+:license: BSD, see LICENSE for details.
 """
 
 from pygments.lexer import RegexLexer, words, include, bygroups
-from pygments.token import Comment, Keyword, Name, Number, Punctuation, \
-    String, Whitespace
+from pygments.token import (
+    Comment,
+    Keyword,
+    Name,
+    Number,
+    Punctuation,
+    String,
+    Whitespace,
+)
 
-__all__ = ['ElmLexer']
+__all__ = ["ElmLexer"]
 
 
 class ElmLexer(RegexLexer):
@@ -20,104 +27,135 @@ class ElmLexer(RegexLexer):
     For Elm source code.
     """
 
-    name = 'Elm'
-    url = 'https://elm-lang.org/'
-    aliases = ['elm']
-    filenames = ['*.elm']
-    mimetypes = ['text/x-elm']
-    version_added = '2.1'
+    name = "Elm"
+    url = "https://elm-lang.org/"
+    aliases = ["elm"]
+    filenames = ["*.elm"]
+    mimetypes = ["text/x-elm"]
+    version_added = "2.1"
 
-    validName = r'[a-z_][a-zA-Z0-9_\']*'
+    validName = r"[a-z_][a-zA-Z0-9_\']*"
 
-    specialName = r'^main '
+    specialName = r"^main "
 
     builtinOps = (
-        '~', '||', '|>', '|', '`', '^', '\\', '\'', '>>', '>=', '>', '==',
-        '=', '<~', '<|', '<=', '<<', '<-', '<', '::', ':', '/=', '//', '/',
-        '..', '.', '->', '-', '++', '+', '*', '&&', '%',
+        "~",
+        "||",
+        "|>",
+        "|",
+        "`",
+        "^",
+        "\\",
+        "'",
+        ">>",
+        ">=",
+        ">",
+        "==",
+        "=",
+        "<~",
+        "<|",
+        "<=",
+        "<<",
+        "<-",
+        "<",
+        "::",
+        ":",
+        "/=",
+        "//",
+        "/",
+        "..",
+        ".",
+        "->",
+        "-",
+        "++",
+        "+",
+        "*",
+        "&&",
+        "%",
     )
 
-    reservedWords = words((
-        'alias', 'as', 'case', 'else', 'if', 'import', 'in',
-        'let', 'module', 'of', 'port', 'then', 'type', 'where',
-    ), suffix=r'\b')
+    reservedWords = words(
+        (
+            "alias",
+            "as",
+            "case",
+            "else",
+            "if",
+            "import",
+            "in",
+            "let",
+            "module",
+            "of",
+            "port",
+            "then",
+            "type",
+            "where",
+        ),
+        suffix=r"\b",
+    )
 
     tokens = {
-        'root': [
-
+        "root": [
             # Comments
-            (r'\{-', Comment.Multiline, 'comment'),
-            (r'--.*', Comment.Single),
-
+            (r"\{-", Comment.Multiline, "comment"),
+            (r"--.*", Comment.Single),
             # Whitespace
-            (r'\s+', Whitespace),
-
+            (r"\s+", Whitespace),
             # Strings
-            (r'"', String, 'doublequote'),
-
+            (r'"', String, "doublequote"),
             # Modules
-            (r'^(\s*)(module)(\s*)', bygroups(Whitespace, Keyword.Namespace,
-                Whitespace), 'imports'),
-
+            (
+                r"^(\s*)(module)(\s*)",
+                bygroups(Whitespace, Keyword.Namespace, Whitespace),
+                "imports",
+            ),
             # Imports
-            (r'^(\s*)(import)(\s*)', bygroups(Whitespace, Keyword.Namespace,
-                Whitespace), 'imports'),
-
+            (
+                r"^(\s*)(import)(\s*)",
+                bygroups(Whitespace, Keyword.Namespace, Whitespace),
+                "imports",
+            ),
             # Shaders
-            (r'\[glsl\|.*', Name.Entity, 'shader'),
-
+            (r"\[glsl\|.*", Name.Entity, "shader"),
             # Keywords
             (reservedWords, Keyword.Reserved),
-
             # Types
-            (r'[A-Z][a-zA-Z0-9_]*', Keyword.Type),
-
+            (r"[A-Z][a-zA-Z0-9_]*", Keyword.Type),
             # Main
             (specialName, Keyword.Reserved),
-
             # Prefix Operators
-            (words((builtinOps), prefix=r'\(', suffix=r'\)'), Name.Function),
-
+            (words((builtinOps), prefix=r"\(", suffix=r"\)"), Name.Function),
             # Infix Operators
             (words(builtinOps), Name.Function),
-
             # Numbers
-            include('numbers'),
-
+            include("numbers"),
             # Variable Names
             (validName, Name.Variable),
-
             # Parens
-            (r'[,()\[\]{}]', Punctuation),
-
+            (r"[,()\[\]{}]", Punctuation),
         ],
-
-        'comment': [
-            (r'-(?!\})', Comment.Multiline),
-            (r'\{-', Comment.Multiline, 'comment'),
-            (r'[^-}]', Comment.Multiline),
-            (r'-\}', Comment.Multiline, '#pop'),
+        "comment": [
+            (r"-(?!\})", Comment.Multiline),
+            (r"\{-", Comment.Multiline, "comment"),
+            (r"[^-}]", Comment.Multiline),
+            (r"-\}", Comment.Multiline, "#pop"),
         ],
-
-        'doublequote': [
-            (r'\\u[0-9a-fA-F]{4}', String.Escape),
+        "doublequote": [
+            (r"\\u[0-9a-fA-F]{4}", String.Escape),
             (r'\\[nrfvb\\"]', String.Escape),
             (r'[^"]', String),
-            (r'"', String, '#pop'),
+            (r'"', String, "#pop"),
         ],
-
-        'imports': [
-            (r'\w+(\.\w+)*', Name.Class, '#pop'),
+        "imports": [
+            (r"\w+(\.\w+)*", Name.Class, "#pop"),
         ],
-
-        'numbers': [
-            (r'_?\d+\.(?=\d+)', Number.Float),
-            (r'_?\d+', Number.Integer),
+        "numbers": [
+            (r"_?\d+\.(?=\d+)", Number.Float),
+            (r"_?\d+", Number.Integer),
         ],
-
-        'shader': [
-            (r'\|(?!\])', Name.Entity),
-            (r'\|\]', Name.Entity, '#pop'),
-            (r'(.*)(\n)', bygroups(Name.Entity, Whitespace)),
+        "shader": [
+            (r"\|(?!\])", Name.Entity),
+            (r"\|\]", Name.Entity, "#pop"),
+            (r"(.*)(\n)", bygroups(Name.Entity, Whitespace)),
         ],
     }

@@ -1,21 +1,30 @@
 """
-    pygments.styles.sas
-    ~~~~~~~~~~~~~~~~~~~
+pygments.styles.sas
+~~~~~~~~~~~~~~~~~~~
 
-    Style inspired by SAS' enhanced program editor. Note This is not
-    meant to be a complete style. It's merely meant to mimic SAS'
-    program editor syntax highlighting.
+Style inspired by SAS' enhanced program editor. Note This is not
+meant to be a complete style. It's merely meant to mimic SAS'
+program editor syntax highlighting.
 
-    :copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+:copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
+:license: BSD, see LICENSE for details.
 """
 
 from pygments.style import Style
-from pygments.token import Keyword, Name, Comment, String, Error, \
-    Number, Other, Whitespace, Generic
+from pygments.token import (
+    Keyword,
+    Name,
+    Comment,
+    String,
+    Error,
+    Number,
+    Other,
+    Whitespace,
+    Generic,
+)
 
 
-__all__ = ['SasStyle']
+__all__ = ["SasStyle"]
 
 
 class SasStyle(Style):
@@ -25,22 +34,22 @@ class SasStyle(Style):
     program editor syntax highlighting.
     """
 
-    name = 'sas'
-    
+    name = "sas"
+
     styles = {
-        Whitespace:            '#bbbbbb',
-        Comment:               'italic #008800',
-        String:                '#800080',
-        Number:                'bold #2c8553',
-        Other:                 'bg:#ffffe0',
-        Keyword:               '#2c2cff',
-        Keyword.Reserved:      'bold #353580',
-        Keyword.Constant:      'bold',
-        Name.Builtin:          '#2c2cff',
-        Name.Function:         'bold italic',
-        Name.Variable:         'bold #2c2cff',
-        Generic:               '#2c2cff',
-        Generic.Emph:          '#008800',
-        Generic.Error:         '#d30202',
-        Error:                 'bg:#e3d2d2 #a61717'
+        Whitespace: "#bbbbbb",
+        Comment: "italic #008800",
+        String: "#800080",
+        Number: "bold #2c8553",
+        Other: "bg:#ffffe0",
+        Keyword: "#2c2cff",
+        Keyword.Reserved: "bold #353580",
+        Keyword.Constant: "bold",
+        Name.Builtin: "#2c2cff",
+        Name.Function: "bold italic",
+        Name.Variable: "bold #2c2cff",
+        Generic: "#2c2cff",
+        Generic.Emph: "#008800",
+        Generic.Error: "#d30202",
+        Error: "bg:#e3d2d2 #a61717",
     }

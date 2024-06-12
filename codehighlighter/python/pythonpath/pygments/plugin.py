@@ -1,48 +1,49 @@
 """
-    pygments.plugin
-    ~~~~~~~~~~~~~~~
+pygments.plugin
+~~~~~~~~~~~~~~~
 
-    Pygments plugin interface.
+Pygments plugin interface.
 
-    lexer plugins::
+lexer plugins::
 
-        [pygments.lexers]
-        yourlexer = yourmodule:YourLexer
+    [pygments.lexers]
+    yourlexer = yourmodule:YourLexer
 
-    formatter plugins::
+formatter plugins::
 
-        [pygments.formatters]
-        yourformatter = yourformatter:YourFormatter
-        /.ext = yourformatter:YourFormatter
+    [pygments.formatters]
+    yourformatter = yourformatter:YourFormatter
+    /.ext = yourformatter:YourFormatter
 
-    As you can see, you can define extensions for the formatter
-    with a leading slash.
+As you can see, you can define extensions for the formatter
+with a leading slash.
 
-    syntax plugins::
+syntax plugins::
 
-        [pygments.styles]
-        yourstyle = yourstyle:YourStyle
+    [pygments.styles]
+    yourstyle = yourstyle:YourStyle
 
-    filter plugin::
+filter plugin::
 
-        [pygments.filter]
-        yourfilter = yourfilter:YourFilter
+    [pygments.filter]
+    yourfilter = yourfilter:YourFilter
 
 
-    :copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+:copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
+:license: BSD, see LICENSE for details.
 """
+
 from importlib.metadata import entry_points
 
-LEXER_ENTRY_POINT = 'pygments.lexers'
-FORMATTER_ENTRY_POINT = 'pygments.formatters'
-STYLE_ENTRY_POINT = 'pygments.styles'
-FILTER_ENTRY_POINT = 'pygments.filters'
+LEXER_ENTRY_POINT = "pygments.lexers"
+FORMATTER_ENTRY_POINT = "pygments.formatters"
+STYLE_ENTRY_POINT = "pygments.styles"
+FILTER_ENTRY_POINT = "pygments.filters"
 
 
 def iter_entry_points(group_name):
     groups = entry_points()
-    if hasattr(groups, 'select'):
+    if hasattr(groups, "select"):
         # New interface in Python 3.10 and newer versions of the
         # importlib_metadata backport.
         return groups.select(group=group_name)

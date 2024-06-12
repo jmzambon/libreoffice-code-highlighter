@@ -1,13 +1,13 @@
 """
-    pygments.lexers.wowtoc
-    ~~~~~~~~~~~~~~~~~~~~~~
+pygments.lexers.wowtoc
+~~~~~~~~~~~~~~~~~~~~~~
 
-    Lexer for World of Warcraft TOC files
+Lexer for World of Warcraft TOC files
 
-    TOC files describe game addons.
+TOC files describe game addons.
 
-    :copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+:copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
+:license: BSD, see LICENSE for details.
 """
 
 import re
@@ -17,11 +17,14 @@ from pygments.token import Comment, Name, Text, Punctuation, String, Keyword
 
 __all__ = ["WoWTocLexer"]
 
+
 def _create_tag_line_pattern(inner_pattern, ignore_case=False):
-    return ((r"(?i)" if ignore_case else r"")
+    return (
+        (r"(?i)" if ignore_case else r"")
         + r"^(##)( *)"  # groups 1, 2
         + inner_pattern  # group 3
-        + r"( *)(:)( *)(.*?)( *)$")  # groups 4, 5, 6, 7, 8
+        + r"( *)(:)( *)(.*?)( *)$"
+    )  # groups 4, 5, 6, 7, 8
 
 
 def _create_tag_line_token(inner_pattern, inner_token, ignore_case=False):
@@ -51,8 +54,8 @@ class WoWTocLexer(RegexLexer):
     name = "World of Warcraft TOC"
     aliases = ["wowtoc"]
     filenames = ["*.toc"]
-    url = 'https://wowpedia.fandom.com/wiki/TOC_format'
-    version_added = '2.14'
+    url = "https://wowpedia.fandom.com/wiki/TOC_format"
+    version_added = "2.14"
 
     tokens = {
         "root": [
@@ -82,10 +85,8 @@ class WoWTocLexer(RegexLexer):
                 r"([^: ]*)",
                 Name.Other,
             ),
-
             # Comments
             (r"^#.*$", Comment),
-
             # Addon Files
             (r"^.+$", Name),
         ]

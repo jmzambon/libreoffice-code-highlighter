@@ -1,19 +1,18 @@
 """
-    pygments.lexers.compiled
-    ~~~~~~~~~~~~~~~~~~~~~~~~
+pygments.lexers.compiled
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-    Just export lexer classes previously contained in this module.
+Just export lexer classes previously contained in this module.
 
-    :copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+:copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
+:license: BSD, see LICENSE for details.
 """
 
 # ruff: noqa: F401
 from pygments.lexers.jvm import JavaLexer, ScalaLexer
 from pygments.lexers.c_cpp import CLexer, CppLexer
 from pygments.lexers.d import DLexer
-from pygments.lexers.objective import ObjectiveCLexer, \
-    ObjectiveCppLexer, LogosLexer
+from pygments.lexers.objective import ObjectiveCLexer, ObjectiveCppLexer, LogosLexer
 from pygments.lexers.go import GoLexer
 from pygments.lexers.rust import RustLexer
 from pygments.lexers.c_like import ECLexer, ValaLexer, CudaLexer

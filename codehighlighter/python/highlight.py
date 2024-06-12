@@ -26,15 +26,20 @@ from com.sun.star.uno import RuntimeException
 try:
     LOGLEVEL = {0: logging.WARNING, 1: logging.INFO, 2: logging.DEBUG}
     logger = logging.getLogger("codehighlighter")
-    formatter = logging.Formatter("%(levelname)s [%(funcName)s::%(lineno)d] %(message)s")
+    formatter = logging.Formatter(
+        "%(levelname)s [%(funcName)s::%(lineno)d] %(message)s"
+    )
     logger.handlers[:] = []
     consolehandler = logging.StreamHandler()
     consolehandler.setFormatter(formatter)
     logger.addHandler(consolehandler)
     logger.setLevel(logging.INFO)
     logger.info("Logger installed.")
-    userpath = uno.getComponentContext().ServiceManager.createInstance(
-                    "com.sun.star.util.PathSubstitution").substituteVariables("$(user)", True)
+    userpath = (
+        uno.getComponentContext()
+        .ServiceManager.createInstance("com.sun.star.util.PathSubstitution")
+        .substituteVariables("$(user)", True)
+    )
     logfile = os.path.join(uno.fileUrlToSystemPath(userpath), "codehighlighter.log")
     filehandler = logging.FileHandler(logfile, mode="w", delay=True)
     filehandler.setFormatter(formatter)
@@ -47,7 +52,7 @@ except RuntimeException:
 try:
     path = os.path.join(os.path.dirname(__file__), "pythonpath")
     sys.path.insert(0, sys.path.pop(sys.path.index(path)))
-    logger.debug(f'sys.path: {sys.path}')
+    logger.debug(f"sys.path: {sys.path}")
     logger.info("Embedded Pygments path priorised.")
 except NameError:
     # __file__ is not defined
@@ -68,6 +73,7 @@ try:
     import pygments
     from pygments.lexers import get_all_lexers, get_lexer_by_name, guess_lexer
     from pygments.styles import get_all_styles, get_style_by_name
+
     logger.info(f"Pygments imported from {pygments.__file__}.")
     logger.info(f"Lexers imported from {pygments.lexers.__file__}.")
 
@@ -90,7 +96,9 @@ try:
     # internal
     import ch2_i18n
 except Exception:
-    logger.exception("Something went wrong while loading python modules:")   # see issue #28
+    logger.exception(
+        "Something went wrong while loading python modules:"
+    )  # see issue #28
     raise
 
 
@@ -100,10 +108,10 @@ INVALID_SELECTION = "Invalid"
 
 
 class UndoAction(unohelper.Base, XUndoAction):
-    '''
+    """
     Add undo/redo action for highlighting operations not catched by the system,
     i.e. when applied on textbox objects.
-    '''
+    """
 
     def __init__(self, doc, textbox, title):
         self.doc = doc
@@ -112,8 +120,15 @@ class UndoAction(unohelper.Base, XUndoAction):
         self.old_bg = None
         self.new_portions = None
         self.new_bg = None
-        self.charprops = ("CharBackColor", "CharColor", "CharLocale", "CharPosture",
-                          "CharHeight", "CharUnderline", "CharWeight")
+        self.charprops = (
+            "CharBackColor",
+            "CharColor",
+            "CharLocale",
+            "CharPosture",
+            "CharHeight",
+            "CharUnderline",
+            "CharWeight",
+        )
         self.bgprops = ("FillColor", "FillStyle")
         self.len_ = self.define_len()
         self.get_old_state()
@@ -139,10 +154,10 @@ class UndoAction(unohelper.Base, XUndoAction):
 
     # public
     def get_old_state(self):
-        '''
+        """
         Gather text formattings before code highlighting.
         Will be used by <undo> to restore old state.
-        '''
+        """
 
         self.old_bg = self.textbox.getPropertyValues(self.bgprops)
         self.old_text = self.textbox.String
@@ -150,10 +165,10 @@ class UndoAction(unohelper.Base, XUndoAction):
         self.old_attributes = self.textbox.UserDefinedAttributes
 
     def get_new_state(self):
-        '''
+        """
         Gather text formattings after code highlighting.
         Will be used by <redo> to apply new state again.
-        '''
+        """
 
         self.new_bg = self.textbox.getPropertyValues(self.bgprops)
         self.new_text = self.textbox.String
@@ -164,7 +179,7 @@ class UndoAction(unohelper.Base, XUndoAction):
     def _extract_portions(self):
         textportions = []
         for para in self.textbox:
-            if textportions:    # new paragraph after first one
+            if textportions:  # new paragraph after first one
                 textportions[-1][0] += 1
             for portion in para:
                 plen = self.len_(portion.String)
@@ -197,8 +212,10 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             self.undomanager = self.doc.UndoManager
             self.selection = None
             self.charstylesavailable = (
-                    'CharacterStyles' in self.doc.StyleFamilies and
-                    self.doc.CurrentSelection.ImplementationName != "com.sun.star.drawing.SvxShapeCollection")
+                "CharacterStyles" in self.doc.StyleFamilies
+                and self.doc.CurrentSelection.ImplementationName
+                != "com.sun.star.drawing.SvxShapeCollection"
+            )
             self.cfg_access = self.create_cfg_access()
             self.options = self.load_options()
             self.setlogger()
@@ -220,7 +237,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
     def trigger(self, arg):
         logger.debug(f"Code Highlighter triggered with argument '{arg}'.")
         try:
-            getattr(self, 'do_'+arg)()
+            getattr(self, "do_" + arg)()
         except Exception:
             logger.exception(f"Error triggering < self.do_{arg}() > function:")
             raise
@@ -230,25 +247,25 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         logger.debug(f"Dialog handler action: '{method}'.")
         if method == "topage1":
             dialog.Model.Step = 1
-            dialog.getControl('cb_lang').setFocus()
+            dialog.getControl("cb_lang").setFocus()
             return True
         elif method == "topage2":
             dialog.Model.Step = 2
-            dialog.getControl('nb_start').setFocus()
+            dialog.getControl("nb_start").setFocus()
             return True
         elif method == "preview":
-            focus = {1: 'cb_style', 2: 'nb_start'}
+            focus = {1: "cb_style", 2: "nb_start"}
             self.do_preview(dialog)
             dialog.getControl(focus[dialog.Model.Step]).setFocus()
             return True
         return False
 
     def getSupportedMethodNames(self):
-        return 'preview', 'topage1', 'topage2'
+        return "preview", "topage1", "topage2"
 
     # main functions
     def do_highlight(self):
-        '''Open option dialog and start code highlighting.'''
+        """Open option dialog and start code highlighting."""
 
         self.selection = self.check_selection()
         if self.selection == INVALID_SELECTION:
@@ -269,7 +286,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             self.msgbox(self.strings["errsel2"])
 
     def do_highlight_previous(self):
-        '''Start code highlighting with current options as default.'''
+        """Start code highlighting with current options as default."""
 
         selection = self.check_selection()
         if selection == INVALID_SELECTION:
@@ -282,8 +299,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             self.msgbox(self.strings["errsel2"])
 
     def do_update(self):
-        '''Update already highlighted snippets based on options stored in codeblock tags.
-        Code-blocks must have been highlighted at least once with Code Highlighter 2.'''
+        """Update already highlighted snippets based on options stored in codeblock tags.
+        Code-blocks must have been highlighted at least once with Code Highlighter 2."""
 
         hasupdates = False
         selection = self.check_selection()
@@ -315,26 +332,26 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 self.activepreviews += 1
 
     def do_removealltags(self):
-        '''Remove all highlighting infos inserted with Code Highlighter 2
-        in the active document.'''
+        """Remove all highlighting infos inserted with Code Highlighter 2
+        in the active document."""
 
         self.removealltags()
 
     # private functions
     def create(self, service):
-        '''Instanciate UNO services'''
+        """Instanciate UNO services"""
 
         return self.sm.createInstance(service)
 
     def msgbox(self, message, boxtype=ERRORBOX, title="Error"):
-        '''Simple UNO message box for notifications at user.'''
+        """Simple UNO message box for notifications at user."""
 
         win = self.frame.ContainerWindow
         box = win.Toolkit.createMessageBox(win, boxtype, 1, title, message)
         return box.execute()
 
     def to_int(self, hex_str):
-        '''Convert hexadecimal color representation into decimal integer.'''
+        """Convert hexadecimal color representation into decimal integer."""
 
         if hex_str:
             return int(hex_str[-6:], 16)
@@ -355,11 +372,15 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             logger.addHandler(filehandler)
 
     def create_cfg_access(self):
-        '''Return an updatable instance of the codehighlighter node in LO registry. '''
+        """Return an updatable instance of the codehighlighter node in LO registry."""
 
-        cfg = self.create('com.sun.star.configuration.ConfigurationProvider')
-        prop = PropertyValue('nodepath', 0, '/ooo.ext.code-highlighter.Registry/Settings', 0)
-        cfg_access = cfg.createInstanceWithArguments('com.sun.star.configuration.ConfigurationUpdateAccess', (prop,))
+        cfg = self.create("com.sun.star.configuration.ConfigurationProvider")
+        prop = PropertyValue(
+            "nodepath", 0, "/ooo.ext.code-highlighter.Registry/Settings", 0
+        )
+        cfg_access = cfg.createInstanceWithArguments(
+            "com.sun.star.configuration.ConfigurationUpdateAccess", (prop,)
+        )
         return cfg_access
 
     def load_options(self):
@@ -368,11 +389,14 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         return dict(zip(properties, values))
 
     def getallstyles(self):
-        all_styles = list(get_all_styles()) + ['libreoffice-classic', 'libreoffice-dark']
-        return sorted(all_styles, key=lambda x: (x != 'default', x.casefold()))
+        all_styles = list(get_all_styles()) + [
+            "libreoffice-classic",
+            "libreoffice-dark",
+        ]
+        return sorted(all_styles, key=lambda x: (x != "default", x.casefold()))
 
     def create_dialog(self):
-        '''Load, populate and return options dialog.'''
+        """Load, populate and return options dialog."""
 
         # get_all_lexers() returns: (longname, tuple of aliases, tuple of filename patterns, tuple of mimetypes)
         logger.debug("Starting options dialog.")
@@ -389,59 +413,83 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
 
         dialog_provider = self.create("com.sun.star.awt.DialogProvider2")
         dialog = dialog_provider.createDialogWithHandler(
-            "vnd.sun.star.extension://javahelps.codehighlighter/dialogs/CodeHighlighter2.xdl", self)
+            "vnd.sun.star.extension://javahelps.codehighlighter/dialogs/CodeHighlighter2.xdl",
+            self,
+        )
         logger.debug("--> creating dialog ok.")
 
         # set localized strings
-        controlnames = ("label_lang", "label_style", "check_col_bg", "check_charstyles", "check_linenb",
-                        "nb_line", "cs_line", "lbl_nb_start", "lbl_nb_ratio", "lbl_nb_sep", "lbl_nb_pad",
-                        "lbl_cs_rootstyle", "pygments_ver", "preview", "topage1", "topage2")
+        controlnames = (
+            "label_lang",
+            "label_style",
+            "check_col_bg",
+            "check_charstyles",
+            "check_linenb",
+            "nb_line",
+            "cs_line",
+            "lbl_nb_start",
+            "lbl_nb_ratio",
+            "lbl_nb_sep",
+            "lbl_nb_pad",
+            "lbl_cs_rootstyle",
+            "pygments_ver",
+            "preview",
+            "topage1",
+            "topage2",
+        )
         for controlname in controlnames:
-            dialog.getControl(controlname).Model.setPropertyValues(("Label", "HelpText"), self.strings[controlname])
+            dialog.getControl(controlname).Model.setPropertyValues(
+                ("Label", "HelpText"), self.strings[controlname]
+            )
         controlnames = ("nb_sep", "nb_pad", "cs_rootstyle")
         for controlname in controlnames:
-            dialog.getControl(controlname).Model.HelpText = self.strings["lbl_" + controlname][1]
+            dialog.getControl(controlname).Model.HelpText = self.strings[
+                "lbl_" + controlname
+            ][1]
 
-        cb_lang = dialog.getControl('cb_lang')
-        cb_style = dialog.getControl('cb_style')
-        check_col_bg = dialog.getControl('check_col_bg')
-        check_linenb = dialog.getControl('check_linenb')
-        check_charstyles = dialog.getControl('check_charstyles')
+        cb_lang = dialog.getControl("cb_lang")
+        cb_style = dialog.getControl("cb_style")
+        check_col_bg = dialog.getControl("check_col_bg")
+        check_linenb = dialog.getControl("check_linenb")
+        check_charstyles = dialog.getControl("check_charstyles")
         check_charstyles.setEnable(self.charstylesavailable)
-        nb_start = dialog.getControl('nb_start')
-        nb_ratio = dialog.getControl('nb_ratio')
-        nb_sep = dialog.getControl('nb_sep')
-        nb_pad = dialog.getControl('nb_pad')
-        cs_rootstyle = dialog.getControl('cs_rootstyle')
-        pygments_ver = dialog.getControl('pygments_ver')
+        nb_start = dialog.getControl("nb_start")
+        nb_ratio = dialog.getControl("nb_ratio")
+        nb_sep = dialog.getControl("nb_sep")
+        nb_pad = dialog.getControl("nb_pad")
+        cs_rootstyle = dialog.getControl("cs_rootstyle")
+        pygments_ver = dialog.getControl("pygments_ver")
 
-        cb_lang.Text = self.options['Language']
+        cb_lang.Text = self.options["Language"]
         cb_lang.setSelection(Selection(0, len(cb_lang.Text)))
         cb_lang.addItems(all_lexers, 0)
-        cb_lang.addItem('automatic', 0)
+        cb_lang.addItem("automatic", 0)
 
-        style = self.options['Style']
+        style = self.options["Style"]
         if style in self.all_styles:
             cb_style.Text = style
         cb_style.addItems(self.all_styles, 0)
 
-        check_col_bg.State = self.options['ColourizeBackground']
-        check_charstyles.State = self.options['UseCharStyles']
-        check_linenb.State = self.options['ShowLineNumbers']
-        nb_start.Value = self.options['LineNumberStart']
-        nb_ratio.Value = self.options['LineNumberRatio']
-        nb_sep.Text = self.options['LineNumberSeparator']
-        nb_pad.Text = self.options['LineNumberPaddingSymbol']
-        cs_rootstyle.Text = self.options['MasterCharStyle']
+        check_col_bg.State = self.options["ColourizeBackground"]
+        check_charstyles.State = self.options["UseCharStyles"]
+        check_linenb.State = self.options["ShowLineNumbers"]
+        nb_start.Value = self.options["LineNumberStart"]
+        nb_ratio.Value = self.options["LineNumberRatio"]
+        nb_sep.Text = self.options["LineNumberSeparator"]
+        nb_pad.Text = self.options["LineNumberPaddingSymbol"]
+        cs_rootstyle.Text = self.options["MasterCharStyle"]
         logger.debug("--> filling controls ok.")
 
         def getextver():
-            pip = self.ctx.getByName("/singletons/com.sun.star.deployment.PackageInformationProvider")
+            pip = self.ctx.getByName(
+                "/singletons/com.sun.star.deployment.PackageInformationProvider"
+            )
             extensions = pip.getExtensionList()
             for e in extensions:
                 if "javahelps.codehighlighter" in e:
                     return e[1]
-            return ''
+            return ""
+
         dialog.Title = dialog.Title.format(getextver())
         pygments_ver.Text = pygments_ver.Text.format(pygments.__version__)
         logger.debug("Dialog returned.")
@@ -450,30 +498,30 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
 
     def get_options_from_dialog(self, dialog):
         opt = {}
-        lang = dialog.getControl('cb_lang').Text.strip() or 'automatic'
-        style = dialog.getControl('cb_style').Text.strip() or 'default'
-        if lang != 'automatic' and lang.lower() not in self.all_lexer_aliases:
+        lang = dialog.getControl("cb_lang").Text.strip() or "automatic"
+        style = dialog.getControl("cb_style").Text.strip() or "default"
+        if lang != "automatic" and lang.lower() not in self.all_lexer_aliases:
             self.msgbox(self.strings["errlang"])
         elif style not in self.all_styles:
             self.msgbox(self.strings["errstyle"])
         else:
-            opt['Language'] = lang
-            opt['Style'] = style
-            opt['ColourizeBackground'] = dialog.getControl('check_col_bg').State
-            opt['UseCharStyles'] = dialog.getControl('check_charstyles').State
-            opt['ShowLineNumbers'] = dialog.getControl('check_linenb').State
-            opt['LineNumberStart'] = int(dialog.getControl('nb_start').Value)
-            opt['LineNumberRatio'] = int(dialog.getControl('nb_ratio').Value)
-            opt['LineNumberSeparator'] = dialog.getControl('nb_sep').Text
-            opt['LineNumberPaddingSymbol'] = dialog.getControl('nb_pad').Text
-            opt['MasterCharStyle'] = dialog.getControl('cs_rootstyle').Text
+            opt["Language"] = lang
+            opt["Style"] = style
+            opt["ColourizeBackground"] = dialog.getControl("check_col_bg").State
+            opt["UseCharStyles"] = dialog.getControl("check_charstyles").State
+            opt["ShowLineNumbers"] = dialog.getControl("check_linenb").State
+            opt["LineNumberStart"] = int(dialog.getControl("nb_start").Value)
+            opt["LineNumberRatio"] = int(dialog.getControl("nb_ratio").Value)
+            opt["LineNumberSeparator"] = dialog.getControl("nb_sep").Text
+            opt["LineNumberPaddingSymbol"] = dialog.getControl("nb_pad").Text
+            opt["MasterCharStyle"] = dialog.getControl("cs_rootstyle").Text
         return opt
 
     def choose_options(self):
-        '''
+        """
         Get options choice.
         Dialog return values: 0 = Canceled, 1 = OK
-        '''
+        """
 
         # dialog.setVisible(True)
         dialog = self.create_dialog()
@@ -492,11 +540,13 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
 
     def save_options(self, choices):
         self.options.update(choices)
-        self.cfg_access.setPropertyValues(tuple(choices.keys()), tuple(choices.values()))
+        self.cfg_access.setPropertyValues(
+            tuple(choices.keys()), tuple(choices.values())
+        )
         self.cfg_access.commitChanges()
 
     def getlexerbyname(self, lexername):
-        if lexername == 'LibreOffice Basic':
+        if lexername == "LibreOffice Basic":
             lexername = "VB.net"
         try:
             return get_lexer_by_name(lexername)
@@ -524,17 +574,17 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             return guess_lexer(code_block.String)
         else:
             options = literal_eval(udas.getByName(SNIPPETTAGID).Value)
-            logger.info('lexer name gotten from from snippet tag')
-            if options['Language'] == "Text only":
+            logger.info("lexer name gotten from from snippet tag")
+            if options["Language"] == "Text only":
                 return guess_lexer(code_block.String)
             else:
-                return self.getlexerbyname(options['Language'])
+                return self.getlexerbyname(options["Language"])
 
     def getlexer(self, code_block):
-        lang = self.options['Language']
-        if lang == 'automatic':
+        lang = self.options["Language"]
+        if lang == "automatic":
             lexer = self.guesslexer(code_block)
-            logger.info(f'Automatic lexer choice : {lexer.name}')
+            logger.info(f"Automatic lexer choice : {lexer.name}")
         else:
             lexer = self.getlexerbyname(lang)
         # prevent offset color if selection start with empty line
@@ -545,37 +595,39 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
     def createcharstyles(self, style, styleprefix):
         def addstyle(ttype):
             newcharstyle = self.doc.createInstance("com.sun.star.style.CharacterStyle")
-            ttypename = str(ttype).replace('Token', styleprefix)
+            ttypename = str(ttype).replace("Token", styleprefix)
             try:
                 charstyles.insertByName(ttypename, newcharstyle)
             except ElementExistException:
                 return
             if ttype.parent is not None:
-                parent = ttypename.rsplit('.', 1)[0]
+                parent = ttypename.rsplit(".", 1)[0]
                 if not charstyles.hasByName(parent):
                     addstyle(ttype.parent)
                 newcharstyle.ParentStyle = parent
             elif mastercharstyle:
                 if not charstyles.hasByName(mastercharstyle):
-                    master = self.doc.createInstance("com.sun.star.style.CharacterStyle")
+                    master = self.doc.createInstance(
+                        "com.sun.star.style.CharacterStyle"
+                    )
                     charstyles.insertByName(mastercharstyle, master)
                 newcharstyle.ParentStyle = mastercharstyle
             tok_style = style.style_for_token(ttype)
-            if tok_style.get('italic', ''):
+            if tok_style.get("italic", ""):
                 newcharstyle.CharPosture = SL_ITALIC
-            if tok_style.get('noitalic', ''):
+            if tok_style.get("noitalic", ""):
                 newcharstyle.CharPosture = SL_NONE
-            if tok_style.get('bold', ''):
+            if tok_style.get("bold", ""):
                 newcharstyle.CharWeight = W_BOLD
-            if tok_style.get('nobold', ''):
+            if tok_style.get("nobold", ""):
                 newcharstyle.CharWeight = W_NORMAL
-            if tok_style.get('underline', ''):
+            if tok_style.get("underline", ""):
                 newcharstyle.CharUnderline = UL_SINGLE
-            if tok_style.get('nounderline', ''):
+            if tok_style.get("nounderline", ""):
                 newcharstyle.CharUnderline = UL_NONE
-            if tok_style.get("bgcolor", ''):
+            if tok_style.get("bgcolor", ""):
                 newcharstyle.CharBackColor = self.to_int(tok_style["bgcolor"])
-            if tok_style.get("color", ''):
+            if tok_style.get("color", ""):
                 newcharstyle.CharColor = self.to_int(tok_style["color"])
 
         mastercharstyle = self.options["MasterCharStyle"].strip()
@@ -590,16 +642,20 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             charstyles = stylefamilies.CharacterStyles
             for cs in charstyles.ElementNames:
                 # Remove only the styles created with certainty by the extension
-                if cs.startswith(CHARSTYLEID) or cs.startswith(f'{styleprefix}.'):
+                if cs.startswith(CHARSTYLEID) or cs.startswith(f"{styleprefix}."):
                     if not charstyles.getByName(cs).isInUse():
                         charstyles.removeByName(cs)
         except AttributeError:
             pass
 
     def getstylebyname(self, name):
-        if name.startswith('libreoffice'):
+        if name.startswith("libreoffice"):
             from customstyles import libreoffice
-            libostyles = {'libreoffice-classic': 'LibreOfficeStyle', 'libreoffice-dark': 'LibreOfficeDarkStyle'}
+
+            libostyles = {
+                "libreoffice-classic": "LibreOfficeStyle",
+                "libreoffice-dark": "LibreOfficeDarkStyle",
+            }
             return getattr(libreoffice, libostyles[name])
         else:
             return get_style_by_name(name)
@@ -608,7 +664,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         if not self.options["StoreOptionsWithSnippet"]:
             return
         if self.inlinesnippet:
-            logger.info('Code identified as inline snippet.')
+            logger.info("Code identified as inline snippet.")
             udas = code_block.TextUserDefinedAttributes
         else:
             try:
@@ -619,9 +675,11 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 logger.exception("")
                 return
         if udas is not None:
-            _options = {k: self.options[k] for k in self.options if not k.startswith('Log')}
-            _options['Language'] = lexername
-            options = AttributeData(Type="CDATA", Value=f'{_options}')
+            _options = {
+                k: self.options[k] for k in self.options if not k.startswith("Log")
+            }
+            _options["Language"] = lexername
+            options = AttributeData(Type="CDATA", Value=f"{_options}")
             try:
                 udas.insertByName(SNIPPETTAGID, options)
             except ElementExistException:
@@ -631,15 +689,17 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             else:
                 try:
                     code_block.UserDefinedAttributes = udas
-                    logger.info(f'snippet tagged with options: {_options}')
+                    logger.info(f"snippet tagged with options: {_options}")
                 except AttributeError:
                     code_block.ParaUserDefinedAttributes = udas
         else:
-            logger.debug("Problem while saving user defined attributes: code block is probably mixing attributes. ")
+            logger.debug(
+                "Problem while saving user defined attributes: code block is probably mixing attributes. "
+            )
             logger.debug(f"Code block concerned: {code_block.String}")
 
     def check_selection(self):
-        '''
+        """
         Check if selection is valid and contains text.
         If there is no selection but cursor is inside a text frame or
         a text table cell, and that this frame or cell contains text,
@@ -648,23 +708,28 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         to the whole container in any case.
         If selection contains only part of paragraphs, selection is
         extended to the entire paragraphs.
-        '''
+        """
         # Get the selected item
         selected_item = self.doc.CurrentSelection
 
-        if not hasattr(selected_item, 'supportsService'):
+        if not hasattr(selected_item, "supportsService"):
             logger.debug("Invalid selection (1)")
             return INVALID_SELECTION
 
         code_blocks = []
 
         # TEXT SHAPES
-        if selected_item.ImplementationName == "com.sun.star.drawing.SvxShapeCollection":
+        if (
+            selected_item.ImplementationName
+            == "com.sun.star.drawing.SvxShapeCollection"
+        ):
             logger.debug("Checking selection: com.sun.star.drawing.SvxShapeCollection.")
             for code_block in selected_item:
                 if code_block.String.strip():
                     # exit edit mode if necessary
-                    self.dispatcher.executeDispatch(self.frame, ".uno:SelectObject", "", 0, ())
+                    self.dispatcher.executeDispatch(
+                        self.frame, ".uno:SelectObject", "", 0, ()
+                    )
                     try:
                         if code_block.TextBox:
                             code_blocks.append(code_block.TextBoxContent)
@@ -709,7 +774,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             logger.debug("Checking selection: SwXTextTableCursor.")
             table = self.doc.CurrentController.ViewCursor.TextTable
             rangename = selected_item.RangeName
-            if ':' not in rangename:
+            if ":" not in rangename:
                 # only one cell
                 code_block = table.getCellByName(rangename)
                 if code_block.String.strip():
@@ -725,7 +790,11 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                             code_blocks.append(code_block)
 
         # CALC CELL RANGE
-        elif selected_item.ImplementationName in ("ScCellObj", "ScCellRangeObj", "ScCellRangesObj"):
+        elif selected_item.ImplementationName in (
+            "ScCellObj",
+            "ScCellRangeObj",
+            "ScCellRangesObj",
+        ):
             logger.debug("Checking selection: calc cell, cell range or cell ranges.")
             # exit edit mode if necessary
             self.dispatcher.executeDispatch(self.frame, ".uno:Deselect", "", 0, ())
@@ -735,7 +804,9 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
 
         # CURSOR INSIDE DRAW/IMPRESS SHAPE
         elif selected_item.ImplementationName == "SvxUnoTextCursor":
-            logger.debug("Checking selection: SvxUnoTextCursor (text inside draw/impress shape).")
+            logger.debug(
+                "Checking selection: SvxUnoTextCursor (text inside draw/impress shape)."
+            )
             # exit edit mode
             self.dispatcher.executeDispatch(self.frame, ".uno:SelectObject", "", 0, ())
             selected_item = self.doc.CurrentSelection
@@ -762,7 +833,11 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 self.options["UseCharStyles"] = False
 
             # TEXT SHAPE
-            if code_block.ImplementationName in ("SwXShape", "SvxShapeText", "com.sun.star.comp.sc.ScShapeObj"):
+            if code_block.ImplementationName in (
+                "SwXShape",
+                "SvxShapeText",
+                "com.sun.star.comp.sc.ScShapeObj",
+            ):
                 logger.debug("Dealing with text shape.")
 
                 if updatecode:
@@ -774,31 +849,40 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         hascode = False
 
                 if hascode:
-                    stylename = self.options['Style']
+                    stylename = self.options["Style"]
                     style = self.getstylebyname(stylename)
-                    bg_color = style.background_color if self.options['ColourizeBackground'] else None
+                    bg_color = (
+                        style.background_color
+                        if self.options["ColourizeBackground"]
+                        else None
+                    )
                     lineno_color = -1
-                    if self.options['ShowLineNumbers']:
+                    if self.options["ShowLineNumbers"]:
                         _style = style.style_for_token(("Comment",))
-                        lineno_color = self.to_int(_style['color'])
+                        lineno_color = self.to_int(_style["color"])
                     lexer = self.getlexer(code_block)
 
-                    undoaction = UndoAction(self.doc, code_block,
-                                            f"code highlight (lang: {lexer.name}, style: {stylename})")
+                    undoaction = UndoAction(
+                        self.doc,
+                        code_block,
+                        f"code highlight (lang: {lexer.name}, style: {stylename})",
+                    )
                     logger.debug("Custom undo action created.")
                     self.show_line_numbers(code_block, False)
                     cursor = code_block.createTextCursorByRange(code_block)
                     cursor.CharLocale = self.nolocale
                     self.highlight_code(cursor, lexer, style, checkunicode=True)
                     # unlock controllers here to force left pane syncing in draw/impress
-                    if self.doc.supportsService("com.sun.star.drawing.GenericDrawingDocument"):
+                    if self.doc.supportsService(
+                        "com.sun.star.drawing.GenericDrawingDocument"
+                    ):
                         self.doc.unlockControllers()
                         logger.debug("Controllers unlocked.")
                     # code_block.FillStyle = FS_NONE
                     if bg_color:
                         code_block.FillStyle = FS_SOLID
                         code_block.FillColor = self.to_int(bg_color)
-                    if self.options['ShowLineNumbers']:
+                    if self.options["ShowLineNumbers"]:
                         self.show_line_numbers(code_block, True, charcolor=lineno_color)
                     # save options as user defined attribute
                     self.tagcodeblock(code_block, lexer.name)
@@ -828,20 +912,28 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         hascode = False
 
                 if hascode:
-                    stylename = self.options['Style']
+                    stylename = self.options["Style"]
                     style = self.getstylebyname(stylename)
-                    bg_color = style.background_color if self.options['ColourizeBackground'] else None
+                    bg_color = (
+                        style.background_color
+                        if self.options["ColourizeBackground"]
+                        else None
+                    )
                     lineno_color = -1
-                    if self.options['ShowLineNumbers']:
+                    if self.options["ShowLineNumbers"]:
                         _style = style.style_for_token(("Comment",))
-                        lineno_color = self.to_int(_style['color'])
+                        lineno_color = self.to_int(_style["color"])
 
                     try:
                         cursor = self.ensure_paragraphs(code_block)
                         lexer = self.getlexer(cursor)
-                        self.undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
+                        self.undomanager.enterUndoContext(
+                            f"code highlight (lang: {lexer.name}, style: {stylename})"
+                        )
                         self.show_line_numbers(code_block, False, isplaintext=True)
-                        cursor = self.ensure_paragraphs(code_block)  # in case numbering was removed, code_block has changed
+                        cursor = self.ensure_paragraphs(
+                            code_block
+                        )  # in case numbering was removed, code_block has changed
                         # ParaBackColor does not work anymore, and new FillProperties isn't available from API
                         # see https://bugs.documentfoundation.org/show_bug.cgi?id=99125
                         # so let's use the dispatcher as workaround
@@ -853,13 +945,24 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         char_bg_color = None
                         if bg_color and not self.inlinesnippet:
                             # cursor.ParaBackColor = self.to_int(bg_color)
-                            prop = PropertyValue(Name="BackgroundColor", Value=self.to_int(bg_color))
-                            self.dispatcher.executeDispatch(self.frame, ".uno:BackgroundColor", "", 0, (prop,))
+                            prop = PropertyValue(
+                                Name="BackgroundColor", Value=self.to_int(bg_color)
+                            )
+                            self.dispatcher.executeDispatch(
+                                self.frame, ".uno:BackgroundColor", "", 0, (prop,)
+                            )
                         elif self.inlinesnippet:
                             char_bg_color = bg_color
-                        self.highlight_code(cursor, lexer, style, char_bg_color=char_bg_color)
-                        if self.options['ShowLineNumbers']:
-                            self.show_line_numbers(code_block, True, charcolor=lineno_color, isplaintext=True)
+                        self.highlight_code(
+                            cursor, lexer, style, char_bg_color=char_bg_color
+                        )
+                        if self.options["ShowLineNumbers"]:
+                            self.show_line_numbers(
+                                code_block,
+                                True,
+                                charcolor=lineno_color,
+                                isplaintext=True,
+                            )
                         # save options as user defined attribute
                         self.tagcodeblock(code_block, lexer.name)
                         controller.ViewCursor.collapseToEnd()
@@ -882,19 +985,25 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         hascode = False
 
                 if hascode:
-                    stylename = self.options['Style']
+                    stylename = self.options["Style"]
                     style = self.getstylebyname(stylename)
-                    bg_color = style.background_color if self.options['ColourizeBackground'] else None
+                    bg_color = (
+                        style.background_color
+                        if self.options["ColourizeBackground"]
+                        else None
+                    )
                     lineno_color = -1
-                    if self.options['ShowLineNumbers']:
+                    if self.options["ShowLineNumbers"]:
                         _style = style.style_for_token(("Comment",))
-                        lineno_color = self.to_int(_style['color'])
+                        lineno_color = self.to_int(_style["color"])
                     lexer = self.getlexer(code_block)
 
                     hascode = True
                     cursor = code_block.createTextCursorByRange(code_block)
                     # lexer = self.getlexer(cursor)
-                    self.undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
+                    self.undomanager.enterUndoContext(
+                        f"code highlight (lang: {lexer.name}, style: {stylename})"
+                    )
                     self.show_line_numbers(code_block, False)
                     cursor = code_block.createTextCursorByRange(code_block)
                     try:
@@ -903,8 +1012,10 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                             code_block.BackColor = self.to_int(bg_color)
                         cursor.CharLocale = self.nolocale
                         self.highlight_code(cursor, lexer, style)
-                        if self.options['ShowLineNumbers']:
-                            self.show_line_numbers(code_block, True, charcolor=lineno_color)
+                        if self.options["ShowLineNumbers"]:
+                            self.show_line_numbers(
+                                code_block, True, charcolor=lineno_color
+                            )
                         # save options as user defined attribute
                         cursor = code_block.createTextCursorByRange(code_block)
                         self.tagcodeblock(cursor, lexer.name)
@@ -926,16 +1037,22 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         hascode = False
 
                 if hascode:
-                    stylename = self.options['Style']
+                    stylename = self.options["Style"]
                     style = self.getstylebyname(stylename)
-                    bg_color = style.background_color if self.options['ColourizeBackground'] else None
+                    bg_color = (
+                        style.background_color
+                        if self.options["ColourizeBackground"]
+                        else None
+                    )
                     lineno_color = -1
-                    if self.options['ShowLineNumbers']:
+                    if self.options["ShowLineNumbers"]:
                         _style = style.style_for_token(("Comment",))
-                        lineno_color = self.to_int(_style['color'])
+                        lineno_color = self.to_int(_style["color"])
                     lexer = self.getlexer(code_block)
 
-                    self.undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
+                    self.undomanager.enterUndoContext(
+                        f"code highlight (lang: {lexer.name}, style: {stylename})"
+                    )
                     self.show_line_numbers(code_block, False)
                     try:
                         # code_block.BackColor = -1
@@ -944,8 +1061,10 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         cursor = code_block.createTextCursorByRange(code_block)
                         cursor.CharLocale = self.nolocale
                         self.highlight_code(cursor, lexer, style)
-                        if self.options['ShowLineNumbers']:
-                            self.show_line_numbers(code_block, True, charcolor=lineno_color)
+                        if self.options["ShowLineNumbers"]:
+                            self.show_line_numbers(
+                                code_block, True, charcolor=lineno_color
+                            )
                         # save options as user defined attribute
                         self.tagcodeblock(code_block, lexer.name)
                         controller.ViewCursor.collapseToEnd()
@@ -955,7 +1074,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             # CALC CELL
             # see this for info: https://bugs.documentfoundation.org/show_bug.cgi?id=151839
             elif code_block.ImplementationName in ("ScCellObj"):
-                logger.debug('Dealing with Calc cell.')
+                logger.debug("Dealing with Calc cell.")
                 hascode = True
                 code_block = code_block
                 if updatecode:
@@ -967,16 +1086,22 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         hascode = False
 
                 if hascode:
-                    stylename = self.options['Style']
+                    stylename = self.options["Style"]
                     style = self.getstylebyname(stylename)
-                    bg_color = style.background_color if self.options['ColourizeBackground'] else None
+                    bg_color = (
+                        style.background_color
+                        if self.options["ColourizeBackground"]
+                        else None
+                    )
                     lineno_color = -1
-                    if self.options['ShowLineNumbers']:
+                    if self.options["ShowLineNumbers"]:
                         _style = style.style_for_token(("Comment",))
-                        lineno_color = self.to_int(_style['color'])
+                        lineno_color = self.to_int(_style["color"])
                     lexer = self.getlexer(code_block)
 
-                    self.undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
+                    self.undomanager.enterUndoContext(
+                        f"code highlight (lang: {lexer.name}, style: {stylename})"
+                    )
                     self.show_line_numbers(code_block, False)
                     try:
                         # code_block.CellBackColor = -1
@@ -984,9 +1109,20 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         if bg_color:
                             code_block.CellBackColor = self.to_int(bg_color)
                         cursor = code_block.createTextCursor()
-                        self.highlight_code(cursor, lexer, style, char_bg_color=bg_color, checkunicode=True)
-                        if self.options['ShowLineNumbers']:
-                            self.show_line_numbers(code_block, True, charcolor=lineno_color, char_bg_color=bg_color)
+                        self.highlight_code(
+                            cursor,
+                            lexer,
+                            style,
+                            char_bg_color=bg_color,
+                            checkunicode=True,
+                        )
+                        if self.options["ShowLineNumbers"]:
+                            self.show_line_numbers(
+                                code_block,
+                                True,
+                                charcolor=lineno_color,
+                                char_bg_color=bg_color,
+                            )
                         # save options as user defined attribute
                         self.tagcodeblock(code_block, lexer.name)
                     finally:
@@ -1005,24 +1141,33 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 self.doc.unlockControllers()
                 logger.debug("Controllers unlocked.")
 
-    def highlight_code(self, cursor, lexer, style, char_bg_color=None, checkunicode=False):
+    def highlight_code(
+        self, cursor, lexer, style, char_bg_color=None, checkunicode=False
+    ):
         def _highlight_code():
             cursor.goRight(len_(lastval), True)  # selects the token's text
             try:
                 if self.options["UseCharStyles"]:
-                    cursor.CharStyleName = str(lasttype).replace('Token', styleprefix)
+                    cursor.CharStyleName = str(lasttype).replace("Token", styleprefix)
                 else:
                     tok_style = style.style_for_token(lasttype)
-                    properties = ['CharColor', 'CharWeight', 'CharPosture', 'CharUnderline']
-                    values = [self.to_int(tok_style['color']),
-                              W_BOLD if tok_style['bold'] else W_NORMAL,
-                              SL_ITALIC if tok_style['italic'] else SL_NONE,
-                              UL_SINGLE if tok_style['underline'] else UL_NONE]
+                    properties = [
+                        "CharColor",
+                        "CharWeight",
+                        "CharPosture",
+                        "CharUnderline",
+                    ]
+                    values = [
+                        self.to_int(tok_style["color"]),
+                        W_BOLD if tok_style["bold"] else W_NORMAL,
+                        SL_ITALIC if tok_style["italic"] else SL_NONE,
+                        UL_SINGLE if tok_style["underline"] else UL_NONE,
+                    ]
                     if tok_style["bgcolor"]:
-                        properties.append('CharBackColor')
+                        properties.append("CharBackColor")
                         values.append(self.to_int(tok_style["bgcolor"]))
                     elif char_bg_color:
-                        properties.append('CharBackColor')
+                        properties.append("CharBackColor")
                         values.append(self.to_int(char_bg_color))
                     cursor.setPropertyValues(properties, values)
             except Exception:
@@ -1038,8 +1183,16 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             len_ = lambda s: sum(1 if ord(char) < 0x10000 else 2 for char in s)
 
         # clean up any previous formatting
-        cursor.setPropertyValues(("CharBackColor", "CharColor", "CharPosture", "CharUnderline", "CharWeight"),
-                                 (-1, -1, SL_NONE, UL_NONE, W_NORMAL))
+        cursor.setPropertyValues(
+            (
+                "CharBackColor",
+                "CharColor",
+                "CharPosture",
+                "CharUnderline",
+                "CharWeight",
+            ),
+            (-1, -1, SL_NONE, UL_NONE, W_NORMAL),
+        )
         if self.charstylesavailable and self.options["UseCharStyles"]:
             cursor.setPropertiesToDefault(("CharStyleName", "CharStyleNames"))
         cursor.collapseToStart()
@@ -1050,8 +1203,10 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         if self.options["UseCharStyles"]:
             self.createcharstyles(style, styleprefix)
         # caching consecutive tokens with same token type
-        logger.debug(f"Starting code block highlighting (lexer: {lexer}, style: {style}).")
-        lastval = ''
+        logger.debug(
+            f"Starting code block highlighting (lexer: {lexer}, style: {style})."
+        )
+        lastval = ""
         lasttype = None
         for tok_type, tok_value in lexer.get_tokens(code):
             if tok_type == lasttype:
@@ -1067,19 +1222,23 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         self.cleancharstyles(styleprefix)
         logger.debug("Terminating code block highlighting.")
 
-    def show_line_numbers(self, code_block, show, charcolor=-1, isplaintext=False, char_bg_color=None):
+    def show_line_numbers(
+        self, code_block, show, charcolor=-1, isplaintext=False, char_bg_color=None
+    ):
         if self.inlinesnippet:
             return
         startnb = self.options["LineNumberStart"]
         ratio = self.options["LineNumberRatio"]
         sep = self.options["LineNumberSeparator"]
-        if self.lexername.startswith("LLVM") and ':' in sep:    # see issue https://github.com/jmzambon/libreoffice-code-highlighter/issues/27
-            sep = '\t'
+        if (
+            self.lexername.startswith("LLVM") and ":" in sep
+        ):  # see issue https://github.com/jmzambon/libreoffice-code-highlighter/issues/27
+            sep = "\t"
         pad = self.options["LineNumberPaddingSymbol"]
         logger.debug(f"Starting code block numbering (show: {show}).")
-        sep = sep.replace(r'\t', '\t')
+        sep = sep.replace(r"\t", "\t")
         codecharheight = code_block.End.CharHeight
-        nocharheight = round(codecharheight*ratio//50)/2   # round to 0.5
+        nocharheight = round(codecharheight * ratio // 50) / 2  # round to 0.5
 
         if isplaintext:
             c = code_block.Text.createTextCursorByRange(code_block)
@@ -1089,17 +1248,25 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             code = c.Text.String
 
         def show_numbering():
-            nblines = len(code.split('\n'))
+            nblines = len(code.split("\n"))
             digits = int(log10(nblines - 1 + startnb)) + 1
             for n, para in enumerate(code_block, start=startnb):
                 # para.Start.CharHeight = nocharheight
-                prefix = f'{n:{pad}>{digits}}{sep}'
+                prefix = f"{n:{pad}>{digits}}{sep}"
                 para.Start.setString(prefix)
                 c.gotoRange(para.Start, False)
                 c.goRight(len(prefix), True)
                 c.CharHeight = nocharheight
-                c.setPropertyValues(("CharBackColor", "CharColor", "CharPosture", "CharUnderline", "CharWeight"),
-                                    (bg_color, charcolor, SL_NONE, UL_NONE, W_NORMAL))
+                c.setPropertyValues(
+                    (
+                        "CharBackColor",
+                        "CharColor",
+                        "CharPosture",
+                        "CharUnderline",
+                        "CharWeight",
+                    ),
+                    (bg_color, charcolor, SL_NONE, UL_NONE, W_NORMAL),
+                )
 
         def hide_numbering():
             for para in code_block:
@@ -1109,9 +1276,11 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
 
         def getregexstring():
             padsymbol = re.escape(pad)
-            regexstring = fr"^[\s|{padsymbol}]*\d+\W?[^\S\n]*"
-            if self.lexername.startswith("LLVM"):    # see issue https://github.com/jmzambon/libreoffice-code-highlighter/issues/27
-                regexstring = fr"^[\s|{padsymbol}]*\d+(?![\d:])\W?[^\S\n]*"
+            regexstring = rf"^[\s|{padsymbol}]*\d+\W?[^\S\n]*"
+            if self.lexername.startswith(
+                "LLVM"
+            ):  # see issue https://github.com/jmzambon/libreoffice-code-highlighter/issues/27
+                regexstring = rf"^[\s|{padsymbol}]*\d+(?![\d:])\W?[^\S\n]*"
             return regexstring
 
         if show:
@@ -1135,11 +1304,13 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         c = code_block.Text.createTextCursorByRange(code_block)
         if code_block.String:
             lines = code_block.String.splitlines()
-            if len(lines) == 1:  # this condition prevents to treat lines separated by carriage returns as a single line
+            if (
+                len(lines) == 1
+            ):  # this condition prevents to treat lines separated by carriage returns as a single line
                 if c.Start.TextParagraph == c.End.TextParagraph:
                     if c.Text.compareRegionStarts(c, c.Start.TextParagraph) != 0:
                         # inline snippet
-                        logger.info('Code identified as inline snippet.')
+                        logger.info("Code identified as inline snippet.")
                         self.inlinesnippet = True
         else:
             udas = code_block.TextUserDefinedAttributes
@@ -1147,9 +1318,9 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 self.inlinesnippet = True
 
     def ensure_paragraphs(self, selected_code):
-        '''Ensure the selection does not contains part of paragraphs.
+        """Ensure the selection does not contains part of paragraphs.
         Cursor could start or end in the middle of a code line, when plain text selected.
-        So let's expand it to the entire paragraphs.'''
+        So let's expand it to the entire paragraphs."""
 
         c = selected_code.Text.createTextCursorByRange(selected_code)
         if selected_code.String:
@@ -1165,13 +1336,21 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 options = udas.getByName(SNIPPETTAGID).Value
                 while c.goLeft(1, False):
                     udas2 = c.TextUserDefinedAttributes
-                    if not (udas2 and SNIPPETTAGID in udas2 and udas2.getByName(SNIPPETTAGID).Value == options):
+                    if not (
+                        udas2
+                        and SNIPPETTAGID in udas2
+                        and udas2.getByName(SNIPPETTAGID).Value == options
+                    ):
                         break
 
                 c.gotoRange(selected_code, True)
                 while c.goRight(1, True):
                     udas2 = c.TextUserDefinedAttributes
-                    if not (udas2 and SNIPPETTAGID in udas2 and udas2.getByName(SNIPPETTAGID).Value == options):
+                    if not (
+                        udas2
+                        and SNIPPETTAGID in udas2
+                        and udas2.getByName(SNIPPETTAGID).Value == options
+                    ):
                         c.goLeft(1, True)
                         break
             else:
@@ -1181,7 +1360,11 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 endpara = c.TextParagraph
                 while c.gotoPreviousParagraph(False):
                     udas2 = c.ParaUserDefinedAttributes
-                    if (udas2 and SNIPPETTAGID in udas2 and udas2.getByName(SNIPPETTAGID).Value == options):
+                    if (
+                        udas2
+                        and SNIPPETTAGID in udas2
+                        and udas2.getByName(SNIPPETTAGID).Value == options
+                    ):
                         startpara = c.TextParagraph
                     else:
                         break
@@ -1189,7 +1372,11 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 c.gotoRange(selected_code, False)
                 while c.gotoNextParagraph(False):
                     udas2 = c.ParaUserDefinedAttributes
-                    if (udas2 and SNIPPETTAGID in udas2 and udas2.getByName(SNIPPETTAGID).Value == options):
+                    if (
+                        udas2
+                        and SNIPPETTAGID in udas2
+                        and udas2.getByName(SNIPPETTAGID).Value == options
+                    ):
                         endpara = c.TextParagraph
                     else:
                         break
@@ -1199,14 +1386,15 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
 
     # dev tools
     def update_all(self, usetags):
-        '''Update all formatted code in the active document.
-        DO NOT PUBLISH, ALPHA VERSION'''
+        """Update all formatted code in the active document.
+        DO NOT PUBLISH, ALPHA VERSION"""
+
         def highlight_snippet(code_block, udas):
             if usetags:
                 options = literal_eval(udas.getByName(SNIPPETTAGID).Value)
                 self.options.update(options)
             self.doc.CurrentController.select(code_block)
-            logger.debug(f'Updating snippet (type: {code_block.ImplementationName})')
+            logger.debug(f"Updating snippet (type: {code_block.ImplementationName})")
             self.prepare_highlight(self.doc.CurrentSelection)
 
         def browsetaggedcode_text(container=None):
@@ -1218,7 +1406,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             cursor = None
             options = None
             for para in container:
-                if not para.supportsService('com.sun.star.text.Paragraph'):
+                if not para.supportsService("com.sun.star.text.Paragraph"):
                     continue
                 udas = para.ParaUserDefinedAttributes
                 if udas is None:
@@ -1280,27 +1468,32 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     except AttributeError:
                         continue
 
-        logger.debug("Updating all snippets previously formatted with Code Highlighter 2.")
+        logger.debug(
+            "Updating all snippets previously formatted with Code Highlighter 2."
+        )
         sel = self.doc.CurrentSelection
         try:
-            if self.doc.supportsService('com.sun.star.text.GenericTextDocument'):
+            if self.doc.supportsService("com.sun.star.text.GenericTextDocument"):
                 browsetaggedcode_text()
-            elif self.doc.supportsService('com.sun.star.sheet.SpreadsheetDocument'):
+            elif self.doc.supportsService("com.sun.star.sheet.SpreadsheetDocument"):
                 browsetaggedcode_calc()
-            elif self.doc.supportsService('com.sun.star.drawing.GenericDrawingDocument'):
+            elif self.doc.supportsService(
+                "com.sun.star.drawing.GenericDrawingDocument"
+            ):
                 browsetaggedcode_draw()
             self.msgbox("Done.")
         finally:
             self.doc.CurrentController.select(sel)
 
     def removealltags(self):
-        '''
+        """
         Remove all snippet tags in the active document.
         TODO:
         - progress bar
         - selection only
         - draw and impress: add custom undo action
-        '''
+        """
+
         def searchforlexertag_text(container=None):
             root = False
             if not container:
@@ -1309,9 +1502,9 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             c = container.Text.createTextCursorByRange(container)
             # search for ParaUserDefinedAttributes
             udas = c.ParaUserDefinedAttributes
-            if not udas:    # ParaUserDefinedAttributes is empty when container contains mixed attributes
+            if not udas:  # ParaUserDefinedAttributes is empty when container contains mixed attributes
                 for para in container:
-                    if not para.supportsService('com.sun.star.text.Paragraph'):
+                    if not para.supportsService("com.sun.star.text.Paragraph"):
                         continue
                     udas2 = para.ParaUserDefinedAttributes
                     if SNIPPETTAGID in udas2:
@@ -1323,9 +1516,9 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
 
             # search for TextUserDefinedAttributes
             udas = c.TextUserDefinedAttributes
-            if not udas:    # TextUserDefinedAttributes is empty when container contains mixed attributes
+            if not udas:  # TextUserDefinedAttributes is empty when container contains mixed attributes
                 for para in container:
-                    if not para.supportsService('com.sun.star.text.Paragraph'):
+                    if not para.supportsService("com.sun.star.text.Paragraph"):
                         continue
                     udas2 = para.TextUserDefinedAttributes
                     if not udas2:
@@ -1387,13 +1580,15 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         self.doc.lockControllers()
         self.undomanager.enterUndoContext("All CH2 attributes removed.")
         try:
-            if self.doc.supportsService('com.sun.star.text.GenericTextDocument'):
+            if self.doc.supportsService("com.sun.star.text.GenericTextDocument"):
                 searchforlexertag_text()
                 self.msgbox("Done.")
-            elif self.doc.supportsService('com.sun.star.sheet.SpreadsheetDocument'):
+            elif self.doc.supportsService("com.sun.star.sheet.SpreadsheetDocument"):
                 searchforlexertag_calc()
                 self.msgbox("Done.")
-            elif self.doc.supportsService('com.sun.star.drawing.GenericDrawingDocument'):
+            elif self.doc.supportsService(
+                "com.sun.star.drawing.GenericDrawingDocument"
+            ):
                 searchforlexertag_draw()
                 self.msgbox("Done.")
             else:
@@ -1405,7 +1600,11 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
 
 # Component registration
 g_ImplementationHelper = unohelper.ImplementationHelper()
-g_ImplementationHelper.addImplementation(CodeHighlighter, "ooo.ext.code-highlighter.impl", (),)
+g_ImplementationHelper.addImplementation(
+    CodeHighlighter,
+    "ooo.ext.code-highlighter.impl",
+    (),
+)
 
 
 # exposed functions for development stages only

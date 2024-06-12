@@ -1,34 +1,44 @@
 """
-    pygments.lexers.cddl
-    ~~~~~~~~~~~~~~~~~~~~
+pygments.lexers.cddl
+~~~~~~~~~~~~~~~~~~~~
 
-    Lexer for the Concise data definition language (CDDL), a notational
-    convention to express CBOR and JSON data structures.
+Lexer for the Concise data definition language (CDDL), a notational
+convention to express CBOR and JSON data structures.
 
-    More information:
-    https://datatracker.ietf.org/doc/rfc8610/
+More information:
+https://datatracker.ietf.org/doc/rfc8610/
 
-    :copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+:copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
+:license: BSD, see LICENSE for details.
 """
 
 from pygments.lexer import RegexLexer, bygroups, include, words
-from pygments.token import Comment, Error, Keyword, Name, Number, Operator, \
-    Punctuation, String, Whitespace
+from pygments.token import (
+    Comment,
+    Error,
+    Keyword,
+    Name,
+    Number,
+    Operator,
+    Punctuation,
+    String,
+    Whitespace,
+)
 
-__all__ = ['CddlLexer']
+__all__ = ["CddlLexer"]
 
 
 class CddlLexer(RegexLexer):
     """
     Lexer for CDDL definitions.
     """
+
     name = "CDDL"
-    url = 'https://datatracker.ietf.org/doc/rfc8610/'
+    url = "https://datatracker.ietf.org/doc/rfc8610/"
     aliases = ["cddl"]
     filenames = ["*.cddl"]
     mimetypes = ["text/x-cddl"]
-    version_added = '2.8'
+    version_added = "2.8"
 
     _prelude_types = [
         "any",
@@ -90,11 +100,7 @@ class CddlLexer(RegexLexer):
         ".within",
     ]
 
-    _re_id = (
-        r"[$@A-Z_a-z]"
-        r"(?:[\-\.]+(?=[$@0-9A-Z_a-z])|[$@0-9A-Z_a-z])*"
-
-    )
+    _re_id = r"[$@A-Z_a-z]" r"(?:[\-\.]+(?=[$@0-9A-Z_a-z])|[$@0-9A-Z_a-z])*"
 
     # While the spec reads more like "an int must not start with 0" we use a
     # lookahead here that says "after a 0 there must be no digit". This makes the
@@ -130,11 +136,12 @@ class CddlLexer(RegexLexer):
             # Barewords as member keys (must be matched before values, types, typenames,
             # groupnames).
             # Token type is String as barewords are always interpreted as such.
-            (rf"({_re_id})(\s*)(:)",
-             bygroups(String, Whitespace, Punctuation)),
+            (rf"({_re_id})(\s*)(:)", bygroups(String, Whitespace, Punctuation)),
             # predefined types
-            (words(_prelude_types, prefix=r"(?![\-_$@])\b", suffix=r"\b(?![\-_$@])"),
-             Name.Builtin),
+            (
+                words(_prelude_types, prefix=r"(?![\-_$@])\b", suffix=r"\b(?![\-_$@])"),
+                Name.Builtin,
+            ),
             # user-defined groupnames, typenames
             (_re_id, Name.Class),
             # values
@@ -143,8 +150,7 @@ class CddlLexer(RegexLexer):
             (r"0x[0-9a-fA-F]+(\.[0-9a-fA-F]+)?p[+-]?\d+", Number.Hex),  # hexfloat
             (r"0x[0-9a-fA-F]+", Number.Hex),  # hex
             # Float
-            (rf"{_re_int}(?=(\.\d|e[+-]?\d))(?:\.\d+)?(?:e[+-]?\d+)?",
-             Number.Float),
+            (rf"{_re_int}(?=(\.\d|e[+-]?\d))(?:\.\d+)?(?:e[+-]?\d+)?", Number.Float),
             # Int
             (_re_int, Number.Integer),
             (r'"(\\\\|\\"|[^"])*"', String.Double),

@@ -1,23 +1,38 @@
 """
-    pygments.lexers.ul4
-    ~~~~~~~~~~~~~~~~~~~
+pygments.lexers.ul4
+~~~~~~~~~~~~~~~~~~~
 
-    Lexer for the UL4 templating language.
+Lexer for the UL4 templating language.
 
-    :copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+:copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
+:license: BSD, see LICENSE for details.
 """
 
 import re
 
 from pygments.lexer import RegexLexer, DelegatingLexer, bygroups, words, include
-from pygments.token import Comment, Text, Keyword, String, Number, Literal, \
-    Name, Other, Operator
+from pygments.token import (
+    Comment,
+    Text,
+    Keyword,
+    String,
+    Number,
+    Literal,
+    Name,
+    Other,
+    Operator,
+)
 from pygments.lexers.web import HtmlLexer, XmlLexer, CssLexer, JavascriptLexer
 from pygments.lexers.python import PythonLexer
 
-__all__ = ['UL4Lexer', 'HTMLUL4Lexer', 'XMLUL4Lexer', 'CSSUL4Lexer',
-           'JavascriptUL4Lexer', 'PythonUL4Lexer']
+__all__ = [
+    "UL4Lexer",
+    "HTMLUL4Lexer",
+    "XMLUL4Lexer",
+    "CSSUL4Lexer",
+    "JavascriptUL4Lexer",
+    "PythonUL4Lexer",
+]
 
 
 class UL4Lexer(RegexLexer):
@@ -27,11 +42,11 @@ class UL4Lexer(RegexLexer):
 
     flags = re.MULTILINE | re.DOTALL
 
-    name = 'UL4'
-    aliases = ['ul4']
-    filenames = ['*.ul4']
-    url = 'https://python.livinglogic.de/UL4.html'
-    version_added = '2.12'
+    name = "UL4"
+    aliases = ["ul4"]
+    filenames = ["*.ul4"]
+    url = "https://python.livinglogic.de/UL4.html"
+    version_added = "2.12"
 
     tokens = {
         "root": [
@@ -39,23 +54,33 @@ class UL4Lexer(RegexLexer):
                 # Template header without name:
                 # ``<?ul4?>``
                 r"(<\?)(\s*)(ul4)(\s*)(\?>)",
-                bygroups(Comment.Preproc, Text.Whitespace, Keyword,
-                         Text.Whitespace, Comment.Preproc),
+                bygroups(
+                    Comment.Preproc,
+                    Text.Whitespace,
+                    Keyword,
+                    Text.Whitespace,
+                    Comment.Preproc,
+                ),
             ),
             (
                 # Template header with name (potentially followed by the signature):
                 # ``<?ul4 foo(bar=42)?>``
                 r"(<\?)(\s*)(ul4)(\s*)([a-zA-Z_][a-zA-Z_0-9]*)?",
-                bygroups(Comment.Preproc, Text.Whitespace, Keyword,
-                         Text.Whitespace, Name.Function),
-                "ul4", # Switch to "expression" mode
+                bygroups(
+                    Comment.Preproc,
+                    Text.Whitespace,
+                    Keyword,
+                    Text.Whitespace,
+                    Name.Function,
+                ),
+                "ul4",  # Switch to "expression" mode
             ),
             (
                 # Comment:
                 # ``<?note?>...<?end note?>``
                 r"<\?\s*note\s*\?>",
                 Comment,
-                "note", # Switch to "note" mode
+                "note",  # Switch to "note" mode
             ),
             (
                 # Comment:
@@ -81,21 +106,26 @@ class UL4Lexer(RegexLexer):
                 # ``<?ignore?>...<?end ignore?>``
                 r"<\?\s*ignore\s*\?>",
                 Comment,
-                "ignore", # Switch to "ignore" mode
+                "ignore",  # Switch to "ignore" mode
             ),
             (
                 # ``<?def?>`` tag for defining local templates
                 # ``<?def foo(bar=42)?>...<?end def?>``
                 r"(<\?)(\s*)(def)(\s*)([a-zA-Z_][a-zA-Z_0-9]*)?",
-                bygroups(Comment.Preproc, Text.Whitespace, Keyword,
-                         Text.Whitespace, Name.Function),
-                "ul4", # Switch to "expression" mode
+                bygroups(
+                    Comment.Preproc,
+                    Text.Whitespace,
+                    Keyword,
+                    Text.Whitespace,
+                    Name.Function,
+                ),
+                "ul4",  # Switch to "expression" mode
             ),
             (
                 # The rest of the supported tags
                 r"(<\?)(\s*)(printx|print|for|if|elif|else|while|code|renderblocks?|render)\b",
                 bygroups(Comment.Preproc, Text.Whitespace, Keyword),
-                "ul4", # Switch to "expression" mode
+                "ul4",  # Switch to "expression" mode
             ),
             (
                 # ``<?end?>`` tag for ending ``<?def?>``, ``<?for?>``,
@@ -103,13 +133,13 @@ class UL4Lexer(RegexLexer):
                 # ``<?renderblocks?>`` blocks.
                 r"(<\?)(\s*)(end)\b",
                 bygroups(Comment.Preproc, Text.Whitespace, Keyword),
-                "end", # Switch to "end tag" mode
+                "end",  # Switch to "end tag" mode
             ),
             (
                 # ``<?whitespace?>`` tag for configuring whitespace handlng
                 r"(<\?)(\s*)(whitespace)\b",
                 bygroups(Comment.Preproc, Text.Whitespace, Keyword),
-                "whitespace", # Switch to "whitespace" mode
+                "whitespace",  # Switch to "whitespace" mode
             ),
             # Plain text
             (r"[^<]+", Other),
@@ -166,7 +196,10 @@ class UL4Lexer(RegexLexer):
             # Hexadecimal integer: ``0x2a``
             (r"0[xX][0-9a-fA-F]+", Number.Hex),
             # Date or datetime: ``@(2000-02-29)``/``@(2000-02-29T12:34:56.987654)``
-            (r"@\(\d\d\d\d-\d\d-\d\d(T(\d\d:\d\d(:\d\d(\.\d{6})?)?)?)?\)", Literal.Date),
+            (
+                r"@\(\d\d\d\d-\d\d-\d\d(T(\d\d:\d\d(:\d\d(\.\d{6})?)?)?)?\)",
+                Literal.Date,
+            ),
             # Color: ``#fff``, ``#fff8f0`` etc.
             (r"#[0-9a-fA-F]{8}", Literal.Color),
             (r"#[0-9a-fA-F]{6}", Literal.Color),
@@ -174,9 +207,17 @@ class UL4Lexer(RegexLexer):
             # Decimal integer: ``42``
             (r"\d+", Number.Integer),
             # Operators
-            (r"//|==|!=|>=|<=|<<|>>|\+=|-=|\*=|/=|//=|<<=|>>=|&=|\|=|^=|=|[\[\]{},:*/().~%&|<>^+-]", Operator),
+            (
+                r"//|==|!=|>=|<=|<<|>>|\+=|-=|\*=|/=|//=|<<=|>>=|&=|\|=|^=|=|[\[\]{},:*/().~%&|<>^+-]",
+                Operator,
+            ),
             # Keywords
-            (words(("for", "in", "if", "else", "not", "is", "and", "or"), suffix=r"\b"), Keyword),
+            (
+                words(
+                    ("for", "in", "if", "else", "not", "is", "and", "or"), suffix=r"\b"
+                ),
+                Keyword,
+            ),
             # Builtin constants
             (words(("None", "False", "True"), suffix=r"\b"), Keyword.Constant),
             # Variable names
@@ -187,7 +228,13 @@ class UL4Lexer(RegexLexer):
         # ``<?end ...?>`` tag for closing the last open block
         "end": [
             (r"\?>", Comment.Preproc, "#pop"),
-            (words(("for", "if", "def", "while", "renderblock", "renderblocks"), suffix=r"\b"), Keyword),
+            (
+                words(
+                    ("for", "if", "def", "while", "renderblock", "renderblocks"),
+                    suffix=r"\b",
+                ),
+                Keyword,
+            ),
             (r"\s+", Text),
         ],
         # Content of the ``<?whitespace ...?>`` tag:
@@ -209,41 +256,42 @@ class UL4Lexer(RegexLexer):
             (r"'''", String, "#pop"),
             include("stringescapes"),
             (r"[^\\']+", String),
-            (r'.', String),
+            (r".", String),
         ],
         # Inside a triple quoted string started with ``"""``
         "string23": [
             (r'"""', String, "#pop"),
             include("stringescapes"),
             (r'[^\\"]+', String),
-            (r'.', String),
+            (r".", String),
         ],
         # Inside a single quoted string started with ``'``
         "string1": [
             (r"'", String, "#pop"),
             include("stringescapes"),
             (r"[^\\']+", String),
-            (r'.', String),
+            (r".", String),
         ],
         # Inside a single quoted string started with ``"``
         "string2": [
             (r'"', String, "#pop"),
             include("stringescapes"),
             (r'[^\\"]+', String),
-            (r'.', String),
+            (r".", String),
         ],
     }
+
 
 class HTMLUL4Lexer(DelegatingLexer):
     """
     Lexer for UL4 embedded in HTML.
     """
 
-    name = 'HTML+UL4'
-    aliases = ['html+ul4']
-    filenames = ['*.htmlul4']
-    url = 'https://python.livinglogic.de/UL4.html'
-    version_added = ''
+    name = "HTML+UL4"
+    aliases = ["html+ul4"]
+    filenames = ["*.htmlul4"]
+    url = "https://python.livinglogic.de/UL4.html"
+    version_added = ""
 
     def __init__(self, **options):
         super().__init__(HtmlLexer, UL4Lexer, **options)
@@ -254,11 +302,11 @@ class XMLUL4Lexer(DelegatingLexer):
     Lexer for UL4 embedded in XML.
     """
 
-    name = 'XML+UL4'
-    aliases = ['xml+ul4']
-    filenames = ['*.xmlul4']
-    url = 'https://python.livinglogic.de/UL4.html'
-    version_added = ''
+    name = "XML+UL4"
+    aliases = ["xml+ul4"]
+    filenames = ["*.xmlul4"]
+    url = "https://python.livinglogic.de/UL4.html"
+    version_added = ""
 
     def __init__(self, **options):
         super().__init__(XmlLexer, UL4Lexer, **options)
@@ -269,11 +317,11 @@ class CSSUL4Lexer(DelegatingLexer):
     Lexer for UL4 embedded in CSS.
     """
 
-    name = 'CSS+UL4'
-    aliases = ['css+ul4']
-    filenames = ['*.cssul4']
-    url = 'https://python.livinglogic.de/UL4.html'
-    version_added = ''
+    name = "CSS+UL4"
+    aliases = ["css+ul4"]
+    filenames = ["*.cssul4"]
+    url = "https://python.livinglogic.de/UL4.html"
+    version_added = ""
 
     def __init__(self, **options):
         super().__init__(CssLexer, UL4Lexer, **options)
@@ -284,11 +332,11 @@ class JavascriptUL4Lexer(DelegatingLexer):
     Lexer for UL4 embedded in Javascript.
     """
 
-    name = 'Javascript+UL4'
-    aliases = ['js+ul4']
-    filenames = ['*.jsul4']
-    url = 'https://python.livinglogic.de/UL4.html'
-    version_added = ''
+    name = "Javascript+UL4"
+    aliases = ["js+ul4"]
+    filenames = ["*.jsul4"]
+    url = "https://python.livinglogic.de/UL4.html"
+    version_added = ""
 
     def __init__(self, **options):
         super().__init__(JavascriptLexer, UL4Lexer, **options)
@@ -299,11 +347,11 @@ class PythonUL4Lexer(DelegatingLexer):
     Lexer for UL4 embedded in Python.
     """
 
-    name = 'Python+UL4'
-    aliases = ['py+ul4']
-    filenames = ['*.pyul4']
-    url = 'https://python.livinglogic.de/UL4.html'
-    version_added = ''
+    name = "Python+UL4"
+    aliases = ["py+ul4"]
+    filenames = ["*.pyul4"]
+    url = "https://python.livinglogic.de/UL4.html"
+    version_added = ""
 
     def __init__(self, **options):
         super().__init__(PythonLexer, UL4Lexer, **options)

@@ -1,19 +1,27 @@
 """
-    pygments.lexers.data
-    ~~~~~~~~~~~~~~~~~~~~
+pygments.lexers.data
+~~~~~~~~~~~~~~~~~~~~
 
-    Lexers for data file format.
+Lexers for data file format.
 
-    :copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+:copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
+:license: BSD, see LICENSE for details.
 """
 
-from pygments.lexer import Lexer, ExtendedRegexLexer, LexerContext, \
-    include, bygroups
-from pygments.token import Comment, Error, Keyword, Literal, Name, Number, \
-    Punctuation, String, Whitespace
+from pygments.lexer import Lexer, ExtendedRegexLexer, LexerContext, include, bygroups
+from pygments.token import (
+    Comment,
+    Error,
+    Keyword,
+    Literal,
+    Name,
+    Number,
+    Punctuation,
+    String,
+    Whitespace,
+)
 
-__all__ = ['YamlLexer', 'JsonLexer', 'JsonBareObjectLexer', 'JsonLdLexer']
+__all__ = ["YamlLexer", "JsonLexer", "JsonBareObjectLexer", "JsonLdLexer"]
 
 
 class YamlLexerContext(LexerContext):
@@ -33,25 +41,28 @@ class YamlLexer(ExtendedRegexLexer):
     language.
     """
 
-    name = 'YAML'
-    url = 'http://yaml.org/'
-    aliases = ['yaml']
-    filenames = ['*.yaml', '*.yml']
-    mimetypes = ['text/x-yaml']
-    version_added = '0.11'
+    name = "YAML"
+    url = "http://yaml.org/"
+    aliases = ["yaml"]
+    filenames = ["*.yaml", "*.yml"]
+    mimetypes = ["text/x-yaml"]
+    version_added = "0.11"
 
     def something(token_class):
         """Do not produce empty tokens."""
+
         def callback(lexer, match, context):
             text = match.group()
             if not text:
                 return
             yield match.start(), token_class, text
             context.pos = match.end()
+
         return callback
 
     def reset_indent(token_class):
         """Reset the indentation levels."""
+
         def callback(lexer, match, context):
             text = match.group()
             context.indent_stack = []
@@ -60,32 +71,36 @@ class YamlLexer(ExtendedRegexLexer):
             context.block_scalar_indent = None
             yield match.start(), token_class, text
             context.pos = match.end()
+
         return callback
 
     def save_indent(token_class, start=False):
         """Save a possible indentation level."""
+
         def callback(lexer, match, context):
             text = match.group()
-            extra = ''
+            extra = ""
             if start:
                 context.next_indent = len(text)
                 if context.next_indent < context.indent:
                     while context.next_indent < context.indent:
                         context.indent = context.indent_stack.pop()
                     if context.next_indent > context.indent:
-                        extra = text[context.indent:]
-                        text = text[:context.indent]
+                        extra = text[context.indent :]
+                        text = text[: context.indent]
             else:
                 context.next_indent += len(text)
             if text:
                 yield match.start(), token_class, text
             if extra:
-                yield match.start()+len(text), token_class.Error, extra
+                yield match.start() + len(text), token_class.Error, extra
             context.pos = match.end()
+
         return callback
 
     def set_indent(token_class, implicit=False):
         """Set the previously saved indentation level."""
+
         def callback(lexer, match, context):
             text = match.group()
             if context.indent < context.next_indent:
@@ -95,10 +110,12 @@ class YamlLexer(ExtendedRegexLexer):
                 context.next_indent += len(text)
             yield match.start(), token_class, text
             context.pos = match.end()
+
         return callback
 
     def set_block_scalar_indent(token_class):
         """Set an explicit indentation level for a block scalar."""
+
         def callback(lexer, match, context):
             text = match.group()
             context.block_scalar_indent = None
@@ -112,27 +129,36 @@ class YamlLexer(ExtendedRegexLexer):
             if text:
                 yield match.start(), token_class, text
                 context.pos = match.end()
+
         return callback
 
     def parse_block_scalar_empty_line(indent_token_class, content_token_class):
         """Process an empty line in a block scalar."""
+
         def callback(lexer, match, context):
             text = match.group()
-            if (context.block_scalar_indent is None or
-                    len(text) <= context.block_scalar_indent):
+            if (
+                context.block_scalar_indent is None
+                or len(text) <= context.block_scalar_indent
+            ):
                 if text:
                     yield match.start(), indent_token_class, text
             else:
-                indentation = text[:context.block_scalar_indent]
-                content = text[context.block_scalar_indent:]
+                indentation = text[: context.block_scalar_indent]
+                content = text[context.block_scalar_indent :]
                 yield match.start(), indent_token_class, indentation
-                yield (match.start()+context.block_scalar_indent,
-                       content_token_class, content)
+                yield (
+                    match.start() + context.block_scalar_indent,
+                    content_token_class,
+                    content,
+                )
             context.pos = match.end()
+
         return callback
 
     def parse_block_scalar_indent(token_class):
         """Process indentation spaces in a block scalar."""
+
         def callback(lexer, match, context):
             text = match.group()
             if context.block_scalar_indent is None:
@@ -149,10 +175,12 @@ class YamlLexer(ExtendedRegexLexer):
             if text:
                 yield match.start(), token_class, text
                 context.pos = match.end()
+
         return callback
 
     def parse_plain_scalar_indent(token_class):
         """Process indentation spaces in a plain scalar."""
+
         def callback(lexer, match, context):
             text = match.group()
             if len(text) <= context.indent:
@@ -162,269 +190,261 @@ class YamlLexer(ExtendedRegexLexer):
             if text:
                 yield match.start(), token_class, text
                 context.pos = match.end()
+
         return callback
 
     tokens = {
         # the root rules
-        'root': [
+        "root": [
             # ignored whitespaces
-            (r'[ ]+(?=#|$)', Whitespace),
+            (r"[ ]+(?=#|$)", Whitespace),
             # line breaks
-            (r'\n+', Whitespace),
+            (r"\n+", Whitespace),
             # a comment
-            (r'#[^\n]*', Comment.Single),
+            (r"#[^\n]*", Comment.Single),
             # the '%YAML' directive
-            (r'^%YAML(?=[ ]|$)', reset_indent(Name.Tag), 'yaml-directive'),
+            (r"^%YAML(?=[ ]|$)", reset_indent(Name.Tag), "yaml-directive"),
             # the %TAG directive
-            (r'^%TAG(?=[ ]|$)', reset_indent(Name.Tag), 'tag-directive'),
+            (r"^%TAG(?=[ ]|$)", reset_indent(Name.Tag), "tag-directive"),
             # document start and document end indicators
-            (r'^(?:---|\.\.\.)(?=[ ]|$)', reset_indent(Name.Namespace),
-             'block-line'),
+            (r"^(?:---|\.\.\.)(?=[ ]|$)", reset_indent(Name.Namespace), "block-line"),
             # indentation spaces
-            (r'[ ]*(?!\s|$)', save_indent(Whitespace, start=True),
-             ('block-line', 'indentation')),
+            (
+                r"[ ]*(?!\s|$)",
+                save_indent(Whitespace, start=True),
+                ("block-line", "indentation"),
+            ),
         ],
-
         # trailing whitespaces after directives or a block scalar indicator
-        'ignored-line': [
+        "ignored-line": [
             # ignored whitespaces
-            (r'[ ]+(?=#|$)', Whitespace),
+            (r"[ ]+(?=#|$)", Whitespace),
             # a comment
-            (r'#[^\n]*', Comment.Single),
+            (r"#[^\n]*", Comment.Single),
             # line break
-            (r'\n', Whitespace, '#pop:2'),
+            (r"\n", Whitespace, "#pop:2"),
         ],
-
         # the %YAML directive
-        'yaml-directive': [
+        "yaml-directive": [
             # the version number
-            (r'([ ]+)([0-9]+\.[0-9]+)',
-             bygroups(Whitespace, Number), 'ignored-line'),
+            (r"([ ]+)([0-9]+\.[0-9]+)", bygroups(Whitespace, Number), "ignored-line"),
         ],
-
         # the %TAG directive
-        'tag-directive': [
+        "tag-directive": [
             # a tag handle and the corresponding prefix
-            (r'([ ]+)(!|![\w-]*!)'
-             r'([ ]+)(!|!?[\w;/?:@&=+$,.!~*\'()\[\]%-]+)',
-             bygroups(Whitespace, Keyword.Type, Whitespace, Keyword.Type),
-             'ignored-line'),
+            (
+                r"([ ]+)(!|![\w-]*!)" r"([ ]+)(!|!?[\w;/?:@&=+$,.!~*\'()\[\]%-]+)",
+                bygroups(Whitespace, Keyword.Type, Whitespace, Keyword.Type),
+                "ignored-line",
+            ),
         ],
-
         # block scalar indicators and indentation spaces
-        'indentation': [
+        "indentation": [
             # trailing whitespaces are ignored
-            (r'[ ]*$', something(Whitespace), '#pop:2'),
+            (r"[ ]*$", something(Whitespace), "#pop:2"),
             # whitespaces preceding block collection indicators
-            (r'[ ]+(?=[?:-](?:[ ]|$))', save_indent(Whitespace)),
+            (r"[ ]+(?=[?:-](?:[ ]|$))", save_indent(Whitespace)),
             # block collection indicators
-            (r'[?:-](?=[ ]|$)', set_indent(Punctuation.Indicator)),
+            (r"[?:-](?=[ ]|$)", set_indent(Punctuation.Indicator)),
             # the beginning a block line
-            (r'[ ]*', save_indent(Whitespace), '#pop'),
+            (r"[ ]*", save_indent(Whitespace), "#pop"),
         ],
-
         # an indented line in the block context
-        'block-line': [
+        "block-line": [
             # the line end
-            (r'[ ]*(?=#|$)', something(Whitespace), '#pop'),
+            (r"[ ]*(?=#|$)", something(Whitespace), "#pop"),
             # whitespaces separating tokens
-            (r'[ ]+', Whitespace),
+            (r"[ ]+", Whitespace),
             # key with colon
-            (r'''([^#,?\[\]{}"'\n]+)(:)(?=[ ]|$)''',
-             bygroups(Name.Tag, set_indent(Punctuation, implicit=True))),
+            (
+                r"""([^#,?\[\]{}"'\n]+)(:)(?=[ ]|$)""",
+                bygroups(Name.Tag, set_indent(Punctuation, implicit=True)),
+            ),
             # tags, anchors and aliases,
-            include('descriptors'),
+            include("descriptors"),
             # block collections and scalars
-            include('block-nodes'),
+            include("block-nodes"),
             # flow collections and quoted scalars
-            include('flow-nodes'),
+            include("flow-nodes"),
             # a plain scalar
-            (r'(?=[^\s?:,\[\]{}#&*!|>\'"%@`-]|[?:-]\S)',
-             something(Name.Variable),
-             'plain-scalar-in-block-context'),
+            (
+                r'(?=[^\s?:,\[\]{}#&*!|>\'"%@`-]|[?:-]\S)',
+                something(Name.Variable),
+                "plain-scalar-in-block-context",
+            ),
         ],
-
         # tags, anchors, aliases
-        'descriptors': [
+        "descriptors": [
             # a full-form tag
-            (r'!<[\w#;/?:@&=+$,.!~*\'()\[\]%-]+>', Keyword.Type),
+            (r"!<[\w#;/?:@&=+$,.!~*\'()\[\]%-]+>", Keyword.Type),
             # a tag in the form '!', '!suffix' or '!handle!suffix'
-            (r'!(?:[\w-]+!)?'
-             r'[\w#;/?:@&=+$,.!~*\'()\[\]%-]*', Keyword.Type),
+            (r"!(?:[\w-]+!)?" r"[\w#;/?:@&=+$,.!~*\'()\[\]%-]*", Keyword.Type),
             # an anchor
-            (r'&[\w-]+', Name.Label),
+            (r"&[\w-]+", Name.Label),
             # an alias
-            (r'\*[\w-]+', Name.Variable),
+            (r"\*[\w-]+", Name.Variable),
         ],
-
         # block collections and scalars
-        'block-nodes': [
+        "block-nodes": [
             # implicit key
-            (r':(?=[ ]|$)', set_indent(Punctuation.Indicator, implicit=True)),
+            (r":(?=[ ]|$)", set_indent(Punctuation.Indicator, implicit=True)),
             # literal and folded scalars
-            (r'[|>]', Punctuation.Indicator,
-             ('block-scalar-content', 'block-scalar-header')),
+            (
+                r"[|>]",
+                Punctuation.Indicator,
+                ("block-scalar-content", "block-scalar-header"),
+            ),
         ],
-
         # flow collections and quoted scalars
-        'flow-nodes': [
+        "flow-nodes": [
             # a flow sequence
-            (r'\[', Punctuation.Indicator, 'flow-sequence'),
+            (r"\[", Punctuation.Indicator, "flow-sequence"),
             # a flow mapping
-            (r'\{', Punctuation.Indicator, 'flow-mapping'),
+            (r"\{", Punctuation.Indicator, "flow-mapping"),
             # a single-quoted scalar
-            (r'\'', String, 'single-quoted-scalar'),
+            (r"\'", String, "single-quoted-scalar"),
             # a double-quoted scalar
-            (r'\"', String, 'double-quoted-scalar'),
+            (r"\"", String, "double-quoted-scalar"),
         ],
-
         # the content of a flow collection
-        'flow-collection': [
+        "flow-collection": [
             # whitespaces
-            (r'[ ]+', Whitespace),
+            (r"[ ]+", Whitespace),
             # line breaks
-            (r'\n+', Whitespace),
+            (r"\n+", Whitespace),
             # a comment
-            (r'#[^\n]*', Comment.Single),
+            (r"#[^\n]*", Comment.Single),
             # simple indicators
-            (r'[?:,]', Punctuation.Indicator),
+            (r"[?:,]", Punctuation.Indicator),
             # tags, anchors and aliases
-            include('descriptors'),
+            include("descriptors"),
             # nested collections and quoted scalars
-            include('flow-nodes'),
+            include("flow-nodes"),
             # a plain scalar
-            (r'(?=[^\s?:,\[\]{}#&*!|>\'"%@`])',
-             something(Name.Variable),
-             'plain-scalar-in-flow-context'),
+            (
+                r'(?=[^\s?:,\[\]{}#&*!|>\'"%@`])',
+                something(Name.Variable),
+                "plain-scalar-in-flow-context",
+            ),
         ],
-
         # a flow sequence indicated by '[' and ']'
-        'flow-sequence': [
+        "flow-sequence": [
             # include flow collection rules
-            include('flow-collection'),
+            include("flow-collection"),
             # the closing indicator
-            (r'\]', Punctuation.Indicator, '#pop'),
+            (r"\]", Punctuation.Indicator, "#pop"),
         ],
-
         # a flow mapping indicated by '{' and '}'
-        'flow-mapping': [
+        "flow-mapping": [
             # key with colon
-            (r'''([^,:?\[\]{}"'\n]+)(:)(?=[ ]|$)''',
-             bygroups(Name.Tag, Punctuation)),
+            (r"""([^,:?\[\]{}"'\n]+)(:)(?=[ ]|$)""", bygroups(Name.Tag, Punctuation)),
             # include flow collection rules
-            include('flow-collection'),
+            include("flow-collection"),
             # the closing indicator
-            (r'\}', Punctuation.Indicator, '#pop'),
+            (r"\}", Punctuation.Indicator, "#pop"),
         ],
-
         # block scalar lines
-        'block-scalar-content': [
+        "block-scalar-content": [
             # line break
-            (r'\n', Whitespace),
+            (r"\n", Whitespace),
             # empty line
-            (r'^[ ]+$',
-             parse_block_scalar_empty_line(Whitespace, Name.Constant)),
+            (r"^[ ]+$", parse_block_scalar_empty_line(Whitespace, Name.Constant)),
             # indentation spaces (we may leave the state here)
-            (r'^[ ]*', parse_block_scalar_indent(Whitespace)),
+            (r"^[ ]*", parse_block_scalar_indent(Whitespace)),
             # line content
-            (r'[\S\t ]+', Name.Constant),
+            (r"[\S\t ]+", Name.Constant),
         ],
-
         # the content of a literal or folded scalar
-        'block-scalar-header': [
+        "block-scalar-header": [
             # indentation indicator followed by chomping flag
-            (r'([1-9])?[+-]?(?=[ ]|$)',
-             set_block_scalar_indent(Punctuation.Indicator),
-             'ignored-line'),
+            (
+                r"([1-9])?[+-]?(?=[ ]|$)",
+                set_block_scalar_indent(Punctuation.Indicator),
+                "ignored-line",
+            ),
             # chomping flag followed by indentation indicator
-            (r'[+-]?([1-9])?(?=[ ]|$)',
-             set_block_scalar_indent(Punctuation.Indicator),
-             'ignored-line'),
+            (
+                r"[+-]?([1-9])?(?=[ ]|$)",
+                set_block_scalar_indent(Punctuation.Indicator),
+                "ignored-line",
+            ),
         ],
-
         # ignored and regular whitespaces in quoted scalars
-        'quoted-scalar-whitespaces': [
+        "quoted-scalar-whitespaces": [
             # leading and trailing whitespaces are ignored
-            (r'^[ ]+', Whitespace),
-            (r'[ ]+$', Whitespace),
+            (r"^[ ]+", Whitespace),
+            (r"[ ]+$", Whitespace),
             # line breaks are ignored
-            (r'\n+', Whitespace),
+            (r"\n+", Whitespace),
             # other whitespaces are a part of the value
-            (r'[ ]+', Name.Variable),
+            (r"[ ]+", Name.Variable),
         ],
-
         # single-quoted scalars
-        'single-quoted-scalar': [
+        "single-quoted-scalar": [
             # include whitespace and line break rules
-            include('quoted-scalar-whitespaces'),
+            include("quoted-scalar-whitespaces"),
             # escaping of the quote character
-            (r'\'\'', String.Escape),
+            (r"\'\'", String.Escape),
             # regular non-whitespace characters
-            (r'[^\s\']+', String),
+            (r"[^\s\']+", String),
             # the closing quote
-            (r'\'', String, '#pop'),
+            (r"\'", String, "#pop"),
         ],
-
         # double-quoted scalars
-        'double-quoted-scalar': [
+        "double-quoted-scalar": [
             # include whitespace and line break rules
-            include('quoted-scalar-whitespaces'),
+            include("quoted-scalar-whitespaces"),
             # escaping of special characters
             (r'\\[0abt\tn\nvfre "\\N_LP]', String),
             # escape codes
-            (r'\\(?:x[0-9A-Fa-f]{2}|u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})',
-             String.Escape),
+            (r"\\(?:x[0-9A-Fa-f]{2}|u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})", String.Escape),
             # regular non-whitespace characters
             (r'[^\s"\\]+', String),
             # the closing quote
-            (r'"', String, '#pop'),
+            (r'"', String, "#pop"),
         ],
-
         # the beginning of a new line while scanning a plain scalar
-        'plain-scalar-in-block-context-new-line': [
+        "plain-scalar-in-block-context-new-line": [
             # empty lines
-            (r'^[ ]+$', Whitespace),
+            (r"^[ ]+$", Whitespace),
             # line breaks
-            (r'\n+', Whitespace),
+            (r"\n+", Whitespace),
             # document start and document end indicators
-            (r'^(?=---|\.\.\.)', something(Name.Namespace), '#pop:3'),
+            (r"^(?=---|\.\.\.)", something(Name.Namespace), "#pop:3"),
             # indentation spaces (we may leave the block line state here)
-            (r'^[ ]*', parse_plain_scalar_indent(Whitespace), '#pop'),
+            (r"^[ ]*", parse_plain_scalar_indent(Whitespace), "#pop"),
         ],
-
         # a plain scalar in the block context
-        'plain-scalar-in-block-context': [
+        "plain-scalar-in-block-context": [
             # the scalar ends with the ':' indicator
-            (r'[ ]*(?=:[ ]|:$)', something(Whitespace), '#pop'),
+            (r"[ ]*(?=:[ ]|:$)", something(Whitespace), "#pop"),
             # the scalar ends with whitespaces followed by a comment
-            (r'[ ]+(?=#)', Whitespace, '#pop'),
+            (r"[ ]+(?=#)", Whitespace, "#pop"),
             # trailing whitespaces are ignored
-            (r'[ ]+$', Whitespace),
+            (r"[ ]+$", Whitespace),
             # line breaks are ignored
-            (r'\n+', Whitespace, 'plain-scalar-in-block-context-new-line'),
+            (r"\n+", Whitespace, "plain-scalar-in-block-context-new-line"),
             # other whitespaces are a part of the value
-            (r'[ ]+', Literal.Scalar.Plain),
+            (r"[ ]+", Literal.Scalar.Plain),
             # regular non-whitespace characters
-            (r'(?::(?!\s)|[^\s:])+', Literal.Scalar.Plain),
+            (r"(?::(?!\s)|[^\s:])+", Literal.Scalar.Plain),
         ],
-
         # a plain scalar is the flow context
-        'plain-scalar-in-flow-context': [
+        "plain-scalar-in-flow-context": [
             # the scalar ends with an indicator character
-            (r'[ ]*(?=[,:?\[\]{}])', something(Whitespace), '#pop'),
+            (r"[ ]*(?=[,:?\[\]{}])", something(Whitespace), "#pop"),
             # the scalar ends with a comment
-            (r'[ ]+(?=#)', Whitespace, '#pop'),
+            (r"[ ]+(?=#)", Whitespace, "#pop"),
             # leading and trailing whitespaces are ignored
-            (r'^[ ]+', Whitespace),
-            (r'[ ]+$', Whitespace),
+            (r"^[ ]+", Whitespace),
+            (r"[ ]+$", Whitespace),
             # line breaks are ignored
-            (r'\n+', Whitespace),
+            (r"\n+", Whitespace),
             # other whitespaces are a part of the value
-            (r'[ ]+', Name.Variable),
+            (r"[ ]+", Name.Variable),
             # regular non-whitespace characters
-            (r'[^\s,:?\[\]{}]+', Name.Variable),
+            (r"[^\s,:?\[\]{}]+", Name.Variable),
         ],
-
     }
 
     def get_tokens_unprocessed(self, text=None, context=None):
@@ -444,12 +464,18 @@ class JsonLexer(Lexer):
     No validation is performed on the input JSON document.
     """
 
-    name = 'JSON'
-    url = 'https://www.json.org'
-    aliases = ['json', 'json-object']
-    filenames = ['*.json', '*.jsonl', '*.ndjson', 'Pipfile.lock']
-    mimetypes = ['application/json', 'application/json-object', 'application/x-ndjson', 'application/jsonl', 'application/json-seq']
-    version_added = '1.5'
+    name = "JSON"
+    url = "https://www.json.org"
+    aliases = ["json", "json-object"]
+    filenames = ["*.json", "*.jsonl", "*.ndjson", "Pipfile.lock"]
+    mimetypes = [
+        "application/json",
+        "application/json-object",
+        "application/x-ndjson",
+        "application/jsonl",
+        "application/json-seq",
+    ]
+    version_added = "1.5"
 
     # No validation of integers, floats, or constants is done.
     # As long as the characters are members of the following
@@ -459,12 +485,12 @@ class JsonLexer(Lexer):
     #     "1...eee" is parsed as a float
     #     "trustful" is parsed as a constant
     #
-    integers = set('-0123456789')
-    floats = set('.eE+')
-    constants = set('truefalsenull')  # true|false|null
-    hexadecimals = set('0123456789abcdefABCDEF')
-    punctuations = set('{}[],')
-    whitespaces = {'\u0020', '\u000a', '\u000d', '\u0009'}
+    integers = set("-0123456789")
+    floats = set(".eE+")
+    constants = set("truefalsenull")  # true|false|null
+    hexadecimals = set("0123456789abcdefABCDEF")
+    punctuations = set("{}[],")
+    whitespaces = {"\u0020", "\u000a", "\u000d", "\u0009"}
 
     def get_tokens_unprocessed(self, text):
         """Parse JSON data."""
@@ -516,16 +542,16 @@ class JsonLexer(Lexer):
                         in_escape = False
 
                 elif in_escape:
-                    if character == 'u':
+                    if character == "u":
                         in_unicode_escape = 4
                     else:
                         in_escape = False
 
-                elif character == '\\':
+                elif character == "\\":
                     in_escape = True
 
                 elif character == '"':
-                    queue.append((start, String.Double, text[start:stop + 1]))
+                    queue.append((start, String.Double, text[start : stop + 1]))
                     in_string = False
                     in_escape = False
                     in_unicode_escape = 0
@@ -575,7 +601,7 @@ class JsonLexer(Lexer):
                 # Fall through so the new character can be evaluated.
 
             elif in_comment_single:
-                if character != '\n':
+                if character != "\n":
                     continue
 
                 if queue:
@@ -587,15 +613,17 @@ class JsonLexer(Lexer):
                 # Fall through so the new character can be evaluated.
 
             elif in_comment_multiline:
-                if character == '*':
+                if character == "*":
                     expecting_second_comment_closer = True
                 elif expecting_second_comment_closer:
                     expecting_second_comment_closer = False
-                    if character == '/':
+                    if character == "/":
                         if queue:
-                            queue.append((start, Comment.Multiline, text[start:stop + 1]))
+                            queue.append(
+                                (start, Comment.Multiline, text[start : stop + 1])
+                            )
                         else:
-                            yield start, Comment.Multiline, text[start:stop + 1]
+                            yield start, Comment.Multiline, text[start : stop + 1]
 
                         in_comment_multiline = False
 
@@ -603,10 +631,10 @@ class JsonLexer(Lexer):
 
             elif expecting_second_comment_opener:
                 expecting_second_comment_opener = False
-                if character == '/':
+                if character == "/":
                     in_comment_single = True
                     continue
-                elif character == '*':
+                elif character == "*":
                     in_comment_multiline = True
                     continue
 
@@ -625,7 +653,7 @@ class JsonLexer(Lexer):
             elif character in self.whitespaces:
                 in_whitespace = True
 
-            elif character in {'f', 'n', 't'}:  # The first letters of true|false|null
+            elif character in {"f", "n", "t"}:  # The first letters of true|false|null
                 # Exhaust the queue. Accept the existing token types.
                 yield from queue
                 queue.clear()
@@ -639,7 +667,7 @@ class JsonLexer(Lexer):
 
                 in_number = True
 
-            elif character == ':':
+            elif character == ":":
                 # Yield from the queue. Replace string token types.
                 for _start, _token, _text in queue:
                     # There can be only three types of tokens before a ':':
@@ -665,7 +693,7 @@ class JsonLexer(Lexer):
 
                 in_punctuation = True
 
-            elif character == '/':
+            elif character == "/":
                 # This is the beginning of a comment.
                 expecting_second_comment_opener = True
 
@@ -707,11 +735,11 @@ class JsonBareObjectLexer(JsonLexer):
        Behaves the same as `JsonLexer` now.
     """
 
-    name = 'JSONBareObject'
+    name = "JSONBareObject"
     aliases = []
     filenames = []
     mimetypes = []
-    version_added = '2.2'
+    version_added = "2.2"
 
 
 class JsonLdLexer(JsonLexer):
@@ -719,39 +747,39 @@ class JsonLdLexer(JsonLexer):
     For JSON-LD linked data.
     """
 
-    name = 'JSON-LD'
-    url = 'https://json-ld.org/'
-    aliases = ['jsonld', 'json-ld']
-    filenames = ['*.jsonld']
-    mimetypes = ['application/ld+json']
-    version_added = '2.0'
+    name = "JSON-LD"
+    url = "https://json-ld.org/"
+    aliases = ["jsonld", "json-ld"]
+    filenames = ["*.jsonld"]
+    mimetypes = ["application/ld+json"]
+    version_added = "2.0"
 
     json_ld_keywords = {
         f'"@{keyword}"'
         for keyword in (
-            'base',
-            'container',
-            'context',
-            'direction',
-            'graph',
-            'id',
-            'import',
-            'included',
-            'index',
-            'json',
-            'language',
-            'list',
-            'nest',
-            'none',
-            'prefix',
-            'propagate',
-            'protected',
-            'reverse',
-            'set',
-            'type',
-            'value',
-            'version',
-            'vocab',
+            "base",
+            "container",
+            "context",
+            "direction",
+            "graph",
+            "id",
+            "import",
+            "included",
+            "index",
+            "json",
+            "language",
+            "list",
+            "nest",
+            "none",
+            "prefix",
+            "propagate",
+            "protected",
+            "reverse",
+            "set",
+            "type",
+            "value",
+            "version",
+            "vocab",
         )
     }
 

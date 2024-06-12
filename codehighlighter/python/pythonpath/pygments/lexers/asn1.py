@@ -1,20 +1,28 @@
 """
-    pygments.lexers.asn1
-    ~~~~~~~~~~~~~~~~~~~~
+pygments.lexers.asn1
+~~~~~~~~~~~~~~~~~~~~
 
-    Pygments lexers for ASN.1.
+Pygments lexers for ASN.1.
 
-    :copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+:copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
+:license: BSD, see LICENSE for details.
 """
 
 import re
 
-from pygments.token import  Comment, Operator, Keyword, Name, String, \
-    Number, Punctuation, Whitespace
+from pygments.token import (
+    Comment,
+    Operator,
+    Keyword,
+    Name,
+    String,
+    Number,
+    Punctuation,
+    Whitespace,
+)
 from pygments.lexer import RegexLexer, words, bygroups
 
-__all__ = ['Asn1Lexer']
+__all__ = ["Asn1Lexer"]
 
 SINGLE_WORD_KEYWORDS = [
     "ENCODED",
@@ -111,46 +119,59 @@ SINGLE_WORD_TYPES = [
 
 
 def word_sequences(tokens):
-    return "(" + '|'.join(token.replace(' ', r'\s+') for token in tokens) + r')\b'
+    return "(" + "|".join(token.replace(" ", r"\s+") for token in tokens) + r")\b"
 
 
 class Asn1Lexer(RegexLexer):
-
     """
     Lexer for ASN.1 module definition
     """
 
     flags = re.MULTILINE
 
-    name = 'ASN.1'
-    aliases = ['asn1']
+    name = "ASN.1"
+    aliases = ["asn1"]
     filenames = ["*.asn1"]
     url = "https://www.itu.int/ITU-T/studygroups/com17/languages/X.680-0207.pdf"
-    version_added = '2.16'
+    version_added = "2.16"
 
     tokens = {
-       'root': [
+        "root": [
             # Whitespace:
-            (r'\s+', Whitespace),
+            (r"\s+", Whitespace),
             # Comments:
-            (r'--.*$', Comment.Single),
-            (r'/\*', Comment.Multiline, 'comment'),
+            (r"--.*$", Comment.Single),
+            (r"/\*", Comment.Multiline, "comment"),
             #  Numbers:
-            (r'\d+\.\d*([eE][-+]?\d+)?', Number.Float),
-            (r'\d+', Number.Integer),
+            (r"\d+\.\d*([eE][-+]?\d+)?", Number.Float),
+            (r"\d+", Number.Integer),
             # Identifier:
             (r"&?[a-z][-a-zA-Z0-9]*[a-zA-Z0-9]\b", Name.Variable),
             # Constants:
-            (words(("TRUE", "FALSE", "NULL", "MINUS-INFINITY", "PLUS-INFINITY", "MIN", "MAX"), suffix=r'\b'), Keyword.Constant),
+            (
+                words(
+                    (
+                        "TRUE",
+                        "FALSE",
+                        "NULL",
+                        "MINUS-INFINITY",
+                        "PLUS-INFINITY",
+                        "MIN",
+                        "MAX",
+                    ),
+                    suffix=r"\b",
+                ),
+                Keyword.Constant,
+            ),
             # Builtin types:
             (word_sequences(TWO_WORDS_TYPES), Keyword.Type),
-            (words(SINGLE_WORD_TYPES, suffix=r'\b'), Keyword.Type),
+            (words(SINGLE_WORD_TYPES, suffix=r"\b"), Keyword.Type),
             # Other keywords:
             (r"EXPORTS\s+ALL\b", Keyword.Namespace),
-            (words(SINGLE_WORD_NAMESPACE_KEYWORDS, suffix=r'\b'), Operator.Namespace),
+            (words(SINGLE_WORD_NAMESPACE_KEYWORDS, suffix=r"\b"), Operator.Namespace),
             (word_sequences(MULTI_WORDS_DECLARATIONS), Keyword.Declaration),
-            (words(SINGLE_WORDS_DECLARATIONS, suffix=r'\b'), Keyword.Declaration),
-            (words(OPERATOR_WORDS, suffix=r'\b'), Operator.Word),
+            (words(SINGLE_WORDS_DECLARATIONS, suffix=r"\b"), Keyword.Declaration),
+            (words(OPERATOR_WORDS, suffix=r"\b"), Operator.Word),
             (words(SINGLE_WORD_KEYWORDS), Keyword),
             # Type identifier:
             (r"&?[A-Z][-a-zA-Z0-9]*[a-zA-Z0-9]\b", Name.Type),
@@ -159,20 +180,20 @@ class Asn1Lexer(RegexLexer):
             # Punctuation:
             (r"(\.|,|\{|\}|\(|\)|\[|\])", Punctuation),
             # String:
-            (r'"', String, 'string'),
+            (r'"', String, "string"),
             # Binary string:
             (r"('[01 ]*')(B)\b", bygroups(String, String.Affix)),
-            (r"('[0-9A-F ]*')(H)\b",bygroups(String, String.Affix)),
+            (r"('[0-9A-F ]*')(H)\b", bygroups(String, String.Affix)),
         ],
-        'comment': [
-            (r'[^*/]+', Comment.Multiline),
-            (r'/\*', Comment.Multiline, '#push'),
-            (r'\*/', Comment.Multiline, '#pop'),
-            (r'[*/]', Comment.Multiline)
+        "comment": [
+            (r"[^*/]+", Comment.Multiline),
+            (r"/\*", Comment.Multiline, "#push"),
+            (r"\*/", Comment.Multiline, "#pop"),
+            (r"[*/]", Comment.Multiline),
         ],
-        'string': [
+        "string": [
             (r'""', String),
             (r'"', String, "#pop"),
             (r'[^"]', String),
-        ]
+        ],
     }

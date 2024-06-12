@@ -1,11 +1,11 @@
 """
-    pygments.lexers._usd_builtins
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+pygments.lexers._usd_builtins
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    A collection of known USD-related keywords, attributes, and types.
+A collection of known USD-related keywords, attributes, and types.
 
-    :copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+:copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
+:license: BSD, see LICENSE for details.
 """
 
 COMMON_ATTRIBUTES = [

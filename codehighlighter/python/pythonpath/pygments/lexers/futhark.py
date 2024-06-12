@@ -1,105 +1,164 @@
 """
-    pygments.lexers.futhark
-    ~~~~~~~~~~~~~~~~~~~~~~~
+pygments.lexers.futhark
+~~~~~~~~~~~~~~~~~~~~~~~
 
-    Lexer for the Futhark language
+Lexer for the Futhark language
 
-    :copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+:copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
+:license: BSD, see LICENSE for details.
 """
 
 from pygments.lexer import RegexLexer, bygroups
-from pygments.token import Comment, Operator, Keyword, Name, String, \
-    Number, Punctuation, Whitespace
+from pygments.token import (
+    Comment,
+    Operator,
+    Keyword,
+    Name,
+    String,
+    Number,
+    Punctuation,
+    Whitespace,
+)
 from pygments import unistring as uni
 
-__all__ = ['FutharkLexer']
+__all__ = ["FutharkLexer"]
 
 
 class FutharkLexer(RegexLexer):
     """
     A Futhark lexer
     """
-    name = 'Futhark'
-    url = 'https://futhark-lang.org/'
-    aliases = ['futhark']
-    filenames = ['*.fut']
-    mimetypes = ['text/x-futhark']
-    version_added = '2.8'
 
-    num_types = ('i8', 'i16', 'i32', 'i64', 'u8', 'u16', 'u32', 'u64', 'f32', 'f64')
+    name = "Futhark"
+    url = "https://futhark-lang.org/"
+    aliases = ["futhark"]
+    filenames = ["*.fut"]
+    mimetypes = ["text/x-futhark"]
+    version_added = "2.8"
 
-    other_types = ('bool', )
+    num_types = ("i8", "i16", "i32", "i64", "u8", "u16", "u32", "u64", "f32", "f64")
 
-    reserved = ('if', 'then', 'else', 'def', 'let', 'loop', 'in', 'with',
-                'type', 'type~', 'type^',
-                'val', 'entry', 'for', 'while', 'do', 'case', 'match',
-                'include', 'import', 'module', 'open', 'local', 'assert', '_')
+    other_types = ("bool",)
 
-    ascii = ('NUL', 'SOH', '[SE]TX', 'EOT', 'ENQ', 'ACK',
-             'BEL', 'BS', 'HT', 'LF', 'VT', 'FF', 'CR', 'S[OI]', 'DLE',
-             'DC[1-4]', 'NAK', 'SYN', 'ETB', 'CAN',
-             'EM', 'SUB', 'ESC', '[FGRU]S', 'SP', 'DEL')
+    reserved = (
+        "if",
+        "then",
+        "else",
+        "def",
+        "let",
+        "loop",
+        "in",
+        "with",
+        "type",
+        "type~",
+        "type^",
+        "val",
+        "entry",
+        "for",
+        "while",
+        "do",
+        "case",
+        "match",
+        "include",
+        "import",
+        "module",
+        "open",
+        "local",
+        "assert",
+        "_",
+    )
 
-    num_postfix = r'({})?'.format('|'.join(num_types))
+    ascii = (
+        "NUL",
+        "SOH",
+        "[SE]TX",
+        "EOT",
+        "ENQ",
+        "ACK",
+        "BEL",
+        "BS",
+        "HT",
+        "LF",
+        "VT",
+        "FF",
+        "CR",
+        "S[OI]",
+        "DLE",
+        "DC[1-4]",
+        "NAK",
+        "SYN",
+        "ETB",
+        "CAN",
+        "EM",
+        "SUB",
+        "ESC",
+        "[FGRU]S",
+        "SP",
+        "DEL",
+    )
 
-    identifier_re = '[a-zA-Z_][a-zA-Z_0-9\']*'
+    num_postfix = r"({})?".format("|".join(num_types))
+
+    identifier_re = "[a-zA-Z_][a-zA-Z_0-9']*"
 
     # opstart_re = '+\-\*/%=\!><\|&\^'
 
     tokens = {
-        'root': [
-            (r'--(.*?)$', Comment.Single),
-            (r'\s+', Whitespace),
-            (r'\(\)', Punctuation),
-            (r'\b({})(?!\')\b'.format('|'.join(reserved)), Keyword.Reserved),
-            (r'\b({})(?!\')\b'.format('|'.join(num_types + other_types)), Keyword.Type),
-
+        "root": [
+            (r"--(.*?)$", Comment.Single),
+            (r"\s+", Whitespace),
+            (r"\(\)", Punctuation),
+            (r"\b({})(?!\')\b".format("|".join(reserved)), Keyword.Reserved),
+            (r"\b({})(?!\')\b".format("|".join(num_types + other_types)), Keyword.Type),
             # Identifiers
-            (r'#\[([a-zA-Z_\(\) ]*)\]', Comment.Preproc),
-            (rf'[#!]?({identifier_re}\.)*{identifier_re}', Name),
-
-            (r'\\', Operator),
-            (r'[-+/%=!><|&*^][-+/%=!><|&*^.]*', Operator),
-            (r'[][(),:;`{}?.\'~^]', Punctuation),
-
+            (r"#\[([a-zA-Z_\(\) ]*)\]", Comment.Preproc),
+            (rf"[#!]?({identifier_re}\.)*{identifier_re}", Name),
+            (r"\\", Operator),
+            (r"[-+/%=!><|&*^][-+/%=!><|&*^.]*", Operator),
+            (r"[][(),:;`{}?.\'~^]", Punctuation),
             #  Numbers
-            (r'0[xX]_*[\da-fA-F](_*[\da-fA-F])*_*[pP][+-]?\d(_*\d)*' + num_postfix,
-             Number.Float),
-            (r'0[xX]_*[\da-fA-F](_*[\da-fA-F])*\.[\da-fA-F](_*[\da-fA-F])*'
-             r'(_*[pP][+-]?\d(_*\d)*)?' + num_postfix, Number.Float),
-            (r'\d(_*\d)*_*[eE][+-]?\d(_*\d)*' + num_postfix, Number.Float),
-            (r'\d(_*\d)*\.\d(_*\d)*(_*[eE][+-]?\d(_*\d)*)?' + num_postfix, Number.Float),
-            (r'0[bB]_*[01](_*[01])*' + num_postfix, Number.Bin),
-            (r'0[xX]_*[\da-fA-F](_*[\da-fA-F])*' + num_postfix, Number.Hex),
-            (r'\d(_*\d)*' + num_postfix, Number.Integer),
-
+            (
+                r"0[xX]_*[\da-fA-F](_*[\da-fA-F])*_*[pP][+-]?\d(_*\d)*" + num_postfix,
+                Number.Float,
+            ),
+            (
+                r"0[xX]_*[\da-fA-F](_*[\da-fA-F])*\.[\da-fA-F](_*[\da-fA-F])*"
+                r"(_*[pP][+-]?\d(_*\d)*)?" + num_postfix,
+                Number.Float,
+            ),
+            (r"\d(_*\d)*_*[eE][+-]?\d(_*\d)*" + num_postfix, Number.Float),
+            (
+                r"\d(_*\d)*\.\d(_*\d)*(_*[eE][+-]?\d(_*\d)*)?" + num_postfix,
+                Number.Float,
+            ),
+            (r"0[bB]_*[01](_*[01])*" + num_postfix, Number.Bin),
+            (r"0[xX]_*[\da-fA-F](_*[\da-fA-F])*" + num_postfix, Number.Hex),
+            (r"\d(_*\d)*" + num_postfix, Number.Integer),
             #  Character/String Literals
-            (r"'", String.Char, 'character'),
-            (r'"', String, 'string'),
+            (r"'", String.Char, "character"),
+            (r'"', String, "string"),
             #  Special
-            (r'\[[a-zA-Z_\d]*\]', Keyword.Type),
-            (r'\(\)', Name.Builtin),
+            (r"\[[a-zA-Z_\d]*\]", Keyword.Type),
+            (r"\(\)", Name.Builtin),
         ],
-        'character': [
+        "character": [
             # Allows multi-chars, incorrectly.
-            (r"[^\\']'", String.Char, '#pop'),
-            (r"\\", String.Escape, 'escape'),
-            ("'", String.Char, '#pop'),
+            (r"[^\\']'", String.Char, "#pop"),
+            (r"\\", String.Escape, "escape"),
+            ("'", String.Char, "#pop"),
         ],
-        'string': [
+        "string": [
             (r'[^\\"]+', String),
-            (r"\\", String.Escape, 'escape'),
-            ('"', String, '#pop'),
+            (r"\\", String.Escape, "escape"),
+            ('"', String, "#pop"),
         ],
-
-        'escape': [
-            (r'[abfnrtv"\'&\\]', String.Escape, '#pop'),
-            (r'\^[][' + uni.Lu + r'@^_]', String.Escape, '#pop'),
-            ('|'.join(ascii), String.Escape, '#pop'),
-            (r'o[0-7]+', String.Escape, '#pop'),
-            (r'x[\da-fA-F]+', String.Escape, '#pop'),
-            (r'\d+', String.Escape, '#pop'),
-            (r'(\s+)(\\)', bygroups(Whitespace, String.Escape), '#pop'),
+        "escape": [
+            (r'[abfnrtv"\'&\\]', String.Escape, "#pop"),
+            (r"\^[][" + uni.Lu + r"@^_]", String.Escape, "#pop"),
+            ("|".join(ascii), String.Escape, "#pop"),
+            (r"o[0-7]+", String.Escape, "#pop"),
+            (r"x[\da-fA-F]+", String.Escape, "#pop"),
+            (r"\d+", String.Escape, "#pop"),
+            (r"(\s+)(\\)", bygroups(Whitespace, String.Escape), "#pop"),
         ],
     }

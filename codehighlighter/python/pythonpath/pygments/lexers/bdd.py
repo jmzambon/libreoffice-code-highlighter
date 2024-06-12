@@ -1,18 +1,27 @@
 """
-    pygments.lexers.bdd
-    ~~~~~~~~~~~~~~~~~~~
+pygments.lexers.bdd
+~~~~~~~~~~~~~~~~~~~
 
-    Lexer for BDD(Behavior-driven development).
+Lexer for BDD(Behavior-driven development).
 
-    :copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+:copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
+:license: BSD, see LICENSE for details.
 """
 
 from pygments.lexer import RegexLexer, include
-from pygments.token import Comment, Keyword, Name, String, Number, Text, \
-    Punctuation, Whitespace
+from pygments.token import (
+    Comment,
+    Keyword,
+    Name,
+    String,
+    Number,
+    Text,
+    Punctuation,
+    Whitespace,
+)
 
-__all__ = ['BddLexer']
+__all__ = ["BddLexer"]
+
 
 class BddLexer(RegexLexer):
     """
@@ -20,37 +29,39 @@ class BddLexer(RegexLexer):
     keywords, but also comments, punctuations, strings, numbers, and variables.
     """
 
-    name = 'Bdd'
-    aliases = ['bdd']
-    filenames = ['*.feature']
-    mimetypes = ['text/x-bdd']
-    url = 'https://en.wikipedia.org/wiki/Behavior-driven_development'
-    version_added = '2.11'
+    name = "Bdd"
+    aliases = ["bdd"]
+    filenames = ["*.feature"]
+    mimetypes = ["text/x-bdd"]
+    url = "https://en.wikipedia.org/wiki/Behavior-driven_development"
+    version_added = "2.11"
 
-    step_keywords = (r'Given|When|Then|Add|And|Feature|Scenario Outline|'
-                     r'Scenario|Background|Examples|But')
+    step_keywords = (
+        r"Given|When|Then|Add|And|Feature|Scenario Outline|"
+        r"Scenario|Background|Examples|But"
+    )
 
     tokens = {
-        'comments': [
-            (r'^\s*#.*$', Comment),
+        "comments": [
+            (r"^\s*#.*$", Comment),
         ],
-        'miscellaneous': [
-            (r'(<|>|\[|\]|=|\||:|\(|\)|\{|\}|,|\.|;|-|_|\$)', Punctuation),
-            (r'((?<=\<)[^\\>]+(?=\>))', Name.Variable),
+        "miscellaneous": [
+            (r"(<|>|\[|\]|=|\||:|\(|\)|\{|\}|,|\.|;|-|_|\$)", Punctuation),
+            (r"((?<=\<)[^\\>]+(?=\>))", Name.Variable),
             (r'"([^\"]*)"', String),
-            (r'^@\S+', Name.Label),
+            (r"^@\S+", Name.Label),
         ],
-        'numbers': [
-            (r'(\d+\.?\d*|\d*\.\d+)([eE][+-]?[0-9]+)?', Number),
+        "numbers": [
+            (r"(\d+\.?\d*|\d*\.\d+)([eE][+-]?[0-9]+)?", Number),
         ],
-        'root': [
-            (r'\n|\s+', Whitespace),
+        "root": [
+            (r"\n|\s+", Whitespace),
             (step_keywords, Keyword),
-            include('comments'),
-            include('miscellaneous'),
-            include('numbers'),
-            (r'\S+', Text),
-        ]
+            include("comments"),
+            include("miscellaneous"),
+            include("numbers"),
+            (r"\S+", Text),
+        ],
     }
 
     def analyse_text(self, text):

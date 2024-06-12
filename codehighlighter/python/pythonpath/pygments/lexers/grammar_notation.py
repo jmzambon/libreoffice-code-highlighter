@@ -1,18 +1,28 @@
 """
-    pygments.lexers.grammar_notation
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+pygments.lexers.grammar_notation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    Lexers for grammar notations like BNF.
+Lexers for grammar notations like BNF.
 
-    :copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+:copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
+:license: BSD, see LICENSE for details.
 """
 
 from pygments.lexer import RegexLexer, bygroups, include, this, using, words
-from pygments.token import Comment, Keyword, Literal, Name, Number, \
-    Operator, Punctuation, String, Text, Whitespace
+from pygments.token import (
+    Comment,
+    Keyword,
+    Literal,
+    Name,
+    Number,
+    Operator,
+    Punctuation,
+    String,
+    Text,
+    Whitespace,
+)
 
-__all__ = ['BnfLexer', 'AbnfLexer', 'JsgfLexer', 'PegLexer']
+__all__ = ["BnfLexer", "AbnfLexer", "JsgfLexer", "PegLexer"]
 
 
 class BnfLexer(RegexLexer):
@@ -41,24 +51,21 @@ class BnfLexer(RegexLexer):
     and you might be disappointed, but it is reasonable for us.
     """
 
-    name = 'BNF'
-    aliases = ['bnf']
-    filenames = ['*.bnf']
-    mimetypes = ['text/x-bnf']
-    url = 'https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form'
-    version_added = '2.1'
+    name = "BNF"
+    aliases = ["bnf"]
+    filenames = ["*.bnf"]
+    mimetypes = ["text/x-bnf"]
+    url = "https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form"
+    version_added = "2.1"
 
     tokens = {
-        'root': [
-            (r'(<)([ -;=?-~]+)(>)',
-             bygroups(Punctuation, Name.Class, Punctuation)),
-
+        "root": [
+            (r"(<)([ -;=?-~]+)(>)", bygroups(Punctuation, Name.Class, Punctuation)),
             # an only operator
-            (r'::=', Operator),
-
+            (r"::=", Operator),
             # fallback
-            (r'[^<>:]+', Text),  # for performance
-            (r'.', Text),
+            (r"[^<>:]+", Text),  # for performance
+            (r".", Text),
         ],
     }
 
@@ -70,61 +77,65 @@ class AbnfLexer(RegexLexer):
     (Updates `5234 <http://www.ietf.org/rfc/rfc5234.txt>`_) grammars.
     """
 
-    name = 'ABNF'
-    url = 'http://www.ietf.org/rfc/rfc7405.txt'
-    aliases = ['abnf']
-    filenames = ['*.abnf']
-    mimetypes = ['text/x-abnf']
-    version_added = '2.1'
+    name = "ABNF"
+    url = "http://www.ietf.org/rfc/rfc7405.txt"
+    aliases = ["abnf"]
+    filenames = ["*.abnf"]
+    mimetypes = ["text/x-abnf"]
+    version_added = "2.1"
 
     _core_rules = (
-        'ALPHA', 'BIT', 'CHAR', 'CR', 'CRLF', 'CTL', 'DIGIT',
-        'DQUOTE', 'HEXDIG', 'HTAB', 'LF', 'LWSP', 'OCTET',
-        'SP', 'VCHAR', 'WSP')
+        "ALPHA",
+        "BIT",
+        "CHAR",
+        "CR",
+        "CRLF",
+        "CTL",
+        "DIGIT",
+        "DQUOTE",
+        "HEXDIG",
+        "HTAB",
+        "LF",
+        "LWSP",
+        "OCTET",
+        "SP",
+        "VCHAR",
+        "WSP",
+    )
 
     tokens = {
-        'root': [
+        "root": [
             # comment
-            (r';.*$', Comment.Single),
-
+            (r";.*$", Comment.Single),
             # quoted
             #   double quote itself in this state, it is as '%x22'.
             (r'(%[si])?"[^"]*"', Literal),
-
             # binary (but i have never seen...)
-            (r'%b[01]+\-[01]+\b', Literal),  # range
-            (r'%b[01]+(\.[01]+)*\b', Literal),  # concat
-
+            (r"%b[01]+\-[01]+\b", Literal),  # range
+            (r"%b[01]+(\.[01]+)*\b", Literal),  # concat
             # decimal
-            (r'%d[0-9]+\-[0-9]+\b', Literal),  # range
-            (r'%d[0-9]+(\.[0-9]+)*\b', Literal),  # concat
-
+            (r"%d[0-9]+\-[0-9]+\b", Literal),  # range
+            (r"%d[0-9]+(\.[0-9]+)*\b", Literal),  # concat
             # hexadecimal
-            (r'%x[0-9a-fA-F]+\-[0-9a-fA-F]+\b', Literal),  # range
-            (r'%x[0-9a-fA-F]+(\.[0-9a-fA-F]+)*\b', Literal),  # concat
-
+            (r"%x[0-9a-fA-F]+\-[0-9a-fA-F]+\b", Literal),  # range
+            (r"%x[0-9a-fA-F]+(\.[0-9a-fA-F]+)*\b", Literal),  # concat
             # repetition (<a>*<b>element) including nRule
-            (r'\b[0-9]+\*[0-9]+', Operator),
-            (r'\b[0-9]+\*', Operator),
-            (r'\b[0-9]+', Operator),
-            (r'\*', Operator),
-
+            (r"\b[0-9]+\*[0-9]+", Operator),
+            (r"\b[0-9]+\*", Operator),
+            (r"\b[0-9]+", Operator),
+            (r"\*", Operator),
             # Strictly speaking, these are not keyword but
             # are called `Core Rule'.
-            (words(_core_rules, suffix=r'\b'), Keyword),
-
+            (words(_core_rules, suffix=r"\b"), Keyword),
             # nonterminals (ALPHA *(ALPHA / DIGIT / "-"))
-            (r'[a-zA-Z][a-zA-Z0-9-]*\b', Name.Class),
-
+            (r"[a-zA-Z][a-zA-Z0-9-]*\b", Name.Class),
             # operators
-            (r'(=/|=|/)', Operator),
-
+            (r"(=/|=|/)", Operator),
             # punctuation
-            (r'[\[\]()]', Punctuation),
-
+            (r"[\[\]()]", Punctuation),
             # fallback
-            (r'\s+', Whitespace),
-            (r'.', Text),
+            (r"\s+", Whitespace),
+            (r".", Text),
         ],
     }
 
@@ -133,75 +144,82 @@ class JsgfLexer(RegexLexer):
     """
     For JSpeech Grammar Format grammars.
     """
-    name = 'JSGF'
-    url = 'https://www.w3.org/TR/jsgf/'
-    aliases = ['jsgf']
-    filenames = ['*.jsgf']
-    mimetypes = ['application/jsgf', 'application/x-jsgf', 'text/jsgf']
-    version_added = '2.2'
+
+    name = "JSGF"
+    url = "https://www.w3.org/TR/jsgf/"
+    aliases = ["jsgf"]
+    filenames = ["*.jsgf"]
+    mimetypes = ["application/jsgf", "application/x-jsgf", "text/jsgf"]
+    version_added = "2.2"
 
     tokens = {
-        'root': [
-            include('comments'),
-            include('non-comments'),
+        "root": [
+            include("comments"),
+            include("non-comments"),
         ],
-        'comments': [
-            (r'/\*\*(?!/)', Comment.Multiline, 'documentation comment'),
-            (r'/\*[\w\W]*?\*/', Comment.Multiline),
-            (r'//.*$', Comment.Single),
+        "comments": [
+            (r"/\*\*(?!/)", Comment.Multiline, "documentation comment"),
+            (r"/\*[\w\W]*?\*/", Comment.Multiline),
+            (r"//.*$", Comment.Single),
         ],
-        'non-comments': [
-            (r'\A#JSGF[^;]*', Comment.Preproc),
-            (r'\s+', Whitespace),
-            (r';', Punctuation),
-            (r'[=|()\[\]*+]', Operator),
-            (r'/[^/]+/', Number.Float),
-            (r'"', String.Double, 'string'),
-            (r'\{', String.Other, 'tag'),
-            (words(('import', 'public'), suffix=r'\b'), Keyword.Reserved),
-            (r'grammar\b', Keyword.Reserved, 'grammar name'),
-            (r'(<)(NULL|VOID)(>)',
-             bygroups(Punctuation, Name.Builtin, Punctuation)),
-            (r'<', Punctuation, 'rulename'),
+        "non-comments": [
+            (r"\A#JSGF[^;]*", Comment.Preproc),
+            (r"\s+", Whitespace),
+            (r";", Punctuation),
+            (r"[=|()\[\]*+]", Operator),
+            (r"/[^/]+/", Number.Float),
+            (r'"', String.Double, "string"),
+            (r"\{", String.Other, "tag"),
+            (words(("import", "public"), suffix=r"\b"), Keyword.Reserved),
+            (r"grammar\b", Keyword.Reserved, "grammar name"),
+            (r"(<)(NULL|VOID)(>)", bygroups(Punctuation, Name.Builtin, Punctuation)),
+            (r"<", Punctuation, "rulename"),
             (r'\w+|[^\s;=|()\[\]*+/"{<\w]+', Text),
         ],
-        'string': [
-            (r'"', String.Double, '#pop'),
-            (r'\\.', String.Escape),
+        "string": [
+            (r'"', String.Double, "#pop"),
+            (r"\\.", String.Escape),
             (r'[^\\"]+', String.Double),
         ],
-        'tag': [
-            (r'\}', String.Other, '#pop'),
-            (r'\\.', String.Escape),
-            (r'[^\\}]+', String.Other),
+        "tag": [
+            (r"\}", String.Other, "#pop"),
+            (r"\\.", String.Escape),
+            (r"[^\\}]+", String.Other),
         ],
-        'grammar name': [
-            (r';', Punctuation, '#pop'),
-            (r'\s+', Whitespace),
-            (r'\.', Punctuation),
-            (r'[^;\s.]+', Name.Namespace),
+        "grammar name": [
+            (r";", Punctuation, "#pop"),
+            (r"\s+", Whitespace),
+            (r"\.", Punctuation),
+            (r"[^;\s.]+", Name.Namespace),
         ],
-        'rulename': [
-            (r'>', Punctuation, '#pop'),
-            (r'\*', Punctuation),
-            (r'\s+', Whitespace),
-            (r'([^.>]+)(\s*)(\.)', bygroups(Name.Namespace, Text, Punctuation)),
-            (r'[^.>]+', Name.Constant),
+        "rulename": [
+            (r">", Punctuation, "#pop"),
+            (r"\*", Punctuation),
+            (r"\s+", Whitespace),
+            (r"([^.>]+)(\s*)(\.)", bygroups(Name.Namespace, Text, Punctuation)),
+            (r"[^.>]+", Name.Constant),
         ],
-        'documentation comment': [
-            (r'\*/', Comment.Multiline, '#pop'),
-            (r'^(\s*)(\*?)(\s*)(@(?:example|see))(\s+)'
-             r'([\w\W]*?(?=(?:^\s*\*?\s*@|\*/)))',
-             bygroups(Whitespace, Comment.Multiline, Whitespace, Comment.Special,
-                      Whitespace, using(this, state='example'))),
-            (r'(^\s*\*?\s*)(@\S*)',
-             bygroups(Comment.Multiline, Comment.Special)),
-            (r'[^*\n@]+|\w|\W', Comment.Multiline),
+        "documentation comment": [
+            (r"\*/", Comment.Multiline, "#pop"),
+            (
+                r"^(\s*)(\*?)(\s*)(@(?:example|see))(\s+)"
+                r"([\w\W]*?(?=(?:^\s*\*?\s*@|\*/)))",
+                bygroups(
+                    Whitespace,
+                    Comment.Multiline,
+                    Whitespace,
+                    Comment.Special,
+                    Whitespace,
+                    using(this, state="example"),
+                ),
+            ),
+            (r"(^\s*\*?\s*)(@\S*)", bygroups(Comment.Multiline, Comment.Special)),
+            (r"[^*\n@]+|\w|\W", Comment.Multiline),
         ],
-        'example': [
-            (r'(\n\s*)(\*)', bygroups(Whitespace, Comment.Multiline)),
-            include('non-comments'),
-            (r'.', Comment.Multiline),
+        "example": [
+            (r"(\n\s*)(\*)", bygroups(Whitespace, Comment.Multiline)),
+            include("non-comments"),
+            (r".", Comment.Multiline),
         ],
     }
 
@@ -224,39 +242,34 @@ class PegLexer(RegexLexer):
       string (e.g., `r"..."` or `"..."ilmsuxa`).
     """
 
-    name = 'PEG'
-    url = 'https://bford.info/pub/lang/peg.pdf'
-    aliases = ['peg']
-    filenames = ['*.peg']
-    mimetypes = ['text/x-peg']
-    version_added = '2.6'
+    name = "PEG"
+    url = "https://bford.info/pub/lang/peg.pdf"
+    aliases = ["peg"]
+    filenames = ["*.peg"]
+    mimetypes = ["text/x-peg"]
+    version_added = "2.6"
 
     tokens = {
-        'root': [
+        "root": [
             # Comments
-            (r'#.*$', Comment.Single),
-
+            (r"#.*$", Comment.Single),
             # All operators
-            (r'<-|[←:=/|&!?*+^↑~]', Operator),
-
+            (r"<-|[←:=/|&!?*+^↑~]", Operator),
             # Other punctuation
-            (r'[()]', Punctuation),
-
+            (r"[()]", Punctuation),
             # Keywords
-            (r'\.', Keyword),
-
+            (r"\.", Keyword),
             # Character classes
-            (r'(\[)([^\]]*(?:\\.[^\]\\]*)*)(\])',
-             bygroups(Punctuation, String, Punctuation)),
-
+            (
+                r"(\[)([^\]]*(?:\\.[^\]\\]*)*)(\])",
+                bygroups(Punctuation, String, Punctuation),
+            ),
             # Single and double quoted strings (with optional modifiers)
             (r'[a-z]?"[^"\\]*(?:\\.[^"\\]*)*"[a-z]*', String.Double),
             (r"[a-z]?'[^'\\]*(?:\\.[^'\\]*)*'[a-z]*", String.Single),
-
             # Nonterminals are not whitespace, operators, or punctuation
             (r'[^\s<←:=/|&!?*+\^↑~()\[\]"\'#]+', Name.Class),
-
             # Fallback
-            (r'.', Text),
+            (r".", Text),
         ],
     }

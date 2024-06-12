@@ -1,16 +1,27 @@
 """
-    pygments.styles.coffee
-    ~~~~~~~~~~~~~~~~~~~~~~
+pygments.styles.coffee
+~~~~~~~~~~~~~~~~~~~~~~
 
-    A warm and cozy theme based off gruvbox
+A warm and cozy theme based off gruvbox
 
-    :copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+:copyright: Copyright 2006-2024 by the Pygments team, see AUTHORS.
+:license: BSD, see LICENSE for details.
 """
 
 from pygments.style import Style
-from pygments.token import (Comment, Error, Generic, Keyword, Literal, Name,
-                            Number, Operator, Punctuation, String, Token)
+from pygments.token import (
+    Comment,
+    Error,
+    Generic,
+    Keyword,
+    Literal,
+    Name,
+    Number,
+    Operator,
+    Punctuation,
+    String,
+    Token,
+)
 
 __all__ = ["CoffeeStyle"]
 

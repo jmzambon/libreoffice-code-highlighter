@@ -20,110 +20,110 @@ msgstr ""
 #: highlight.py:290
 #: highlight.py:997
 msgid "Unsupported selection."
-msgstr "Sélection invalide."
+msgstr "Selezione non supportata."
 
 #: highlight.py:268
 #: highlight.py:281
 #: highlight.py:301
 msgid "Nothing to highlight."
-msgstr "Rien à coloriser."
+msgstr "Nulla da evidenziare."
 
 #: highlight.py:298
 msgid "Update impossible: no formatting attribute associated with this code."
-msgstr "Mise à jour impossible : aucun attribut de mise en forme attaché à ce code."
+msgstr "Aggiornamento impossibile: nessun attributo di formattazione associato a questo codice."
 
 #: highlight.py:402
 msgid "Language"
-msgstr "Langage"
+msgstr "Lingua"
 
 #: highlight.py:402
 msgid "Style"
-msgstr "Style"
+msgstr "Stile"
 
 #: highlight.py:402
 msgid "Set ~background color"
-msgstr "Utiliser la couleur de ~fond"
+msgstr "~Colore di sfondo"
 
 #: highlight.py:402
 msgid "Use the background color provided by the style."
-msgstr "Utiliser l'arrière-plan fourni par le style."
+msgstr "Usare il colore di sfondo fornito dallo stile."
 
 #: highlight.py:402
 msgid "Use character ~styles"
-msgstr "Utiliser les ~styles de caractère"
+msgstr "Usa ~stili dei carattere"
 
 #: highlight.py:402
 msgid "When possible, code highlighting will be based on character styles."
-msgstr "Si possible, le code sera colorisé sur base des styles de caractère."
+msgstr "Quando possibile, l'evidenziazione del codice si baserà sugli stili dei caratteri."
 
 #: highlight.py:402
 msgid "Add ~line numbering"
-msgstr "Numéroter les ~lignes"
+msgstr "~Numerazione righe"
 
 #: highlight.py:402
 msgid "Active or deactivate line numbers."
-msgstr "Affiche ou masque les numéros de ligne."
+msgstr "Attiva o disattiva la numerazione delle righe."
 
 #: highlight.py:402
 msgid "Line numbering"
-msgstr "Numéros de ligne"
+msgstr "Numeri di riga"
 
 #: highlight.py:402
 msgid "Character styles"
-msgstr "Styles de caractères"
+msgstr "Stili dei carattere"
 
 #: highlight.py:402
 msgid "Start at"
-msgstr "Démarrer à"
+msgstr "Comincia da"
 
 #: highlight.py:402
 msgid "Height (%)"
-msgstr "Taille (%)"
+msgstr "Altezza (%)"
 
 #: highlight.py:402
 msgid "Separator"
-msgstr "Séparateur"
+msgstr "Separatore"
 
 #: highlight.py:402
 msgid "Use \\t to insert tabulation"
-msgstr "Utiliser \\t pour une tabulation"
+msgstr "Usare \\t per inserire la tabulazione"
 
 #: highlight.py:402
 msgid "Padding symbol"
-msgstr "Symbole d'alignement"
+msgstr "Simbolo d'imbottatura"
 
 #: highlight.py:402
 msgid "Character to fill the leading space (0 for 01 for example)"
-msgstr "Caractère initial de substitution (0 pour 01 par exemple)"
+msgstr "Carattere per riempire lo spazio iniziale (0 per 01, ad esempio)"
 
 #: highlight.py:402
 msgid "Parent character style"
-msgstr "Style de caractère parent"
+msgstr "Stile di carattere genitore"
 
 #: highlight.py:402
 msgid "Use an existing character style as root style."
-msgstr "Utiliser un style de caractère existant comme style de base."
+msgstr "Usare uno stile di carattere esistente come stile di base."
 
 #: highlight.py:402
 msgid "Build upon Pygments {}"
-msgstr "Basé sur Pygments {}"
+msgstr "Basato su Pygments {}"
 
 #: highlight.py:402
 msgid "Preview"
-msgstr "Aperçu"
+msgstr "Anteprima"
 
 #: highlight.py:402
 msgid "Back"
-msgstr "Retour"
+msgstr "Indietro"
 
 #: highlight.py:402
 msgid "More..."
-msgstr "Plus..."
+msgstr "Altro..."
 
 #: highlight.py:455
 msgid "Unsupported language."
-msgstr "Langage non supporté."
+msgstr "Lingua non supportata."
 
 #: highlight.py:457
 msgid "Unknown style."
-msgstr "Style inconnu."
+msgstr "Stile sconosciuto."

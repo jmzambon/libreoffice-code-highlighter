@@ -33,137 +33,97 @@ msgid "Update impossible: no formatting attribute associated with this code."
 msgstr "Update impossible: no formatting attribute associated with this code."
 
 #: highlight.py:402
-msgid "label_lang"
+msgid "Language"
 msgstr "Language"
 
 #: highlight.py:402
-msgid "label_lang_tip"
-msgstr ""
-
-#: highlight.py:402
-msgid "label_style"
+msgid "Style"
 msgstr "Style"
 
 #: highlight.py:402
-msgid "label_style_tip"
-msgstr ""
-
-#: highlight.py:402
-msgid "check_col_bg"
+msgid "Set ~background color"
 msgstr "Set ~background color"
 
 #: highlight.py:402
-msgid "check_col_bg_tip"
+msgid "Use the background color provided by the style."
 msgstr "Use the background color provided by the style."
 
 #: highlight.py:402
-msgid "check_charstyles"
+msgid "Use character ~styles"
 msgstr "Use character ~styles"
 
 #: highlight.py:402
-msgid "check_charstyles_tip"
+msgid "When possible, code highlighting will be based on character styles."
 msgstr "When possible, code highlighting will be based on character styles."
 
 #: highlight.py:402
-msgid "check_linenb"
+msgid "Add ~line numbering"
 msgstr "Add ~line numbering"
 
 #: highlight.py:402
-msgid "check_linenb_tip"
+msgid "Active or deactivate line numbers."
 msgstr "Active or deactivate line numbers."
 
 #: highlight.py:402
-msgid "nb_line"
+msgid "Line numbering"
 msgstr "Line numbering"
 
 #: highlight.py:402
-msgid "nb_line_tip"
-msgstr ""
-
-#: highlight.py:402
-msgid "cs_line"
+msgid "Character styles"
 msgstr "Character styles"
 
 #: highlight.py:402
-msgid "cs_line_tip"
-msgstr ""
-
-#: highlight.py:402
-msgid "lbl_nb_start"
+msgid "Start at"
 msgstr "Start at"
 
 #: highlight.py:402
-msgid "lbl_nb_start_tip"
-msgstr ""
-
-#: highlight.py:402
-msgid "lbl_nb_ratio"
+msgid "Height (%)"
 msgstr "Height (%)"
 
 #: highlight.py:402
-msgid "lbl_nb_ratio_tip"
-msgstr ""
-
-#: highlight.py:402
-msgid "lbl_nb_sep"
+msgid "Separator"
 msgstr "Separator"
 
 #: highlight.py:402
-msgid "lbl_nb_sep_tip"
+msgid "Use \\t to insert tabulation"
 msgstr "Use \\t to insert tabulation"
 
 #: highlight.py:402
-msgid "lbl_nb_pad"
+msgid "Padding symbol"
 msgstr "Padding symbol"
 
 #: highlight.py:402
-msgid "lbl_nb_pad_tip"
+msgid "Character to fill the leading space (0 for 01 for example)"
 msgstr "Character to fill the leading space (0 for 01 for example)"
 
 #: highlight.py:402
-msgid "lbl_cs_rootstyle"
+msgid "Parent character style"
 msgstr "Parent character style"
 
 #: highlight.py:402
-msgid "lbl_cs_rootstyle_tip"
+msgid "Use an existing character style as root style."
 msgstr "Use an existing character style as root style."
 
 #: highlight.py:402
-msgid "pygments_ver"
+msgid "Build upon Pygments {}"
 msgstr "Build upon Pygments {}"
 
 #: highlight.py:402
-msgid "pygments_ver_tip"
-msgstr ""
-
-#: highlight.py:402
-msgid "preview"
+msgid "Preview"
 msgstr "Preview"
 
 #: highlight.py:402
-msgid "preview_tip"
-msgstr ""
-
-#: highlight.py:402
-msgid "topage1"
+msgid "Back"
 msgstr "Back"
 
 #: highlight.py:402
-msgid "topage1_tip"
-msgstr ""
-
-#: highlight.py:402
-msgid "topage2"
+msgid "More..."
 msgstr "More..."
-
-#: highlight.py:402
-msgid "topage2_tip"
-msgstr ""
 
 #: highlight.py:455
 msgid "Unsupported language."
-msgstr ""
+msgstr "Unsupported language."
 
 #: highlight.py:457
 msgid "Unknown style."
-msgstr ""
+msgstr "Unknown style."

@@ -211,13 +211,15 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             self.inlinesnippet = False
             self.activepreviews = 0
             self.lexername = None
+
             # install gettext
-            ps = self.create("com.sun.star.util.PathSubstitution")
-            vlang = ps.getSubstituteVariableValue("vlang")
-            lang = vlang.split("-")[0]
             locdir = os.path.join(uno.fileUrlToSystemPath(self.extpath), "locales")
-            print(locdir)
-            gtlang = gettext.translation('ch2', localedir=locdir, languages=[lang, 'en'])
+            logger.debug(f'Locales folder: {locdir}')
+            # ps = self.create("com.sun.star.util.PathSubstitution")
+            # vlang = ps.getSubstituteVariableValue("vlang")
+            # lang = vlang.split("-")[0]
+            # gtlang = gettext.translation('ch2', localedir=locdir, languages=[lang], fallback=True)
+            gtlang = gettext.translation('ch2', localedir=locdir, fallback=True)
             gtlang.install()
             _ = gtlang.gettext
 
@@ -401,15 +403,25 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             "vnd.sun.star.extension://javahelps.codehighlighter/dialogs/CodeHighlighter2.xdl", self)
         logger.debug("--> creating dialog ok.")
 
-        # set localized strings
-        controlnames = ("label_lang", "label_style", "check_col_bg", "check_charstyles", "check_linenb",
-                        "nb_line", "cs_line", "lbl_nb_start", "lbl_nb_ratio", "lbl_nb_sep", "lbl_nb_pad",
-                        "lbl_cs_rootstyle", "pygments_ver", "preview", "topage1", "topage2")
+        # set dialog strings
+        controlnames = {"check_charstyles": (_("Use character ~styles"), _("When possible, code highlighting will be based on character styles.")),
+                        "check_col_bg": (_("Set ~background color"), _("Use the background color provided by the style.")),
+                        "check_linenb": (_("Add ~line numbering"), _("Active or deactivate line numbers.")),
+                        "lbl_nb_sep": (_("Separator"), _("Use \\t to insert tabulation")),
+                        "lbl_nb_pad": (_("Padding symbol"), _("Character to fill the leading space (0 for 01 for example)")),
+                        "lbl_cs_rootstyle": (_("Parent character style"), _("Use an existing character style as root style."))}
         for controlname in controlnames:
-            dialog.getControl(controlname).Model.setPropertyValues(("Label", "HelpText"), (_(controlname), _(controlname + "_tip")))
-        controlnames = ("nb_sep", "nb_pad", "cs_rootstyle")
+            dialog.getControl(controlname).Model.setPropertyValues(("Label", "HelpText"), controlnames[controlname])
+        controlnames = {"label_lang": _("Language"), "label_style": _("Style"), "nb_line": _("Line numbering"),
+                        "cs_line": _("Character styles"), "lbl_nb_start": _("Start at"), "lbl_nb_ratio": _("Height (%)"),
+                        "pygments_ver": _("Build upon Pygments {}"), "preview": _("Preview"), "topage1": _("Back"), "topage2": _("More...")}
         for controlname in controlnames:
-            dialog.getControl(controlname).Model.HelpText = _(f"lbl_{controlname}_tip")
+            dialog.getControl(controlname).Model.Label = controlnames[controlname]
+        controlnames = {"nb_sep": _("Use \\t to insert tabulation"),
+                        "nb_pad": _("Character to fill the leading space (0 for 01 for example)"),
+                        "cs_rootstyle": _("Use an existing character style as root style.")}
+        for controlname in controlnames:
+            dialog.getControl(controlname).Model.HelpText = controlnames[controlname]
 
         cb_lang = dialog.getControl('cb_lang')
         cb_style = dialog.getControl('cb_style')

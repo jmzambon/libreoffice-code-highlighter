@@ -1,0 +1,169 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR ORGANIZATION
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2024-08-09 21:44+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: pygettext.py 1.5\n"
+
+
+#: highlight.py:254
+#: highlight.py:275
+#: highlight.py:290
+#: highlight.py:997
+msgid "Unsupported selection."
+msgstr "Sélection invalide."
+
+#: highlight.py:268
+#: highlight.py:281
+#: highlight.py:301
+msgid "Nothing to highlight."
+msgstr "Rien à coloriser."
+
+#: highlight.py:298
+msgid "Update impossible: no formatting attribute associated with this code."
+msgstr "Mise à jour impossible : aucun attribut de mise en forme attaché à ce code."
+
+#: highlight.py:402
+msgid "label_lang"
+msgstr "Langage"
+
+#: highlight.py:402
+msgid "label_lang_tip"
+msgstr ""
+
+#: highlight.py:402
+msgid "label_style"
+msgstr "Style"
+
+#: highlight.py:402
+msgid "label_style_tip"
+msgstr ""
+
+#: highlight.py:402
+msgid "check_col_bg"
+msgstr "Utiliser la couleur de ~fond"
+
+#: highlight.py:402
+msgid "check_col_bg_tip"
+msgstr "Utiliser l'arrière-plan fourni par le style."
+
+#: highlight.py:402
+msgid "check_charstyles"
+msgstr "Utiliser les ~styles de caractère"
+
+#: highlight.py:402
+msgid "check_charstyles_tip"
+msgstr "Si possible, le code sera colorisé sur base des styles de caractère."
+
+#: highlight.py:402
+msgid "check_linenb"
+msgstr "Numéroter les ~lignes"
+
+#: highlight.py:402
+msgid "check_linenb_tip"
+msgstr "Affiche ou masque les numéros de ligne."
+
+#: highlight.py:402
+msgid "nb_line"
+msgstr "Numéros de ligne"
+
+#: highlight.py:402
+msgid "nb_line_tip"
+msgstr ""
+
+#: highlight.py:402
+msgid "cs_line"
+msgstr "Styles de caractères"
+
+#: highlight.py:402
+msgid "cs_line_tip"
+msgstr ""
+
+#: highlight.py:402
+msgid "lbl_nb_start"
+msgstr "Démarrer à"
+
+#: highlight.py:402
+msgid "lbl_nb_start_tip"
+msgstr ""
+
+#: highlight.py:402
+msgid "lbl_nb_ratio"
+msgstr "Taille (%)"
+
+#: highlight.py:402
+msgid "lbl_nb_ratio_tip"
+msgstr ""
+
+#: highlight.py:402
+msgid "lbl_nb_sep"
+msgstr "Séparateur"
+
+#: highlight.py:402
+msgid "lbl_nb_sep_tip"
+msgstr "Utiliser \\t pour une tabulation"
+
+#: highlight.py:402
+msgid "lbl_nb_pad"
+msgstr "Symbole d'alignement"
+
+#: highlight.py:402
+msgid "lbl_nb_pad_tip"
+msgstr "Caractère initial de substitution (0 pour 01 par exemple)"
+
+#: highlight.py:402
+msgid "lbl_cs_rootstyle"
+msgstr "Style de caractère parent"
+
+#: highlight.py:402
+msgid "lbl_cs_rootstyle_tip"
+msgstr "Utiliser un style de caractère existant comme style de base."
+
+#: highlight.py:402
+msgid "pygments_ver"
+msgstr "Basé sur Pygments {}"
+
+#: highlight.py:402
+msgid "pygments_ver_tip"
+msgstr ""
+
+#: highlight.py:402
+msgid "preview"
+msgstr "Aperçu"
+
+#: highlight.py:402
+msgid "preview_tip"
+msgstr ""
+
+#: highlight.py:402
+msgid "topage1"
+msgstr "Retour"
+
+#: highlight.py:402
+msgid "topage1_tip"
+msgstr ""
+
+#: highlight.py:402
+msgid "topage2"
+msgstr "Plus..."
+
+#: highlight.py:402
+msgid "topage2_tip"
+msgstr ""
+
+#: highlight.py:455
+msgid "Unsupported language."
+msgstr "Langage non supporté."
+
+#: highlight.py:457
+msgid "Unknown style."
+msgstr "Style inconnu."

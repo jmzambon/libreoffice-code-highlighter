@@ -21,7 +21,9 @@ import sys
 import uno
 import os.path
 import logging
+import gettext
 from com.sun.star.uno import RuntimeException
+
 
 try:
     LOGLEVEL = {0: logging.WARNING, 1: logging.INFO, 2: logging.DEBUG}
@@ -68,7 +70,7 @@ try:
     import pygments
     from pygments.lexers import get_all_lexers, get_lexer_by_name, guess_lexer
     from pygments.styles import get_all_styles, get_style_by_name
-    logger.info(f"Pygments imported from {pygments.__file__}.")
+    logger.info(f"Pygments located in {pygments.__path__}.")
     logger.info(f"Lexers imported from {pygments.lexers.__file__}.")
 
     # uno
@@ -87,8 +89,6 @@ try:
     from com.sun.star.task import XJobExecutor
     from com.sun.star.xml import AttributeData
 
-    # internal
-    import ch2_i18n
 except Exception:
     logger.exception("Something went wrong while loading python modules:")   # see issue #28
     raise
@@ -201,17 +201,26 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     self.doc.CurrentSelection.ImplementationName != "com.sun.star.drawing.SvxShapeCollection")
             self.cfg_access = self.create_cfg_access()
             self.options = self.load_options()
+            self.extpath, self.extver = self.getextinfos()
             self.setlogger()
             logger.debug(f"Code Highlighter started from {self.doc.Title}.")
-            logger.info(f"Using Pygments version {pygments.__version__}.")
             logger.info(f"Loaded options = {self.options}.")
             self.frame = self.doc.CurrentController.Frame
             self.dispatcher = self.create("com.sun.star.frame.DispatchHelper")
-            self.strings = ch2_i18n.getstrings(ctx)
             self.nolocale = Locale("zxx", "", "")
             self.inlinesnippet = False
             self.activepreviews = 0
             self.lexername = None
+            # install gettext
+            ps = self.create("com.sun.star.util.PathSubstitution")
+            vlang = ps.getSubstituteVariableValue("vlang")
+            lang = vlang.split("-")[0]
+            locdir = os.path.join(uno.fileUrlToSystemPath(self.extpath), "locales")
+            print(locdir)
+            gtlang = gettext.translation('ch2', localedir=locdir, languages=[lang, 'en'])
+            gtlang.install()
+            _ = gtlang.gettext
+
         except Exception:
             logger.exception("Error initializing python class CodeHighlighter:")
             raise
@@ -252,7 +261,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
 
         self.selection = self.check_selection()
         if self.selection == INVALID_SELECTION:
-            self.msgbox(self.strings["errsel1"])
+            self.msgbox(_("Unsupported selection."))
         elif self.selection:
             ret = self.choose_options()
             logger.debug("Undoing existing previews on dialog closing.")
@@ -266,20 +275,20 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     self.prepare_highlight(code_block)
         else:
             logger.debug("Current selection contains no text.")
-            self.msgbox(self.strings["errsel2"])
+            self.msgbox(_("Nothing to highlight."))
 
     def do_highlight_previous(self):
         '''Start code highlighting with current options as default.'''
 
         selection = self.check_selection()
         if selection == INVALID_SELECTION:
-            self.msgbox(self.strings["errsel1"])
+            self.msgbox(_("Unsupported selection."))
         elif selection:
             for code_block in selection:
                 self.prepare_highlight(code_block)
         else:
             logger.debug("Current selection contains no text.")
-            self.msgbox(self.strings["errsel2"])
+            self.msgbox(_("Nothing to highlight."))
 
     def do_update(self):
         '''Update already highlighted snippets based on options stored in codeblock tags.
@@ -288,7 +297,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         hasupdates = False
         selection = self.check_selection()
         if selection == INVALID_SELECTION:
-            self.msgbox(self.strings["errsel1"])
+            self.msgbox(_("Unsupported selection."))
         elif selection:
             for code_block in selection:
                 ret = self.prepare_highlight(code_block, updatecode=True)
@@ -296,10 +305,10 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     hasupdates = ret
             if not hasupdates:
                 logger.debug("Selection is not updatable.")
-                self.msgbox(self.strings["errsel3"])
+                self.msgbox(_("Update impossible: no formatting attribute associated with this code."))
         else:
             logger.debug("Current selection contains no text.")
-            self.msgbox(self.strings["errsel2"])
+            self.msgbox(_("Nothing to highlight."))
 
     def do_preview(self, dialog):
         logger.debug("Undoing existing previews before creating new ones.")
@@ -397,10 +406,10 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         "nb_line", "cs_line", "lbl_nb_start", "lbl_nb_ratio", "lbl_nb_sep", "lbl_nb_pad",
                         "lbl_cs_rootstyle", "pygments_ver", "preview", "topage1", "topage2")
         for controlname in controlnames:
-            dialog.getControl(controlname).Model.setPropertyValues(("Label", "HelpText"), self.strings[controlname])
+            dialog.getControl(controlname).Model.setPropertyValues(("Label", "HelpText"), (_(controlname), _(controlname + "_tip")))
         controlnames = ("nb_sep", "nb_pad", "cs_rootstyle")
         for controlname in controlnames:
-            dialog.getControl(controlname).Model.HelpText = self.strings["lbl_" + controlname][1]
+            dialog.getControl(controlname).Model.HelpText = _(f"lbl_{controlname}_tip")
 
         cb_lang = dialog.getControl('cb_lang')
         cb_style = dialog.getControl('cb_style')
@@ -435,27 +444,30 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         cs_rootstyle.Text = self.options['MasterCharStyle']
         logger.debug("--> filling controls ok.")
 
-        def getextver():
-            pip = self.ctx.getByName("/singletons/com.sun.star.deployment.PackageInformationProvider")
-            extensions = pip.getExtensionList()
-            for e in extensions:
-                if "javahelps.codehighlighter" in e:
-                    return e[1]
-            return ''
-        dialog.Title = dialog.Title.format(getextver())
+        dialog.Title = dialog.Title.format(self.extver)
         pygments_ver.Text = pygments_ver.Text.format(pygments.__version__)
         logger.debug("Dialog returned.")
-
         return dialog
+
+    def getextinfos(self):
+        pip = self.ctx.getByName("/singletons/com.sun.star.deployment.PackageInformationProvider")
+        extensions = pip.getExtensionList()
+        extid = "javahelps.codehighlighter"
+        extpath = pip.getPackageLocation(extid)
+        extver : "" 
+        for e in extensions:
+            if extid in e:
+                extver = e[1]
+        return extpath, extver
 
     def get_options_from_dialog(self, dialog):
         opt = {}
         lang = dialog.getControl('cb_lang').Text.strip() or 'automatic'
         style = dialog.getControl('cb_style').Text.strip() or 'default'
         if lang != 'automatic' and lang.lower() not in self.all_lexer_aliases:
-            self.msgbox(self.strings["errlang"])
+            self.msgbox(_("Unsupported language."))
         elif style not in self.all_styles:
-            self.msgbox(self.strings["errstyle"])
+            self.msgbox(_("Unknown style."))
         else:
             opt['Language'] = lang
             opt['Style'] = style
@@ -995,7 +1007,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             return hascode
 
         except AttributeError:
-            self.msgbox(self.strings["errsel1"])
+            self.msgbox(_("Unsupported selection."))
             logger.exception("")
         except Exception:
             self.msgbox(traceback.format_exc())

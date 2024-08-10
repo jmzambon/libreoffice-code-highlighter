@@ -5,125 +5,129 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2024-08-09 21:44+0200\n"
+"POT-Creation-Date: 2024-08-10 20:47+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
 
-
-#: highlight.py:254
-#: highlight.py:275
-#: highlight.py:290
-#: highlight.py:997
+#: codehighlighter/python/highlight.py:266
+#: codehighlighter/python/highlight.py:287
+#: codehighlighter/python/highlight.py:302
+#: codehighlighter/python/highlight.py:1022
 msgid "Unsupported selection."
 msgstr "Sélection invalide."
 
-#: highlight.py:268
-#: highlight.py:281
-#: highlight.py:301
+#: codehighlighter/python/highlight.py:280
+#: codehighlighter/python/highlight.py:293
+#: codehighlighter/python/highlight.py:313
 msgid "Nothing to highlight."
 msgstr "Rien à coloriser."
 
-#: highlight.py:298
+#: codehighlighter/python/highlight.py:310
 msgid "Update impossible: no formatting attribute associated with this code."
-msgstr "Mise à jour impossible : aucun attribut de mise en forme attaché à ce code."
+msgstr ""
+"Mise à jour impossible : aucun attribut de mise en forme attaché à ce code."
 
-#: highlight.py:402
-msgid "Language"
-msgstr "Langage"
-
-#: highlight.py:402
-msgid "Style"
-msgstr "Style"
-
-#: highlight.py:402
-msgid "Set ~background color"
-msgstr "Utiliser la couleur de ~fond"
-
-#: highlight.py:402
-msgid "Use the background color provided by the style."
-msgstr "Utiliser l'arrière-plan fourni par le style."
-
-#: highlight.py:402
+#: codehighlighter/python/highlight.py:407
 msgid "Use character ~styles"
 msgstr "Utiliser les ~styles de caractère"
 
-#: highlight.py:402
+#: codehighlighter/python/highlight.py:407
 msgid "When possible, code highlighting will be based on character styles."
 msgstr "Si possible, le code sera colorisé sur base des styles de caractère."
 
-#: highlight.py:402
-msgid "Add ~line numbering"
-msgstr "Numéroter les ~lignes"
+#: codehighlighter/python/highlight.py:408
+msgid "Set ~background color"
+msgstr "Utiliser la couleur de ~fond"
 
-#: highlight.py:402
+#: codehighlighter/python/highlight.py:408
+msgid "Use the background color provided by the style."
+msgstr "Utiliser l'arrière-plan fourni par le style."
+
+#: codehighlighter/python/highlight.py:409
 msgid "Active or deactivate line numbers."
 msgstr "Affiche ou masque les numéros de ligne."
 
-#: highlight.py:402
-msgid "Line numbering"
-msgstr "Numéros de ligne"
+#: codehighlighter/python/highlight.py:409
+msgid "Add ~line numbering"
+msgstr "Numéroter les ~lignes"
 
-#: highlight.py:402
-msgid "Character styles"
-msgstr "Styles de caractères"
-
-#: highlight.py:402
-msgid "Start at"
-msgstr "Démarrer à"
-
-#: highlight.py:402
-msgid "Height (%)"
-msgstr "Taille (%)"
-
-#: highlight.py:402
+#: codehighlighter/python/highlight.py:410
 msgid "Separator"
 msgstr "Séparateur"
 
-#: highlight.py:402
+#: codehighlighter/python/highlight.py:410
+#: codehighlighter/python/highlight.py:420
 msgid "Use \\t to insert tabulation"
 msgstr "Utiliser \\t pour une tabulation"
 
-#: highlight.py:402
+#: codehighlighter/python/highlight.py:411
 msgid "Padding symbol"
 msgstr "Symbole d'alignement"
 
-#: highlight.py:402
+#: codehighlighter/python/highlight.py:411
+#: codehighlighter/python/highlight.py:421
 msgid "Character to fill the leading space (0 for 01 for example)"
 msgstr "Caractère initial de substitution (0 pour 01 par exemple)"
 
-#: highlight.py:402
+#: codehighlighter/python/highlight.py:412
 msgid "Parent character style"
 msgstr "Style de caractère parent"
 
-#: highlight.py:402
+#: codehighlighter/python/highlight.py:412
+#: codehighlighter/python/highlight.py:422
 msgid "Use an existing character style as root style."
 msgstr "Utiliser un style de caractère existant comme style de base."
 
-#: highlight.py:402
-msgid "Build upon Pygments {}"
-msgstr "Basé sur Pygments {}"
+#: codehighlighter/python/highlight.py:415
+msgid "Language"
+msgstr "Langage"
 
-#: highlight.py:402
-msgid "Preview"
-msgstr "Aperçu"
+#: codehighlighter/python/highlight.py:415
+msgid "Line numbering"
+msgstr "Numéros de ligne"
 
-#: highlight.py:402
+#: codehighlighter/python/highlight.py:415
+msgid "Style"
+msgstr "Style"
+
+#: codehighlighter/python/highlight.py:416
+msgid "Character styles"
+msgstr "Styles de caractères"
+
+#: codehighlighter/python/highlight.py:416
+msgid "Height (%)"
+msgstr "Taille (%)"
+
+#: codehighlighter/python/highlight.py:416
+msgid "Start at"
+msgstr "Démarrer à"
+
+#: codehighlighter/python/highlight.py:417
 msgid "Back"
 msgstr "Retour"
 
-#: highlight.py:402
+#: codehighlighter/python/highlight.py:417
+msgid "Build upon Pygments {}"
+msgstr "Basé sur Pygments {}"
+
+#: codehighlighter/python/highlight.py:417
 msgid "More..."
 msgstr "Plus..."
 
-#: highlight.py:455
+#: codehighlighter/python/highlight.py:417
+msgid "Preview"
+msgstr "Aperçu"
+
+#: codehighlighter/python/highlight.py:480
 msgid "Unsupported language."
 msgstr "Langage non supporté."
 
-#: highlight.py:457
+#: codehighlighter/python/highlight.py:482
 msgid "Unknown style."
 msgstr "Style inconnu."

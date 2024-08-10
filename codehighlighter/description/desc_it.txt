@@ -1,0 +1,3 @@
+Colorare il codice sorgente di oltre 350 lingue in più di 40 stili.
+Copiare e incollare il codice, selezionarlo (o il suo contenitore),
+scegliere < Formato -> Colora il codice >.

@@ -17,7 +17,7 @@
   <dlg:numericfield dlg:id="nb_ratio" dlg:tab-index="6" dlg:left="87" dlg:top="47" dlg:width="47" dlg:height="15" dlg:page="2" dlg:valign="center" dlg:strict-format="true" dlg:decimal-accuracy="0" dlg:value-min="50" dlg:value-max="100" dlg:spin="true" dlg:repeat="50"/>
   <dlg:textfield dlg:id="nb_sep" dlg:tab-index="7" dlg:left="87" dlg:top="64" dlg:width="15" dlg:height="15" dlg:page="2" dlg:valign="center"/>
   <dlg:textfield dlg:id="nb_pad" dlg:tab-index="8" dlg:left="87" dlg:top="82" dlg:width="15" dlg:height="15" dlg:page="2" dlg:valign="center" dlg:maxlength="1"/>
-  <dlg:textfield dlg:id="cs_rootstyle" dlg:tab-index="9" dlg:left="87" dlg:top="121" dlg:width="50" dlg:height="15" dlg:page="2" dlg:valign="center"/>
+  <dlg:textfield dlg:id="cs_rootstyle" dlg:tab-index="9" dlg:left="97" dlg:top="121" dlg:width="50" dlg:height="15" dlg:page="2" dlg:valign="center"/>
   <dlg:button dlg:id="preview" dlg:tab-index="10" dlg:left="157" dlg:top="19" dlg:width="50" dlg:height="16">
    <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.UNO:preview" script:language="UNO"/>
   </dlg:button>
@@ -34,7 +34,7 @@
   <dlg:text dlg:id="lbl_nb_sep" dlg:tab-index="21" dlg:left="10" dlg:top="65" dlg:width="73" dlg:height="15" dlg:page="2" dlg:align="right" dlg:valign="center"/>
   <dlg:text dlg:id="lbl_nb_pad" dlg:tab-index="22" dlg:left="10" dlg:top="82" dlg:width="73" dlg:height="15" dlg:page="2" dlg:align="right" dlg:valign="center"/>
   <dlg:fixedline dlg:style-id="1" dlg:id="cs_line" dlg:tab-index="23" dlg:left="10" dlg:top="107" dlg:width="137" dlg:height="10" dlg:page="2"/>
-  <dlg:text dlg:id="lbl_cs_rootstyle" dlg:tab-index="24" dlg:left="10" dlg:top="121" dlg:width="73" dlg:height="15" dlg:page="2" dlg:align="right" dlg:valign="center"/>
+  <dlg:text dlg:id="lbl_cs_rootstyle" dlg:tab-index="24" dlg:left="10" dlg:top="121" dlg:width="83" dlg:height="15" dlg:page="2" dlg:align="right" dlg:valign="center"/>
   <dlg:button dlg:id="topage2" dlg:tab-index="25" dlg:left="157" dlg:top="81" dlg:width="50" dlg:height="16" dlg:page="1">
    <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.UNO:topage2" script:language="UNO"/>
   </dlg:button>

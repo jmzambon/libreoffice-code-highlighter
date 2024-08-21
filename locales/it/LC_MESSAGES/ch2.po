@@ -30,9 +30,7 @@ msgstr "Nulla da evidenziare."
 
 #: codehighlighter/python/highlight.py:310
 msgid "Update impossible: no formatting attribute associated with this code."
-msgstr ""
-"Aggiornamento impossibile: nessun attributo di formattazione associato a "
-"questo codice."
+msgstr "Aggiornamento impossibile: nessun attributo di formattazione associato a questo codice."
 
 #: codehighlighter/python/highlight.py:407
 msgid "Use character ~styles"
@@ -40,9 +38,7 @@ msgstr "Usa ~stili dei carattere"
 
 #: codehighlighter/python/highlight.py:407
 msgid "When possible, code highlighting will be based on character styles."
-msgstr ""
-"Quando possibile, l'evidenziazione del codice si baserà sugli stili dei "
-"caratteri."
+msgstr "Quando possibile, l'evidenziazione del codice si baserà sugli stili dei caratteri."
 
 #: codehighlighter/python/highlight.py:408
 msgid "Set ~background color"

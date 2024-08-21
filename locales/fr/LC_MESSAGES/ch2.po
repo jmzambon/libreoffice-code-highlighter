@@ -30,8 +30,7 @@ msgstr "Rien à coloriser."
 
 #: codehighlighter/python/highlight.py:310
 msgid "Update impossible: no formatting attribute associated with this code."
-msgstr ""
-"Mise à jour impossible : aucun attribut de mise en forme attaché à ce code."
+msgstr "Mise à jour impossible : aucun attribut de mise en forme attaché à ce code."
 
 #: codehighlighter/python/highlight.py:407
 msgid "Use character ~styles"

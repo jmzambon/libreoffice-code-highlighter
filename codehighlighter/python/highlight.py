@@ -23,6 +23,7 @@ import os.path
 import logging
 import gettext
 from com.sun.star.uno import RuntimeException
+from com.sun.star.util import InvalidStateException
 
 
 try:
@@ -199,6 +200,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             self.charstylesavailable = (
                     'CharacterStyles' in self.doc.StyleFamilies and
                     self.doc.CurrentSelection.ImplementationName != "com.sun.star.drawing.SvxShapeCollection")
+            self.parastyles = self.loadparastyles()
+            self.parastyle = None
             self.cfg_access = self.create_cfg_access()
             self.options = self.load_options()
             self.extpath, self.extver = self.getextinfos()
@@ -231,6 +234,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
     def trigger(self, arg):
         logger.debug(f"Code Highlighter triggered with argument '{arg}'.")
         try:
+            self.alert_on_empty_selection = True
             getattr(self, 'do_'+arg)()
         except Exception:
             logger.exception(f"Error triggering < self.do_{arg}() > function:")
@@ -252,10 +256,22 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             self.do_preview(dialog)
             dialog.getControl(focus[dialog.Model.Step]).setFocus()
             return True
+        elif method == "parastyle":
+            try:
+                lb_parastyle = dialog.getControl("lb_parastyle")
+                locstylename = lb_parastyle.SelectedItem
+                if locstylename == "":
+                    self.msgbox(_("Please select a paragraph style."))
+                else:
+                    self.parastyle = self.parastyles[locstylename]
+                    dialog.endDialog(2)
+                return True
+            except Exception:
+                traceback.print_exc()
         return False
 
     def getSupportedMethodNames(self):
-        return 'preview', 'topage1', 'topage2'
+        return 'preview', 'topage1', 'topage2', 'parastyle'
 
     # main functions
     def do_highlight(self):
@@ -264,18 +280,26 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         self.selection = self.check_selection()
         if self.selection == INVALID_SELECTION:
             self.msgbox(_("Unsupported selection."))
+        elif not self.selection and not self.parastyles:
+            logger.debug("Current selection contains no text and no paragraph style is in use.")
+            self.msgbox(_("Nothing to highlight."))
+            return
+
+        ret = self.choose_options()
+        if ret == 2:
+            self.highlight_parastyle()
+            return
         elif self.selection:
-            ret = self.choose_options()
             logger.debug("Undoing existing previews on dialog closing.")
             while self.activepreviews:
                 self.undomanager.undo()
                 self.undomanager.clearRedo()
                 self.activepreviews -= 1
-            if ret:
+            if ret == 1:
                 logger.debug("Starting highlights.")
                 for code_block in self.selection:
                     self.prepare_highlight(code_block)
-        else:
+        elif ret != 0:
             logger.debug("Current selection contains no text.")
             self.msgbox(_("Nothing to highlight."))
 
@@ -378,6 +402,13 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         values = self.cfg_access.getPropertyValues(properties)
         return dict(zip(properties, values))
 
+    def loadparastyles(self):
+        if self.doc.supportsService('com.sun.star.text.GenericTextDocument'):
+            parastyles = self.doc.StyleFamilies.ParagraphStyles
+            return {parastyles.getByName(name).DisplayName: name for name in parastyles.ElementNames if name != "Standard" and parastyles.getByName(name).isInUse()}
+        else:
+            return {}
+
     def getallstyles(self):
         all_styles = list(get_all_styles()) + ['libreoffice-classic', 'libreoffice-dark']
         return sorted(all_styles, key=lambda x: (x != 'default', x.casefold()))
@@ -414,12 +445,14 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             dialog.getControl(controlname).Model.setPropertyValues(("Label", "HelpText"), controlnames[controlname])
         controlnames = {"label_lang": _("Language"), "label_style": _("Style"), "nb_line": _("Line numbering"),
                         "cs_line": _("Character styles"), "lbl_nb_start": _("Start at"), "lbl_nb_ratio": _("Height (%)"),
+                        "label_parastyle": _("Highlight all codes formatted with paragraph style:"), "btn_parastyle": _("Highlight all"),
                         "pygments_ver": _("Build upon Pygments {}"), "preview": _("Preview"), "topage1": _("Back"), "topage2": _("More...")}
         for controlname in controlnames:
             dialog.getControl(controlname).Model.Label = controlnames[controlname]
         controlnames = {"nb_sep": _("Use \\t to insert tabulation"),
                         "nb_pad": _("Character to fill the leading space (0 for 01 for example)"),
-                        "cs_rootstyle": _("Use an existing character style as root style.")}
+                        "cs_rootstyle": _("Use an existing character style as root style."),
+                        "lb_parastyle": _("Highlight every code snippet in the document that is formatted with the given paragraph style.")}
         for controlname in controlnames:
             dialog.getControl(controlname).Model.HelpText = controlnames[controlname]
 
@@ -433,6 +466,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         nb_ratio = dialog.getControl('nb_ratio')
         nb_sep = dialog.getControl('nb_sep')
         nb_pad = dialog.getControl('nb_pad')
+        lb_parastyle = dialog.getControl('lb_parastyle')
         cs_rootstyle = dialog.getControl('cs_rootstyle')
         pygments_ver = dialog.getControl('pygments_ver')
 
@@ -445,6 +479,14 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         if style in self.all_styles:
             cb_style.Text = style
         cb_style.addItems(self.all_styles, 0)
+
+        if self.parastyles:
+            lb_parastyle.addItems(sorted(self.parastyles.keys(), key=str.casefold), 0)
+        else:
+            lb_parastyle.setEnable(False)
+            lb_parastyle.Model.HelpText += _(" (There is currently no style in use.)")
+            dialog.getControl("btn_parastyle").setEnable(False)
+            dialog.getControl("para_line").setEnable(False)
 
         check_col_bg.State = self.options['ColourizeBackground']
         check_charstyles.State = self.options['UseCharStyles']
@@ -496,23 +538,27 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
     def choose_options(self):
         '''
         Get options choice.
-        Dialog return values: 0 = Canceled, 1 = OK
+        Dialog return values:
+            0 = Canceled,
+            1 = Highlight selection
+            2 = Highlight paragraph style
         '''
 
         # dialog.setVisible(True)
         dialog = self.create_dialog()
-        if dialog.execute() == 0:
+        ret = dialog.execute()
+        if ret == 0:
             logger.debug("Dialog canceled.")
-            return False
+            return ret
 
         choices = self.get_options_from_dialog(dialog)
         if not choices:
-            return False
+            return 0
 
         self.save_options(choices)
         logger.debug("Dialog validated and options saved.")
         logger.info(f"Updated options = {self.options}.")
-        return True
+        return ret
 
     def save_options(self, choices):
         self.options.update(choices)
@@ -705,22 +751,21 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     code_blocks.append(code_block)
                 elif selected_item.Count == 1:
                     code_block = selected_item[0]
-                    if code_block.TextFrame and code_block.Text.String.strip():
+                    self.checkinlinesnippet(code_block)
+                    if self.inlinesnippet:
+                        udas = code_block.TextUserDefinedAttributes
+                    else:
+                        udas = code_block.ParaUserDefinedAttributes
+                    if udas and SNIPPETTAGID in udas:
+                        cursor = self.ensure_paragraphs(code_block)
+                        self.doc.CurrentController.select(cursor)
+                        code_blocks.append(self.doc.CurrentSelection[0])
+                    elif code_block.TextFrame and code_block.Text.String.strip():
                         code_blocks.append(code_block.TextFrame)
                     elif code_block.TextTable and code_block.Text.String.strip():
                         cellname = code_block.Cell.CellName
                         cell = code_block.TextTable.getCellByName(cellname)
                         code_blocks.append(cell)
-                    else:
-                        self.checkinlinesnippet(code_block)
-                        if self.inlinesnippet:
-                            udas = code_block.TextUserDefinedAttributes
-                        else:
-                            udas = code_block.ParaUserDefinedAttributes
-                        if udas and SNIPPETTAGID in udas:
-                            cursor = self.ensure_paragraphs(code_block)
-                            self.doc.CurrentController.select(cursor)
-                            code_blocks.append(self.doc.CurrentSelection[0])
 
         # TEXT FRAME
         elif selected_item.ImplementationName == "SwXTextFrame":
@@ -833,7 +878,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     logger.debug("Custom undo action added.")
 
             # PLAIN TEXT
-            elif code_block.ImplementationName == "SwXTextRange":
+            elif code_block.ImplementationName in ("SwXTextRange", "SwXTextCursor"):
                 logger.debug("Dealing with plain text.")
                 self.checkinlinesnippet(code_block)
 
@@ -888,7 +933,10 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         self.tagcodeblock(code_block, lexer.name)
                         controller.ViewCursor.collapseToEnd()
                     finally:
-                        self.undomanager.leaveUndoContext()
+                        try:
+                            self.undomanager.leaveUndoContext()
+                        except InvalidStateException:
+                            pass
 
             # TEXT FRAME
             elif code_block.ImplementationName == "SwXTextFrame":
@@ -897,8 +945,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
 
                 if updatecode:
                     # Frame's UserDefinedAttributes can't be reverted with undo manager -> using text cursor instead
-                    c = code_block.createTextCursorByRange(code_block)
-                    udas = c.ParaUserDefinedAttributes
+                    udas = code_block.UserDefinedAttributes
                     if udas and SNIPPETTAGID in udas:
                         options = literal_eval(udas.getByName(SNIPPETTAGID).Value)
                         self.options.update(options)
@@ -931,7 +978,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                             self.show_line_numbers(code_block, True, charcolor=lineno_color)
                         # save options as user defined attribute
                         cursor = code_block.createTextCursorByRange(code_block)
-                        self.tagcodeblock(cursor, lexer.name)
+                        self.tagcodeblock(code_block, lexer.name)
                         controller.select(code_block)
                     finally:
                         self.undomanager.leaveUndoContext()
@@ -972,7 +1019,10 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                             self.show_line_numbers(code_block, True, charcolor=lineno_color)
                         # save options as user defined attribute
                         self.tagcodeblock(code_block, lexer.name)
-                        controller.ViewCursor.collapseToEnd()
+                        try:
+                            controller.ViewCursor.collapseToEnd()
+                        except RuntimeException:
+                            pass
                     finally:
                         self.undomanager.leaveUndoContext()
 
@@ -1180,48 +1230,100 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             if self.inlinesnippet:
                 # inline snippet, abort expansion
                 return c
+            c.collapseToStart()   # do not remove, needed for self.highlight_parastyle()
             c.gotoStartOfParagraph(False)
             c.gotoRange(selected_code.End, True)
             c.gotoEndOfParagraph(True)
         else:
             if self.inlinesnippet:
                 udas = selected_code.TextUserDefinedAttributes
-                options = udas.getByName(SNIPPETTAGID).Value
-                while c.goLeft(1, False):
-                    udas2 = c.TextUserDefinedAttributes
-                    if not (udas2 and SNIPPETTAGID in udas2 and udas2.getByName(SNIPPETTAGID).Value == options):
-                        break
+                if SNIPPETTAGID in udas:
+                    options = udas.getByName(SNIPPETTAGID).Value
+                    while c.goLeft(1, False):
+                        udas2 = c.TextUserDefinedAttributes
+                        if not (udas2 and SNIPPETTAGID in udas2 and udas2.getByName(SNIPPETTAGID).Value == options):
+                            break
 
-                c.gotoRange(selected_code, True)
-                while c.goRight(1, True):
-                    udas2 = c.TextUserDefinedAttributes
-                    if not (udas2 and SNIPPETTAGID in udas2 and udas2.getByName(SNIPPETTAGID).Value == options):
-                        c.goLeft(1, True)
-                        break
+                    c.gotoRange(selected_code, True)
+                    while c.goRight(1, True):
+                        udas2 = c.TextUserDefinedAttributes
+                        if not (udas2 and SNIPPETTAGID in udas2 and udas2.getByName(SNIPPETTAGID).Value == options):
+                            c.goLeft(1, True)
+                            break
             else:
                 udas = selected_code.ParaUserDefinedAttributes
-                options = udas.getByName(SNIPPETTAGID).Value
-                startpara = c.TextParagraph
-                endpara = c.TextParagraph
-                while c.gotoPreviousParagraph(False):
-                    udas2 = c.ParaUserDefinedAttributes
-                    if (udas2 and SNIPPETTAGID in udas2 and udas2.getByName(SNIPPETTAGID).Value == options):
-                        startpara = c.TextParagraph
-                    else:
-                        break
+                if SNIPPETTAGID in udas:
+                    options = udas.getByName(SNIPPETTAGID).Value
+                    startpara = c.TextParagraph
+                    endpara = c.TextParagraph
+                    while c.gotoPreviousParagraph(False):
+                        udas2 = c.ParaUserDefinedAttributes
+                        if (udas2 and SNIPPETTAGID in udas2 and udas2.getByName(SNIPPETTAGID).Value == options):
+                            startpara = c.TextParagraph
+                        else:
+                            break
 
-                c.gotoRange(selected_code, False)
-                while c.gotoNextParagraph(False):
-                    udas2 = c.ParaUserDefinedAttributes
-                    if (udas2 and SNIPPETTAGID in udas2 and udas2.getByName(SNIPPETTAGID).Value == options):
-                        endpara = c.TextParagraph
-                    else:
-                        break
-                c.gotoRange(startpara.Start, False)
-                c.gotoRange(endpara.End, True)
+                    c.gotoRange(selected_code, False)
+                    while c.gotoNextParagraph(False):
+                        udas2 = c.ParaUserDefinedAttributes
+                        if (udas2 and SNIPPETTAGID in udas2 and udas2.getByName(SNIPPETTAGID).Value == options):
+                            endpara = c.TextParagraph
+                        else:
+                            break
+                    c.gotoRange(startpara.Start, False)
+                    c.gotoRange(endpara.End, True)
         return c
 
     # dev tools
+    def highlight_parastyle(self):
+        def finish_code_block(cursor):
+            if cursor.Cell and cursor.String == cursor.Text.String:
+                return cursor.Cell
+            elif cursor.TextFrame and cursor.String == cursor.Text.String:
+                return cursor.TextFrame
+            else:
+                return cursor
+
+        def browse_all_paras(container=None):
+            isroot = None
+            if not container:
+                isroot = True
+                container = self.doc.Text
+            
+            cursor = None
+            for para in container:
+                if not para.supportsService('com.sun.star.text.Paragraph'):
+                    continue
+                if para.ParaStyleName == self.parastyle:
+                    if not cursor:
+                        cursor = container.createTextCursorByRange(para.Start)
+                    else:
+                        cursor.gotoRange(para.End, True)
+                elif cursor:
+
+                    code_blocks.append(cursor)
+                    cursor = None
+            # if code_block is also the last paragraph of the text
+            if cursor:
+                code_blocks.append(cursor)
+            # browse frames and text tables
+            if isroot:
+                for frame in self.doc.TextFrames:
+                    browse_all_paras(frame)
+
+                for table in self.doc.TextTables:
+                    cellnames = table.CellNames
+                    for cellname in cellnames:
+                        cell = table.getCellByName(cellname)
+                        browse_all_paras(cell)
+
+        code_blocks = []
+        browse_all_paras()
+        if code_blocks:
+            for code_block in code_blocks:
+                self.prepare_highlight(finish_code_block(code_block))
+            self.msgbox(_("Done."))
+
     def update_all(self, usetags):
         '''Update all formatted code in the active document.
         DO NOT PUBLISH, ALPHA VERSION'''

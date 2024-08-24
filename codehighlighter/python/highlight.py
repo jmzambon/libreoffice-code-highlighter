@@ -223,8 +223,9 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             # lang = vlang.split("-")[0]
             # gtlang = gettext.translation('ch2', localedir=locdir, languages=[lang], fallback=True)
             gtlang = gettext.translation('ch2', localedir=locdir, fallback=True)
-            gtlang.install()
+            gtlang.install(names=['_', 'ngettext'])
             _ = gtlang.gettext
+            ngettext = gtlang.ngettext
 
         except Exception:
             logger.exception("Error initializing python class CodeHighlighter:")
@@ -508,7 +509,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         extensions = pip.getExtensionList()
         extid = "javahelps.codehighlighter"
         extpath = pip.getPackageLocation(extid)
-        extver : "" 
+        extver = ""
         for e in extensions:
             if extid in e:
                 extver = e[1]
@@ -1289,7 +1290,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             if not container:
                 isroot = True
                 container = self.doc.Text
-            
+
             cursor = None
             for para in container:
                 if not para.supportsService('com.sun.star.text.Paragraph'):
@@ -1322,7 +1323,10 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         if code_blocks:
             for code_block in code_blocks:
                 self.prepare_highlight(finish_code_block(code_block))
-            self.msgbox(_("Done."))
+            message = ngettext("{} code snippet has been formatted.",
+                               "{} code snippets have been formatted.",
+                               len(code_blocks))
+            self.msgbox(message.format(len(code_blocks)))
 
     def update_all(self, usetags):
         '''Update all formatted code in the active document.

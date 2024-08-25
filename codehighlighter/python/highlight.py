@@ -80,7 +80,7 @@ try:
     from com.sun.star.awt.FontWeight import NORMAL as W_NORMAL, BOLD as W_BOLD
     from com.sun.star.awt.FontSlant import NONE as SL_NONE, ITALIC as SL_ITALIC
     from com.sun.star.awt.FontUnderline import NONE as UL_NONE, SINGLE as UL_SINGLE
-    from com.sun.star.awt.MessageBoxType import ERRORBOX
+    from com.sun.star.awt.MessageBoxType import ERRORBOX, INFOBOX
     from com.sun.star.beans import PropertyValue
     from com.sun.star.container import ElementExistException
     from com.sun.star.document import XUndoAction
@@ -98,6 +98,7 @@ except Exception:
 CHARSTYLEID = "ch2_"
 SNIPPETTAGID = CHARSTYLEID + "options"
 INVALID_SELECTION = "Invalid"
+SELECTED_PARASTYLE = {}
 
 
 class UndoAction(unohelper.Base, XUndoAction):
@@ -201,7 +202,6 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                     'CharacterStyles' in self.doc.StyleFamilies and
                     self.doc.CurrentSelection.ImplementationName != "com.sun.star.drawing.SvxShapeCollection")
             self.parastyles = self.loadparastyles()
-            self.parastyle = None
             self.cfg_access = self.create_cfg_access()
             self.options = self.load_options()
             self.extpath, self.extver = self.getextinfos()
@@ -264,7 +264,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 if locstylename == "":
                     self.msgbox(_("Please select a paragraph style."))
                 else:
-                    self.parastyle = self.parastyles[locstylename]
+                    SELECTED_PARASTYLE[self.doc.RuntimeUID] = self.parastyles[locstylename]
                     dialog.endDialog(2)
                 return True
             except Exception:
@@ -483,6 +483,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
 
         if self.parastyles:
             lb_parastyle.addItems(sorted(self.parastyles.keys(), key=str.casefold), 0)
+            if SELECTED_PARASTYLE and SELECTED_PARASTYLE.get(self.doc.RuntimeUID, None) in self.parastyles:
+                lb_parastyle.selectItem(SELECTED_PARASTYLE.get(self.doc.RuntimeUID, None), True)
         else:
             lb_parastyle.setEnable(False)
             if self.doc.supportsService('com.sun.star.text.GenericTextDocument'):
@@ -1298,7 +1300,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             for para in container:
                 if not para.supportsService('com.sun.star.text.Paragraph'):
                     continue
-                if para.ParaStyleName == self.parastyle:
+                if para.ParaStyleName == SELECTED_PARASTYLE[self.doc.RuntimeUID]:
                     if not cursor:
                         cursor = container.createTextCursorByRange(para.Start)
                     else:
@@ -1329,7 +1331,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             message = ngettext("{} code snippet has been formatted.",
                                "{} code snippets have been formatted.",
                                len(code_blocks))
-            self.msgbox(message.format(len(code_blocks)))
+            self.msgbox(message.format(len(code_blocks)), boxtype=INFOBOX, title=_("Highlight all"))
 
     def update_all(self, usetags):
         '''Update all formatted code in the active document.

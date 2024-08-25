@@ -38,6 +38,11 @@ You can download the extension either from the official LibreOffice extensions p
 - or *Format -> Code Highlighter 2 -> Update selection*
   - updates an already highlighted snippet with the formatting informations stored with it
 
+#### Alternatively (Writer only)
+- Format all your snippets with a dedicated paragraph style.
+- Choose *Format -> Code Highlighter 2 -> Highlight Code*.
+- Select the paragraph style and press *Highlight all*.
+
 #### Features
 - Supports all languages (more then 500) and styles (more then 40) provided by Pygments.
 - Supports multiselection.

@@ -485,7 +485,10 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             lb_parastyle.addItems(sorted(self.parastyles.keys(), key=str.casefold), 0)
         else:
             lb_parastyle.setEnable(False)
-            lb_parastyle.Model.HelpText += _(" (There is currently no style in use.)")
+            if self.doc.supportsService('com.sun.star.text.GenericTextDocument'):
+                lb_parastyle.Model.HelpText += _(" (There is currently no style in use.)")
+            else:
+                lb_parastyle.Model.HelpText += _(" (Writer only.)")
             dialog.getControl("btn_parastyle").setEnable(False)
             dialog.getControl("para_line").setEnable(False)
 

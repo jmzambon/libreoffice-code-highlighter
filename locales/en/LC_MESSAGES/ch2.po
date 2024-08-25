@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2024-08-24 22:21+0200\n"
+"POT-Creation-Date: 2024-08-25 10:35+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,7 +22,7 @@ msgstr "Please select a paragraph style."
 #: codehighlighter/python/highlight.py:283
 #: codehighlighter/python/highlight.py:312
 #: codehighlighter/python/highlight.py:327
-#: codehighlighter/python/highlight.py:1073
+#: codehighlighter/python/highlight.py:1076
 msgid "Unsupported selection."
 msgstr "Unsupported selection."
 
@@ -144,15 +144,19 @@ msgstr ""
 "Highlight every code snippet in the document that is formatted with the "
 "given paragraph style."
 
-#: codehighlighter/python/highlight.py:488
+#: codehighlighter/python/highlight.py:489
 msgid " (There is currently no style in use.)"
 msgstr " (There is currently no style in use.)"
 
-#: codehighlighter/python/highlight.py:523
+#: codehighlighter/python/highlight.py:491
+msgid " (Writer only.)"
+msgstr " (Writer only.)"
+
+#: codehighlighter/python/highlight.py:526
 msgid "Unsupported language."
 msgstr "Unsupported language."
 
-#: codehighlighter/python/highlight.py:525
+#: codehighlighter/python/highlight.py:528
 msgid "Unknown style."
 msgstr "Unknown style."
 

@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2024-08-26 18:16+0200\n"
+"POT-Creation-Date: 2024-08-26 22:37+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,133 +15,117 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
 
-#: codehighlighter/python/highlight.py:265
+#: codehighlighter/python/highlight.py:257
 msgid "Please select a paragraph style."
 msgstr "Selezionare uno stile paragrafo."
 
-#: codehighlighter/python/highlight.py:283
-#: codehighlighter/python/highlight.py:312
-#: codehighlighter/python/highlight.py:327
-#: codehighlighter/python/highlight.py:1078
+#: codehighlighter/python/highlight.py:278
+#: codehighlighter/python/highlight.py:307
+#: codehighlighter/python/highlight.py:322
+#: codehighlighter/python/highlight.py:1074
 msgid "Unsupported selection."
 msgstr "Selezione non supportata."
 
-#: codehighlighter/python/highlight.py:286
-#: codehighlighter/python/highlight.py:305
-#: codehighlighter/python/highlight.py:318
-#: codehighlighter/python/highlight.py:338
+#: codehighlighter/python/highlight.py:281
+#: codehighlighter/python/highlight.py:300
+#: codehighlighter/python/highlight.py:313
+#: codehighlighter/python/highlight.py:333
 msgid "Nothing to highlight."
 msgstr "Nulla da evidenziare."
 
-#: codehighlighter/python/highlight.py:335
+#: codehighlighter/python/highlight.py:330
 msgid "Update impossible: no formatting attribute associated with this code."
 msgstr ""
 "Aggiornamento impossibile: nessun attributo di formattazione associato a "
 "questo codice."
 
-#: codehighlighter/python/highlight.py:439
+#: codehighlighter/python/highlight.py:434
 msgid "Use character ~styles"
 msgstr "Usa ~stili dei carattere"
 
-#: codehighlighter/python/highlight.py:439
+#: codehighlighter/python/highlight.py:434
 msgid "When possible, code highlighting will be based on character styles."
 msgstr ""
 "Quando possibile, l'evidenziazione del codice si baserà sugli stili dei "
 "caratteri."
 
-#: codehighlighter/python/highlight.py:440
+#: codehighlighter/python/highlight.py:435
 msgid "Set ~background from style"
 msgstr "Usare lo sfondo dello stile"
 
-#: codehighlighter/python/highlight.py:440
+#: codehighlighter/python/highlight.py:435
 msgid "Use the background color provided by the style."
 msgstr "Usare il colore di sfondo fornito dallo stile."
 
-#: codehighlighter/python/highlight.py:441
+#: codehighlighter/python/highlight.py:436
 msgid "Active or deactivate line numbers."
 msgstr "Attiva o disattiva la numerazione delle righe."
 
-#: codehighlighter/python/highlight.py:441
+#: codehighlighter/python/highlight.py:436
 msgid "Add ~line numbering"
 msgstr "~Numerazione righe"
 
-#: codehighlighter/python/highlight.py:442
+#: codehighlighter/python/highlight.py:437
 msgid "Separator"
 msgstr "Separatore"
 
-#: codehighlighter/python/highlight.py:442
-#: codehighlighter/python/highlight.py:453
+#: codehighlighter/python/highlight.py:437
+#: codehighlighter/python/highlight.py:447
 msgid "Use \\t to insert tabulation"
 msgstr "Usare \\t per inserire la tabulazione"
 
-#: codehighlighter/python/highlight.py:443
+#: codehighlighter/python/highlight.py:438
 msgid "Padding symbol"
 msgstr "Simbolo d'imbottatura"
 
-#: codehighlighter/python/highlight.py:443
-#: codehighlighter/python/highlight.py:454
+#: codehighlighter/python/highlight.py:438
+#: codehighlighter/python/highlight.py:448
 msgid "Character to fill the leading space (0 for 01 for example)"
 msgstr "Carattere per riempire lo spazio iniziale (0 per 01, ad esempio)"
 
-#: codehighlighter/python/highlight.py:444
+#: codehighlighter/python/highlight.py:439
 msgid "Parent character style"
 msgstr "Stile di carattere genitore"
 
-#: codehighlighter/python/highlight.py:444
-#: codehighlighter/python/highlight.py:455
+#: codehighlighter/python/highlight.py:439
+#: codehighlighter/python/highlight.py:449
 msgid "Use an existing character style as root style."
 msgstr "Usare uno stile di carattere esistente come stile di base."
 
-#: codehighlighter/python/highlight.py:447
-msgid "Language"
-msgstr "Lingua"
-
-#: codehighlighter/python/highlight.py:447
-msgid "Line numbering"
-msgstr "Numeri di riga"
-
-#: codehighlighter/python/highlight.py:447
-msgid "Style"
-msgstr "Stile"
-
-#: codehighlighter/python/highlight.py:448
-msgid "Character styles"
-msgstr "Stili dei carattere"
-
-#: codehighlighter/python/highlight.py:448
+#: codehighlighter/python/highlight.py:442
 msgid "Height (%)"
 msgstr "Altezza (%)"
 
-#: codehighlighter/python/highlight.py:448
+#: codehighlighter/python/highlight.py:442
+msgid "Language"
+msgstr "Lingua"
+
+#: codehighlighter/python/highlight.py:442
 msgid "Start at"
 msgstr "Comincia da"
 
-#: codehighlighter/python/highlight.py:449
+#: codehighlighter/python/highlight.py:442
+msgid "Style"
+msgstr "Stile"
+
+#: codehighlighter/python/highlight.py:443
 msgid "Highlight all codes formatted with paragraph style:"
 msgstr "Evidenzia tutti i codici formattati con lo stile paragrafo:"
 
-#: codehighlighter/python/highlight.py:449
-#: codehighlighter/python/highlight.py:1334
+#: codehighlighter/python/highlight.py:443
+#: codehighlighter/python/highlight.py:1352
 msgid "Highlight all"
 msgstr "Evidenzia tutto"
 
-#: codehighlighter/python/highlight.py:450
-msgid "Back"
-msgstr "Indietro"
-
-#: codehighlighter/python/highlight.py:450
+#: codehighlighter/python/highlight.py:444
 msgid "Build upon Pygments {}"
 msgstr "Basato su Pygments {}"
 
-#: codehighlighter/python/highlight.py:450
-msgid "More..."
-msgstr "Altro..."
-
-#: codehighlighter/python/highlight.py:450
+#: codehighlighter/python/highlight.py:444
 msgid "Preview"
 msgstr "Anteprima"
 
-#: codehighlighter/python/highlight.py:456
+#: codehighlighter/python/highlight.py:450
 msgid ""
 "Highlight every code snippet in the document that is formatted with the "
 "given paragraph style."
@@ -149,19 +133,19 @@ msgstr ""
 "Evidenzia tutti i codici nel documento formattati con lo stile di paragrafo "
 "indicato."
 
-#: codehighlighter/python/highlight.py:491
+#: codehighlighter/python/highlight.py:485
 msgid " (There is currently no style in use.)"
 msgstr " (Attualmente non esiste uno stile in uso.)"
 
-#: codehighlighter/python/highlight.py:493
+#: codehighlighter/python/highlight.py:487
 msgid " (Writer only.)"
 msgstr " (Solo Writer.)"
 
-#: codehighlighter/python/highlight.py:528
+#: codehighlighter/python/highlight.py:524
 msgid "Unsupported language."
 msgstr "Lingua non supportata."
 
-#: codehighlighter/python/highlight.py:530
+#: codehighlighter/python/highlight.py:526
 msgid "Unknown style."
 msgstr "Stile sconosciuto."
 
@@ -170,6 +154,18 @@ msgid "{} code snippet has been formatted."
 msgid_plural "{} code snippets have been formatted."
 msgstr[0] "{} frammento di codice è stato formattato."
 msgstr[1] "{} frammenti di codice sono stati formattati."
+
+#~ msgid "Line numbering"
+#~ msgstr "Numeri di riga"
+
+#~ msgid "Character styles"
+#~ msgstr "Stili dei carattere"
+
+#~ msgid "Back"
+#~ msgstr "Indietro"
+
+#~ msgid "More..."
+#~ msgstr "Altro..."
 
 #~ msgid "Set ~background color"
 #~ msgstr "~Colore di sfondo"

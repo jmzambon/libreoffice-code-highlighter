@@ -244,15 +244,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
     # XDialogEventHandler (http://www.openoffice.org/api/docs/common/ref/com/sun/star/awt/XDialogEventHandler.html)
     def callHandlerMethod(self, dialog, event, method):
         logger.debug(f"Dialog handler action: '{method}'.")
-        if method == "topage1":
-            dialog.Model.Step = 1
-            dialog.getControl('cb_lang').setFocus()
-            return True
-        elif method == "topage2":
-            dialog.Model.Step = 2
-            dialog.getControl('nb_start').setFocus()
-            return True
-        elif method == "preview":
+        if method == "preview":
             focus = {1: 'cb_style', 2: 'nb_start'}
             self.do_preview(dialog)
             dialog.getControl(focus[dialog.Model.Step]).setFocus()
@@ -269,10 +261,13 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 return True
             except Exception:
                 traceback.print_exc()
+        elif method in ("ev_linenb", "ev_charstyles"):
+            self.expand_option(dialog, event.Selected, method)
+            return True
         return False
 
     def getSupportedMethodNames(self):
-        return 'preview', 'topage1', 'topage2', 'parastyle'
+        return 'preview', 'parastyle', 'ev_linenb', 'ev_charstyles'
 
     # main functions
     def do_highlight(self):
@@ -444,10 +439,9 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         "lbl_cs_rootstyle": (_("Parent character style"), _("Use an existing character style as root style."))}
         for controlname in controlnames:
             dialog.getControl(controlname).Model.setPropertyValues(("Label", "HelpText"), controlnames[controlname])
-        controlnames = {"label_lang": _("Language"), "label_style": _("Style"), "nb_line": _("Line numbering"),
-                        "cs_line": _("Character styles"), "lbl_nb_start": _("Start at"), "lbl_nb_ratio": _("Height (%)"),
+        controlnames = {"label_lang": _("Language"), "label_style": _("Style"), "lbl_nb_start": _("Start at"), "lbl_nb_ratio": _("Height (%)"),
                         "label_parastyle": _("Highlight all codes formatted with paragraph style:"), "btn_parastyle": _("Highlight all"),
-                        "pygments_ver": _("Build upon Pygments {}"), "preview": _("Preview"), "topage1": _("Back"), "topage2": _("More...")}
+                        "pygments_ver": _("Build upon Pygments {}"), "preview": _("Preview")}
         for controlname in controlnames:
             dialog.getControl(controlname).Model.Label = controlnames[controlname]
         controlnames = {"nb_sep": _("Use \\t to insert tabulation"),
@@ -495,8 +489,10 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             dialog.getControl("para_line").setEnable(False)
 
         check_col_bg.State = self.options['ColourizeBackground']
-        check_charstyles.State = self.options['UseCharStyles']
-        check_linenb.State = self.options['ShowLineNumbers']
+        check_charstyles.State = state1 = self.options['UseCharStyles']
+        self.expand_option(dialog, state1, "ev_charstyles", False if state1==1 else True)
+        check_linenb.State = state2 = self.options['ShowLineNumbers']
+        self.expand_option(dialog, state2, "ev_linenb", False if state2==1 else True)
         nb_start.Value = self.options['LineNumberStart']
         nb_ratio.Value = self.options['LineNumberRatio']
         nb_sep.Text = self.options['LineNumberSeparator']
@@ -1281,6 +1277,28 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         return c
 
     # dev tools
+    def expand_option(self, dialog, selected, method, move=True):
+        controls = {'ev_charstyles': {'show': ('cs_rootstyle', 'lbl_cs_rootstyle'),
+                                      'move': ('para_line', 'label_parastyle', 'lb_parastyle',
+                                               'btn_parastyle', 'pygments_ver', 'pygments_logo'),
+                                      'offset': {0: -14, 1: 14} },
+                    'ev_linenb': {'show': ('nb_start', 'nb_ratio', 'nb_pad', 'nb_sep',
+                                           'lbl_nb_start', 'lbl_nb_ratio', 'lbl_nb_pad', 'lbl_nb_sep'),
+                                  'move': ('check_charstyles', 'cs_rootstyle', 'lbl_cs_rootstyle',
+                                           'para_line', 'label_parastyle', 'lb_parastyle', 'btn_parastyle',
+                                           'pygments_ver', 'pygments_logo'),
+                                  'offset': {0: -72, 1: 72} }
+                    }
+        if method in controls:
+            for controlname in controls[method]['show']:
+                dialog.getControl(controlname).setVisible(selected)
+            print(f'move: {move}')
+            if move:
+                offset = controls[method]['offset'][selected]
+                dialog.Model.Height += offset
+                for controlname in controls[method]['move']:
+                    dialog.getControl(controlname).Model.PositionY += offset
+
     def highlight_parastyle(self):
         def finish_code_block(cursor):
             if cursor.Cell and cursor.String == cursor.Text.String:

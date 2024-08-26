@@ -437,7 +437,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
 
         # set dialog strings
         controlnames = {"check_charstyles": (_("Use character ~styles"), _("When possible, code highlighting will be based on character styles.")),
-                        "check_col_bg": (_("Set ~background color"), _("Use the background color provided by the style.")),
+                        "check_col_bg": (_("Set ~background from style"), _("Use the background color provided by the style.")),
                         "check_linenb": (_("Add ~line numbering"), _("Active or deactivate line numbers.")),
                         "lbl_nb_sep": (_("Separator"), _("Use \\t to insert tabulation")),
                         "lbl_nb_pad": (_("Padding symbol"), _("Character to fill the leading space (0 for 01 for example)")),

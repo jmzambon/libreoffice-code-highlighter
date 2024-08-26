@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2024-08-25 19:31+0200\n"
+"POT-Creation-Date: 2024-08-26 18:16+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -47,12 +47,12 @@ msgid "When possible, code highlighting will be based on character styles."
 msgstr "Si possible, le code sera colorisé sur base des styles de caractère."
 
 #: codehighlighter/python/highlight.py:440
-msgid "Set ~background color"
-msgstr "Utiliser la couleur de ~fond"
+msgid "Set ~background from style"
+msgstr "Utiliser l'arrière-plan du style"
 
 #: codehighlighter/python/highlight.py:440
 msgid "Use the background color provided by the style."
-msgstr "Utiliser l'arrière-plan fourni par le style."
+msgstr "Utiliser la couleur d'arrière-plan fournie par le style."
 
 #: codehighlighter/python/highlight.py:441
 msgid "Active or deactivate line numbers."
@@ -167,3 +167,6 @@ msgid "{} code snippet has been formatted."
 msgid_plural "{} code snippets have been formatted."
 msgstr[0] "{} extrait de code a été formaté."
 msgstr[1] "{} extraits de code ont été formatés."
+
+#~ msgid "Set ~background color"
+#~ msgstr "Utiliser la couleur de ~fond"

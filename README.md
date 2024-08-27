@@ -39,6 +39,7 @@ You can download the extension either from the [official LibreOffice Extensions 
   - updates an already highlighted snippet with the formatting informations stored with it
 
 #### Alternatively (Writer only)
+[On suggestion from kompilainenn]
 - Format all your snippets with a dedicated paragraph style.
 - Choose *Format → Code Highlighter 2 → Highlight Code*.
 - Select the paragraph style and press *Highlight all*.
@@ -85,3 +86,7 @@ You can download the extension either from the [official LibreOffice Extensions 
 
 ## LICENSE
  - GPL v3
+
+## LOCALISATION
+- en, fr, it
+- hu thank to ovari.

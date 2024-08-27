@@ -20,7 +20,7 @@ The above command is for Ubuntu and its derivatives. Other Linux users, may not 
 If you encounter any problems after installing the extension, please check whether you have this or a similar package.
 
 ### Install Extension
-Open LibreOffice, go to `Tools` → `Extension Manager…` and add the extension `codehighlighter2.oxt`
+Open LibreOffice, go to `Tools` → `Extension…` and add the extension `codehighlighter2.oxt`
 
 You can download the extension either from the [official LibreOffice Extensions page](https://extensions.libreoffice.org/en/extensions/show/5814) or from the [Github repository](https://github.com/jmzambon/libreoffice-code-highlighter) (_codehighlighter2.oxt_ file).
 

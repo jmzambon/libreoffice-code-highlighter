@@ -10,7 +10,7 @@ Code Highlighter 2 is built upon [Pygments](https://pygments.org/) Python librar
 > If you get an error message at installation time, try to uninstall any previous version of Code Highlighter, then restart LibreOffice and reinstall the extension.
 
 ### Install Dependencies (Linux Users)
-**Note: Close all the LibreOffice products before installing the dependencies**
+**Note: Close all LibreOffice applications before installing the dependencies**
 
 Install libreoffice-script-provider-python
 ```

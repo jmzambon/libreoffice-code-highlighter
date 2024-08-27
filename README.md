@@ -25,7 +25,7 @@ Open LibreOffice, go to `Tools` → `Extension Manager…` and add the extension
 You can download the extension either from the [official LibreOffice Extensions page](https://extensions.libreoffice.org/en/extensions/show/5814) or from the [Github repository](https://github.com/jmzambon/libreoffice-code-highlighter) (_codehighlighter2.oxt_ file).
 
 ## USAGE
-- Open a LibreOffice Writer document.
+- Open a LibreOffice Writer document, Calc spreadsheet, Impress presentation, Draw drawing.
 - Copy and paste any code snippet where you want it
   - **Writer**: either in a text frame (preferred option), in a text box, in a table cell or even as plain text
   - **Calc**: either in  cell or in a text box

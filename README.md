@@ -1,5 +1,5 @@
 # Code Highlighter 2
-Code snippet highlighter for LibreOffice Writer.
+Code snippet highlighter for LibreOffice Writer, Calc, Impress and Draw.
 
 Code Highlighter 2 is a fork of [Code Highlighter](https://github.com/slgobinath/libreoffice-code-highlighter), originally created by [slgobinath](https://github.com/slgobinath) and no longer maintained.
 
@@ -17,15 +17,15 @@ Install libreoffice-script-provider-python
 sudo apt-get install libreoffice-script-provider-python
 ```
 The above command is for Ubuntu and its derivatives. Other Linux users, may not need this package.
-If you encounter any problems after installing the extension, please check whether you have this or similar package.
+If you encounter any problems after installing the extension, please check whether you have this or a similar package.
 
 ### Install Extension
 Open LibreOffice, go to `Tools` → `Extension Manager…` and add the extension `codehighlighter2.oxt`
 
-You can download the extension either from the official LibreOffice extensions page or from the [Github repository](https://github.com/jmzambon/libreoffice-code-highlighter) (_codehighlighter2.oxt_ file).
+You can download the extension either from the [official LibreOffice Extensions page](https://extensions.libreoffice.org/en/extensions/show/5814) or from the [Github repository](https://github.com/jmzambon/libreoffice-code-highlighter) (_codehighlighter2.oxt_ file).
 
 ## USAGE
-- Open a LibreOffice document.
+- Open a LibreOffice Writer document.
 - Copy and paste any code snippet where you want it
   - **Writer**: either in a text frame (preferred option), in a text box, in a table cell or even as plain text
   - **Calc**: either in  cell or in a text box

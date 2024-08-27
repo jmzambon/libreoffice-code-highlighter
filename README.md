@@ -1,9 +1,9 @@
 # Code Highlighter 2
 Code snippet highlighter for LibreOffice Writer.
 
-Code Highlighter 2 is a forked of [Code Highlighter](https://github.com/slgobinath/libreoffice-code-highlighter), originally created by slgobinath but no more maintained. 
+Code Highlighter 2 is a fork of [Code Highlighter](https://github.com/slgobinath/libreoffice-code-highlighter), originally created by [slgobinath](https://github.com/slgobinath) but no more maintained.
 
-Code Highlighter 2 is built upon [Pygments](https://pygments.org/) python library. 
+Code Highlighter 2 is built upon [Pygments](https://pygments.org/) Python library.
 
 ## INSTALLATION
 

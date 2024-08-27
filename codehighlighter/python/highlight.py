@@ -913,16 +913,13 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         self.undomanager.enterUndoContext(f"code highlight (lang: {lexer.name}, style: {stylename})")
                         self.show_line_numbers(code_block, False, isplaintext=True)
                         cursor = self.ensure_paragraphs(code_block)  # in case numbering was removed, code_block has changed
-                        # ParaBackColor does not work anymore, and new FillProperties isn't available from API
-                        # see https://bugs.documentfoundation.org/show_bug.cgi?id=99125
-                        # so let's use the dispatcher as workaround
-                        # cursor.ParaBackColor = -1
-                        # prop = PropertyValue(Name="BackgroundColor", Value=-1)
-                        # self.dispatcher.executeDispatch(self.frame, ".uno:BackgroundColor", "", 0, (prop,))
                         controller.select(cursor)
                         cursor.CharLocale = self.nolocale
                         char_bg_color = None
                         if bg_color and not self.inlinesnippet:
+                            # ParaBackColor does not work anymore, and new FillProperties isn't available from API
+                            # see https://bugs.documentfoundation.org/show_bug.cgi?id=99125
+                            # so let's use the dispatcher as workaround
                             # cursor.ParaBackColor = self.to_int(bg_color)
                             prop = PropertyValue(Name="BackgroundColor", Value=self.to_int(bg_color))
                             self.dispatcher.executeDispatch(self.frame, ".uno:BackgroundColor", "", 0, (prop,))
@@ -1361,7 +1358,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                 self.options.update(options)
             self.doc.CurrentController.select(code_block)
             logger.debug(f'Updating snippet (type: {code_block.ImplementationName})')
-            self.prepare_highlight(self.doc.CurrentSelection)
+            self.prepare_highlight(code_block)
 
         def browsetaggedcode_text(container=None):
             root = False
@@ -1592,3 +1589,15 @@ def remove_all_tags(event=None):
     ctx = XSCRIPTCONTEXT.getComponentContext()
     highlighter = CodeHighlighter(ctx)
     highlighter.do_removealltags()
+
+
+def update_all_from_tags(event=None):
+    ctx = XSCRIPTCONTEXT.getComponentContext()
+    highlighter = CodeHighlighter(ctx)
+    highlighter.update_all(True)
+
+
+def update_all_from_options(event=None):
+    ctx = XSCRIPTCONTEXT.getComponentContext()
+    highlighter = CodeHighlighter(ctx)
+    highlighter.update_all(False)

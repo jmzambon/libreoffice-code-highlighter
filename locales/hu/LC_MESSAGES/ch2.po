@@ -1,0 +1,152 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR ORGANIZATION
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2024-08-26 22:37+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: pygettext.py 1.5\n"
+
+#: codehighlighter/python/highlight.py:257
+msgid "Please select a paragraph style."
+msgstr "Kérjük, válasszon bekezdésstílust."
+
+#: codehighlighter/python/highlight.py:278
+#: codehighlighter/python/highlight.py:307
+#: codehighlighter/python/highlight.py:322
+#: codehighlighter/python/highlight.py:1074
+msgid "Unsupported selection."
+msgstr "Nem támogatott kijelölés."
+
+#: codehighlighter/python/highlight.py:281
+#: codehighlighter/python/highlight.py:300
+#: codehighlighter/python/highlight.py:313
+#: codehighlighter/python/highlight.py:333
+msgid "Nothing to highlight."
+msgstr "Nincs mit kiemelni."
+
+#: codehighlighter/python/highlight.py:330
+msgid "Update impossible: no formatting attribute associated with this code."
+msgstr "Frissítés lehetetlen: ehhez a kódhoz nincs formázási attribútum társítva."
+
+#: codehighlighter/python/highlight.py:434
+msgid "Use character ~styles"
+msgstr "Karakter~stílusok használata"
+
+#: codehighlighter/python/highlight.py:434
+msgid "When possible, code highlighting will be based on character styles."
+msgstr "Ha lehetséges, a kódkiemelés karakterstílusokon alapul."
+
+#: codehighlighter/python/highlight.py:435
+msgid "Set ~background from style"
+msgstr "~Háttér beállítása stílusból"
+
+#: codehighlighter/python/highlight.py:435
+msgid "Use the background color provided by the style."
+msgstr "Stílus által biztosított háttérszínhasználat."
+
+#: codehighlighter/python/highlight.py:436
+msgid "Active or deactivate line numbers."
+msgstr "Sorszámok be- vagy kikapcsolása."
+
+#: codehighlighter/python/highlight.py:436
+msgid "Add ~line numbering"
+msgstr "Sors~zámozás hozzáadása"
+
+#: codehighlighter/python/highlight.py:437
+msgid "Separator"
+msgstr "Elválasztó"
+
+#: codehighlighter/python/highlight.py:437
+#: codehighlighter/python/highlight.py:447
+msgid "Use \\t to insert tabulation"
+msgstr "\\t használata a táblázat beszúrásához"
+
+#: codehighlighter/python/highlight.py:438
+msgid "Padding symbol"
+msgstr "Kitöltési szimbólum"
+
+#: codehighlighter/python/highlight.py:438
+#: codehighlighter/python/highlight.py:448
+msgid "Character to fill the leading space (0 for 01 for example)"
+msgstr "Karakter a bevezető mező kitöltésére (0 például 01 esetén)"
+
+#: codehighlighter/python/highlight.py:439
+msgid "Parent character style"
+msgstr "Szülő karakterstílus"
+
+#: codehighlighter/python/highlight.py:439
+#: codehighlighter/python/highlight.py:449
+msgid "Use an existing character style as root style."
+msgstr "Meglévő karakterstílus használata gyökérstílusként."
+
+#: codehighlighter/python/highlight.py:442
+msgid "Height (%)"
+msgstr "Magasság (%)"
+
+#: codehighlighter/python/highlight.py:442
+msgid "Language"
+msgstr "Nyelv"
+
+#: codehighlighter/python/highlight.py:442
+msgid "Start at"
+msgstr "Kezdés:"
+
+#: codehighlighter/python/highlight.py:442
+msgid "Style"
+msgstr "Stílus"
+
+#: codehighlighter/python/highlight.py:443
+msgid "Highlight all codes formatted with paragraph style:"
+msgstr "Jelölje ki az összes bekezdésstílussal formázott kódot:"
+
+#: codehighlighter/python/highlight.py:443
+#: codehighlighter/python/highlight.py:1352
+msgid "Highlight all"
+msgstr "Jelölje ki az összeset"
+
+#: codehighlighter/python/highlight.py:444
+msgid "Build upon Pygments {}"
+msgstr "Pygments {}-re épült"
+
+#: codehighlighter/python/highlight.py:444
+msgid "Preview"
+msgstr "Előnézet"
+
+#: codehighlighter/python/highlight.py:450
+msgid ""
+"Highlight every code snippet in the document that is formatted with the "
+"given paragraph style."
+msgstr ""
+"Jelöljön ki minden olyan kódrészletet a dokumentumban, amely az adott "
+"bekezdésstílussal van formázva."
+
+#: codehighlighter/python/highlight.py:485
+msgid " (There is currently no style in use.)"
+msgstr " (Jelenleg nincs használatban lévő stílus.)"
+
+#: codehighlighter/python/highlight.py:487
+msgid " (Writer only.)"
+msgstr " (Csak a LibreOffice Writer számára.)"
+
+#: codehighlighter/python/highlight.py:524
+msgid "Unsupported language."
+msgstr "Nem támogatott nyelv."
+
+#: codehighlighter/python/highlight.py:526
+msgid "Unknown style."
+msgstr "Ismeretlen stílus."
+
+#: codehighlighter/python/highlight.py:1326
+msgid "{} code snippet has been formatted."
+msgid_plural "{} code snippets have been formatted."
+msgstr[0] "{} kódrészlet formázott."
+msgstr[1] "{} kódrészlet formázott."

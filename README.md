@@ -71,15 +71,15 @@ You can download the extension either from the [official LibreOffice Extensions 
 - For long snippet, CodeHighlighter2 works faster with text and text frame in Writer.
 
 ## Screenshots
-*Menu items (Writer)*
+### Menu items (Writer)
 
 ![Menu](screenshots/code-highlighter-menu.png?raw=true "Menu")
 
-*Dialog*
+### Dialog
 
 ![Dialog](screenshots/code-highlighter-dialog.png?raw=true "Dialog")
 
-*Result*
+### Result
 
 ![Result](screenshots/code-highlighter-result.png?raw=true "Result")
 

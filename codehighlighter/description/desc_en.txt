@@ -1,2 +1,2 @@
-Highlight over 350 languages in LibreOffice.
+Highlight over 350 languages in LibreOffice Writer.
 Copy and paste your code, select the text or the containing object and go to Format → Highlight Code

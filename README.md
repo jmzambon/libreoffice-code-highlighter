@@ -22,7 +22,7 @@ If you encounter any problems after installing the extension, please check wheth
 ### Install Extension
 Open LibreOffice, go to `Tools` → `Extension…` and add the extension `codehighlighter2.oxt`
 
-You can download the extension either from the [official LibreOffice Extensions page](https://extensions.libreoffice.org/en/extensions/show/5814) or from the [Github repository](https://github.com/jmzambon/libreoffice-code-highlighter) (_codehighlighter2.oxt_ file).
+You can download the extension either from the [official LibreOffice Extensions page](https://extensions.libreoffice.org/en/extensions/show/5814) or from the [GitHub repository](https://github.com/jmzambon/libreoffice-code-highlighter) (_codehighlighter2.oxt_ file).
 
 ## USAGE
 - Open a LibreOffice Writer document, Calc spreadsheet, Impress presentation, or Draw drawing.

@@ -4,6 +4,7 @@
 for PO_FILE in locales/*/LC_MESSAGES/*.po
 do
     MO_FILE="${PO_FILE/.po/.mo}"
+    install -Dv /dev/null "codehighlighter/$MO_FILE"
     msgfmt -o "codehighlighter/$MO_FILE" "$PO_FILE"
 done
 

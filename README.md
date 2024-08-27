@@ -58,15 +58,15 @@ You can download the extension either from the [official LibreOffice Extensions 
 - When cursor is inside a text shape or a Calc cell, highlighting is applied to the whole shape or cell even if only a part of the text is selected.
 - When cursor is inside a text frame, a text table cell or an already highlighted plain text*, highlighting is only applied to the selected text if any, otherwise to the whole frame, cell or plain text snippet.
 - When highlighting applies to the selected text, it formats the entire paragraphs, even if selection starts after the paragraph start or ends before paragraph end, unless the selection is an inline snippet.
-- Choosing "Update selection", the program will update highlighted code keeping the already applied options. If nothing is selected and the cursor is inside an already highlighted block, the whole block will be updated*.
+- Choosing “Update selection”, the program will update highlighted code keeping the already applied options. If nothing is selected and the cursor is inside an already highlighted block, the whole block will be updated*.
 
-<sub>\* To allow code update, Code Highlighter 2 stores the formatting options in the document as [User Defined Attributes](https://api.libreoffice.org/docs/idl/ref/servicecom_1_1sun_1_1star_1_1xml_1_1UserDefinedAttributesSupplier.html#a7c8de9b61fff54bb35d4203618828f32). If you're not comfortable with that, you can disable it by setting the 'StoreOptionsWithSnippet' option to 0 in advanced options (Options → Advanced → Open Expert Configuration → ooo.ext.code-highlighter.Registry).</sub>
+<sub>\* To allow code update, Code Highlighter 2 stores the formatting options in the document as [User Defined Attributes](https://api.libreoffice.org/docs/idl/ref/servicecom_1_1sun_1_1star_1_1xml_1_1UserDefinedAttributesSupplier.html#a7c8de9b61fff54bb35d4203618828f32). If you are not comfortable with that, you can disable it by setting the 'StoreOptionsWithSnippet' option to 0 in advanced options (Options → Advanced → Open Expert Configuration → ooo.ext.code-highlighter.Registry).</sub>
 
 #### Tips
-- CodeHighlighter2 contains two styles that are not part of Pygments: libreoffice-classic and libreoffice-dark, that make use of LibreOffice IDE color schemes (classic mode and dark mode). Code Highlighter also adds a "LibreOffice Basic" language, which is not a Pygments lexer but a convenient shortcut to VB.net lexer, which is perfect for parsing LOBasic.
-- Not all language aliases that are valid names for Code Highlighter 2 appear in the option dialog: if you don't find a language, try anyway to type its name in the combobox (try for example with "R" or with "Pascal").
-- Choose "automatic" to highlight from different languages at the same time.
-- Click the "More…" button to access line numbers options or character styles options.
+- CodeHighlighter2 contains two styles that are not part of Pygments: libreoffice-classic and libreoffice-dark, that make use of LibreOffice IDE color schemes (classic mode and dark mode). Code Highlighter also adds a “LibreOffice Basic” language, which is not a Pygments lexer but a convenient shortcut to VB.net lexer, which is perfect for parsing LOBasic.
+- Not all language aliases that are valid names for Code Highlighter 2 appear in the option dialog: if you are unable to find a language, try anyway to type its name in the combobox (try for example with “R” or with “Pascal”).
+- Choose “automatic” to highlight from different languages at the same time.
+- Click the “More…” button to access line numbers options or character styles options.
 - Uncheck line numbering option to remove unwanted line numbers, due for example to copy-pasted code.
 - For long snippet, CodeHighlighter2 works faster with text and text frame in Writer.
 

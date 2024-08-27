@@ -1344,11 +1344,13 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         code_blocks = []
         browse_all_paras()
         if code_blocks:
+            sel = self.doc.CurrentSelection
             for code_block in code_blocks:
                 self.prepare_highlight(finish_code_block(code_block))
             message = ngettext("{} code snippet has been formatted.",
                                "{} code snippets have been formatted.",
                                len(code_blocks))
+            self.doc.CurrentController.select(sel)
             self.msgbox(message.format(len(code_blocks)), boxtype=INFOBOX, title=_("Highlight all"))
 
     def update_all(self, usetags):

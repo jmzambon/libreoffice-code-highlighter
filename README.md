@@ -52,7 +52,7 @@ You can download the extension either from the [official LibreOffice Extensions 
 - Allow to disable background color. 
 - Allow in-document preview [2.4.11].
 
-#### General behaviour
+#### General behavior
 - Highlighting is applied to the selected object, that can be plain text, text frame, text shape, text table cell or calc cell.
 - Highlight properties are hard-formatted for each token, parsed according to the choosen Pygments lexer (aka coding language). If someone prefers instead to make use of character styles, select the corresponding option in the dialog box (from v2.3.0, Writer only).
 - When cursor is inside a text shape or a Calc cell, highlighting is applied to the whole shape or cell even if only a part of the text is selected.

@@ -44,7 +44,7 @@ You can download the extension either from the [official LibreOffice Extensions 
 - Select the paragraph style and press *Highlight all*.
 
 #### Features
-- Supports all languages (more then 500) and styles (more then 40) provided by Pygments.
+- Supports all languages (more than 500) and styles (more than 40) provided by Pygments.
 - Supports multiselection.
 - Supports line numbering.
 - Supports all modules excepted Base.

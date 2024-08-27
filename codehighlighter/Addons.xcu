@@ -50,6 +50,7 @@
                                 <value xml:lang="fr">Code Highlighter 2</value>
                                 <value xml:lang="hu">Kódkiemelő 2</value>
                                 <value xml:lang="it">Code Highlighter 2</value>
+                                <value xml:lang="ru">Code Highlighter 2</value>
                             </prop>
                             <node oor:name="Submenu">
                                 <node oor:name="ch2-4" oor:op="replace">
@@ -58,6 +59,7 @@
                                         <value xml:lang="fr">Colorer le code</value>
                                         <value xml:lang="hu">Kódkiemelés</value>
                                         <value xml:lang="it">Colora il codice</value>
+                                        <value xml:lang="ru">Подсветить код</value>
                                     </prop>
                                     <prop oor:name="URL" oor:type="xs:string">
                                         <value>service:ooo.ext.code-highlighter.impl?highlight</value>
@@ -72,6 +74,7 @@
                                         <value xml:lang="fr">Colorer le code (choix précédents)</value>
                                         <value xml:lang="hu">Kódkiemelés (korábbi beállítások)</value>
                                         <value xml:lang="it">Colora il codice (scelte precedenti)</value>
+                                        <value xml:lang="ru">Подсветить код (предыдущие настройки)</value>
                                     </prop>
                                     <prop oor:name="URL" oor:type="xs:string">
                                         <value>service:ooo.ext.code-highlighter.impl?highlight_previous</value>
@@ -86,6 +89,7 @@
                                         <value xml:lang="fr">Actualiser la sélection</value>
                                         <value xml:lang="hu">Kijelölés frissítése</value>
                                         <value xml:lang="it">Aggiorna la selezione</value>
+                                        <value xml:lang="ru">Обновить выделенное</value>
                                     </prop>
                                     <prop oor:name="URL" oor:type="xs:string">
                                         <value>service:ooo.ext.code-highlighter.impl?update</value>
@@ -130,6 +134,7 @@
                                 <value xml:lang="fr">Code Highlighter 2</value>
                                 <value xml:lang="hu">Kódkiemelő 2</value>
                                 <value xml:lang="it">Code Highlighter 2</value>
+                                <value xml:lang="ru">Code Highlighter 2</value>
                             </prop>
                             <node oor:name="Submenu">
                                 <node oor:name="ch2-4" oor:op="replace">
@@ -138,6 +143,7 @@
                                         <value xml:lang="fr">Colorer le code</value>
                                         <value xml:lang="hu">Kódkiemelés</value>
                                         <value xml:lang="it">Colora il codice</value>
+                                        <value xml:lang="ru">Подсветить код</value>
                                     </prop>
                                     <prop oor:name="URL" oor:type="xs:string">
                                         <value>service:ooo.ext.code-highlighter.impl?highlight</value>
@@ -152,6 +158,7 @@
                                         <value xml:lang="fr">Colorer le code (choix précédents)</value>
                                         <value xml:lang="hu">Kódkiemelés (korábbi beállítások)</value>
                                         <value xml:lang="it">Colora il codice (scelte precedenti)</value>
+                                        <value xml:lang="ru">Подсветить код (предыдущие настройки)</value>
                                     </prop>
                                     <prop oor:name="URL" oor:type="xs:string">
                                         <value>service:ooo.ext.code-highlighter.impl?highlight_previous</value>
@@ -166,6 +173,7 @@
                                         <value xml:lang="fr">Actualiser la sélection</value>
                                         <value xml:lang="hu">Kijelölés frissítése</value>
                                         <value xml:lang="it">Aggiorna la selezione</value>
+                                        <value xml:lang="ru">Обновить выделенное</value>
                                     </prop>
                                     <prop oor:name="URL" oor:type="xs:string">
                                         <value>service:ooo.ext.code-highlighter.impl?update</value>

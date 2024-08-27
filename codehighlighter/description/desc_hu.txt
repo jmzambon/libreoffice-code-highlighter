@@ -1,2 +1,2 @@
-Több mint 350 nyelv kiemelése a LibreOffice Writerben.
+Több mint 350 kódolási nyelvének kiemelése a LibreOffice Writer, Calc, Impress és Draw alkalmazásban.
 Másolja ki és illessze be a kódot, jelölje ki a szöveget vagy a tartalmazó objektumot, és válassza a Formátum → Kód kiemelése menüpontot

@@ -52,6 +52,7 @@ You can download the extension either from the [official LibreOffice Extensions 
 - Supports direct formatting or character styles.
 - Allow to disable background color. 
 - Allow in-document preview [2.4.11].
+- Allow highlighting at once all code formatted with a dedicated paragraph style [2.7.2]
 
 #### General behavior
 - Highlighting is applied to the selected object, that can be plain text, text frame, text shape, text table cell or Calc spreadsheet cell.

@@ -1292,7 +1292,6 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         if method in controls:
             for controlname in controls[method]['show']:
                 dialog.getControl(controlname).setVisible(selected)
-            print(f'move: {move}')
             if move:
                 offset = controls[method]['offset'][selected]
                 dialog.Model.Height += offset

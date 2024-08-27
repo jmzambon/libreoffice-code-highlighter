@@ -111,7 +111,7 @@ msgstr "Jelölje ki az összes bekezdésstílussal formázott kódot:"
 #: codehighlighter/python/highlight.py:443
 #: codehighlighter/python/highlight.py:1352
 msgid "Highlight all"
-msgstr "Jelölje ki az összeset"
+msgstr "Összes kiemelés"
 
 #: codehighlighter/python/highlight.py:444
 msgid "Build upon Pygments {}"

@@ -25,8 +25,8 @@
     <src xlink:href="description/desc_en.txt"/>
     <src xlink:href="description/desc_en.txt" lang="en" />
     <src xlink:href="description/desc_fr.txt" lang="fr" />
-    <src xlink:href="description/desc_it.txt" lang="it" />
     <src xlink:href="description/desc_hu.txt" lang="hu" />
+    <src xlink:href="description/desc_it.txt" lang="it" />
   </extension-description>
 
   <dependencies>

@@ -84,9 +84,11 @@ You can download the extension either from the [official LibreOffice Extensions 
 
 ![Result](screenshots/code-highlighter-result.png?raw=true "Result")
 
+## LOCALIZATION
+- en (English, US)
+- fr (French - Français)
+- hu (Hungarian - magyar)
+- it (Italian - Italiana)
+
 ## LICENSE
  - GPL v3
-
-## LOCALISATION
-- en, fr, it
-- hu thank to ovari.

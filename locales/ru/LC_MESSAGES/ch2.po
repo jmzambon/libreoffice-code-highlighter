@@ -1,0 +1,152 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR ORGANIZATION
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2024-08-26 22:37+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: pygettext.py 1.5\n"
+
+#: codehighlighter/python/highlight.py:257
+msgid "Please select a paragraph style."
+msgstr "Выберите стиль абзаца."
+
+#: codehighlighter/python/highlight.py:278
+#: codehighlighter/python/highlight.py:307
+#: codehighlighter/python/highlight.py:322
+#: codehighlighter/python/highlight.py:1074
+msgid "Unsupported selection."
+msgstr "Неподдерживаемое выделение."
+
+#: codehighlighter/python/highlight.py:281
+#: codehighlighter/python/highlight.py:300
+#: codehighlighter/python/highlight.py:313
+#: codehighlighter/python/highlight.py:333
+msgid "Nothing to highlight."
+msgstr "Нечего подсвечивать."
+
+#: codehighlighter/python/highlight.py:330
+msgid "Update impossible: no formatting attribute associated with this code."
+msgstr "ОБновление невозможно: нет атрибутов форматирования, связанных с этим кодом."
+
+#: codehighlighter/python/highlight.py:434
+msgid "Use character ~styles"
+msgstr "Использовать ~стиль символа"
+
+#: codehighlighter/python/highlight.py:434
+msgid "When possible, code highlighting will be based on character styles."
+msgstr "Когда возможно, подсветка кода будет основана на стилях символа."
+
+#: codehighlighter/python/highlight.py:435
+msgid "Set ~background from style"
+msgstr "Задать фон из стиля подсветки"
+
+#: codehighlighter/python/highlight.py:435
+msgid "Use the background color provided by the style."
+msgstr "Использование цвета фона, заданногов стиле подсветки."
+
+#: codehighlighter/python/highlight.py:436
+msgid "Active or deactivate line numbers."
+msgstr "Включить или выклбчить нумерацию строк."
+
+#: codehighlighter/python/highlight.py:436
+msgid "Add ~line numbering"
+msgstr "Добавить ~нумерацию строк"
+
+#: codehighlighter/python/highlight.py:437
+msgid "Separator"
+msgstr "Разделитель"
+
+#: codehighlighter/python/highlight.py:437
+#: codehighlighter/python/highlight.py:447
+msgid "Use \\t to insert tabulation"
+msgstr "Использовать \\t для вставки табуляции"
+
+#: codehighlighter/python/highlight.py:438
+msgid "Padding symbol"
+msgstr "Символ отступа"
+
+#: codehighlighter/python/highlight.py:438
+#: codehighlighter/python/highlight.py:448
+msgid "Character to fill the leading space (0 for 01 for example)"
+msgstr "Символ для заполнения лидирующих пробелов (0 для 01, например)"
+
+#: codehighlighter/python/highlight.py:439
+msgid "Parent character style"
+msgstr "Родительский стиль символа"
+
+#: codehighlighter/python/highlight.py:439
+#: codehighlighter/python/highlight.py:449
+msgid "Use an existing character style as root style."
+msgstr "Использовать существующий стиль символа, как корневой стиль."
+
+#: codehighlighter/python/highlight.py:442
+msgid "Height (%)"
+msgstr "Высота (%)"
+
+#: codehighlighter/python/highlight.py:442
+msgid "Language"
+msgstr "Язык программирования"
+
+#: codehighlighter/python/highlight.py:442
+msgid "Start at"
+msgstr "Начать с"
+
+#: codehighlighter/python/highlight.py:442
+msgid "Style"
+msgstr "Стиль подсветки"
+
+#: codehighlighter/python/highlight.py:443
+msgid "Highlight all codes formatted with paragraph style:"
+msgstr "Подсветить весь код, отформатированный со стилем абзаца:"
+
+#: codehighlighter/python/highlight.py:443
+#: codehighlighter/python/highlight.py:1352
+msgid "Highlight all"
+msgstr "Подсветить всё"
+
+#: codehighlighter/python/highlight.py:444
+msgid "Build upon Pygments {}"
+msgstr "Основано на Pygments {}"
+
+#: codehighlighter/python/highlight.py:444
+msgid "Preview"
+msgstr "Предпросмотр"
+
+#: codehighlighter/python/highlight.py:450
+msgid ""
+"Highlight every code snippet in the document that is formatted with the "
+"given paragraph style."
+msgstr ""
+"Подсветить каждый кусок кода в документе, который отформатирован с "
+"заданным стилем абзаца."
+
+#: codehighlighter/python/highlight.py:485
+msgid " (There is currently no style in use.)"
+msgstr " (В настоящее время стиль не используется.)"
+
+#: codehighlighter/python/highlight.py:487
+msgid " (Writer only.)"
+msgstr " (Только во Writer.)"
+
+#: codehighlighter/python/highlight.py:524
+msgid "Unsupported language."
+msgstr "Неподдерживаемый язык."
+
+#: codehighlighter/python/highlight.py:526
+msgid "Unknown style."
+msgstr "Неизвестный стиль."
+
+#: codehighlighter/python/highlight.py:1326
+msgid "{} code snippet has been formatted."
+msgid_plural "{} code snippets have been formatted."
+msgstr[0] "{} кусок кода был подсвечен."
+msgstr[1] "{} куска(ов) кода было подсвечено."

@@ -48,6 +48,7 @@
                             <prop oor:name="Title" oor:type="xs:string">
                                 <value xml:lang="en">Code Highlighter 2</value>
                                 <value xml:lang="fr">Code Highlighter 2</value>
+                                <value xml:lang="hu">Kódkiemelő 2</value>
                                 <value xml:lang="it">Code Highlighter 2</value>
                             </prop>
                             <node oor:name="Submenu">
@@ -55,6 +56,7 @@
                                     <prop oor:name="Title" oor:type="xs:string">
                                         <value xml:lang="en">Highlight Code</value>
                                         <value xml:lang="fr">Colorer le code</value>
+                                        <value xml:lang="hu">Kódkiemelés</value>
                                         <value xml:lang="it">Colora il codice</value>
                                     </prop>
                                     <prop oor:name="URL" oor:type="xs:string">
@@ -68,6 +70,7 @@
                                     <prop oor:name="Title" oor:type="xs:string">
                                         <value xml:lang="en">Highlight Code (previous settings)</value>
                                         <value xml:lang="fr">Colorer le code (choix précédents)</value>
+                                        <value xml:lang="hu">Kódkiemelés (korábbi beállítások)</value>
                                         <value xml:lang="it">Colora il codice (scelte precedenti)</value>
                                     </prop>
                                     <prop oor:name="URL" oor:type="xs:string">
@@ -81,6 +84,7 @@
                                     <prop oor:name="Title" oor:type="xs:string">
                                         <value xml:lang="en">Update selection</value>
                                         <value xml:lang="fr">Actualiser la sélection</value>
+                                        <value xml:lang="hu">Kijelölés frissítése</value>
                                         <value xml:lang="it">Aggiorna la selezione</value>
                                     </prop>
                                     <prop oor:name="URL" oor:type="xs:string">
@@ -124,6 +128,7 @@
                             <prop oor:name="Title" oor:type="xs:string">
                                 <value xml:lang="en">Code Highlighter 2</value>
                                 <value xml:lang="fr">Code Highlighter 2</value>
+                                <value xml:lang="hu">Kódkiemelő 2</value>
                                 <value xml:lang="it">Code Highlighter 2</value>
                             </prop>
                             <node oor:name="Submenu">
@@ -131,6 +136,7 @@
                                     <prop oor:name="Title" oor:type="xs:string">
                                         <value xml:lang="en">Highlight Code</value>
                                         <value xml:lang="fr">Colorer le code</value>
+                                        <value xml:lang="hu">Kódkiemelés</value>
                                         <value xml:lang="it">Colora il codice</value>
                                     </prop>
                                     <prop oor:name="URL" oor:type="xs:string">
@@ -144,6 +150,7 @@
                                     <prop oor:name="Title" oor:type="xs:string">
                                         <value xml:lang="en">Highlight Code (previous settings)</value>
                                         <value xml:lang="fr">Colorer le code (choix précédents)</value>
+                                        <value xml:lang="hu">Kódkiemelés (korábbi beállítások)</value>
                                         <value xml:lang="it">Colora il codice (scelte precedenti)</value>
                                     </prop>
                                     <prop oor:name="URL" oor:type="xs:string">
@@ -157,6 +164,7 @@
                                     <prop oor:name="Title" oor:type="xs:string">
                                         <value xml:lang="en">Update selection</value>
                                         <value xml:lang="fr">Actualiser la sélection</value>
+                                        <value xml:lang="hu">Kijelölés frissítése</value>
                                         <value xml:lang="it">Aggiorna la selezione</value>
                                     </prop>
                                     <prop oor:name="URL" oor:type="xs:string">

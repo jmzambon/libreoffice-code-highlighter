@@ -5,108 +5,108 @@
       <node oor:name="com.sun.star.text.TextDocument" oor:op="fuse">
         <node oor:name="X_SHIFT_MOD2" oor:op="replace">
           <prop oor:name="Command">
-            <value xml:lang="en-US">service:ooo.ext.code-highlighter.impl?highlight</value>
+            <value xml:lang="en-US">service:ooo.ext.code-highlighter?highlight</value>
           </prop>
         </node>
         <node oor:name="X_MOD2" oor:op="replace">
           <prop oor:name="Command">
-            <value xml:lang="en-US">service:ooo.ext.code-highlighter.impl?highlight_previous</value>
+            <value xml:lang="en-US">service:ooo.ext.code-highlighter?highlight_previous</value>
           </prop>
         </node>
       </node>
       <node oor:name="com.sun.star.sheet.SpreadsheetDocument" oor:op="fuse">
         <node oor:name="X_SHIFT_MOD2" oor:op="replace">
           <prop oor:name="Command">
-            <value xml:lang="en-US">service:ooo.ext.code-highlighter.impl?highlight</value>
+            <value xml:lang="en-US">service:ooo.ext.code-highlighter?highlight</value>
           </prop>
         </node>
         <node oor:name="X_MOD2" oor:op="replace">
           <prop oor:name="Command">
-            <value xml:lang="en-US">service:ooo.ext.code-highlighter.impl?highlight_previous</value>
+            <value xml:lang="en-US">service:ooo.ext.code-highlighter?highlight_previous</value>
           </prop>
         </node>
       </node>
       <node oor:name="com.sun.star.drawing.DrawingDocument" oor:op="fuse">
         <node oor:name="X_SHIFT_MOD2" oor:op="replace">
           <prop oor:name="Command">
-            <value xml:lang="en-US">service:ooo.ext.code-highlighter.impl?highlight</value>
+            <value xml:lang="en-US">service:ooo.ext.code-highlighter?highlight</value>
           </prop>
         </node>
         <node oor:name="X_MOD2" oor:op="replace">
           <prop oor:name="Command">
-            <value xml:lang="en-US">service:ooo.ext.code-highlighter.impl?highlight_previous</value>
+            <value xml:lang="en-US">service:ooo.ext.code-highlighter?highlight_previous</value>
           </prop>
         </node>
       </node>
       <node oor:name="com.sun.star.presentation.PresentationDocument" oor:op="fuse">
         <node oor:name="X_SHIFT_MOD2" oor:op="replace">
           <prop oor:name="Command">
-            <value xml:lang="en-US">service:ooo.ext.code-highlighter.impl?highlight</value>
+            <value xml:lang="en-US">service:ooo.ext.code-highlighter?highlight</value>
           </prop>
         </node>
         <node oor:name="X_MOD2" oor:op="replace">
           <prop oor:name="Command">
-            <value xml:lang="en-US">service:ooo.ext.code-highlighter.impl?highlight_previous</value>
+            <value xml:lang="en-US">service:ooo.ext.code-highlighter?highlight_previous</value>
           </prop>
         </node>
       </node>
       <node oor:name="com.sun.star.sdb.TextReportDesign" oor:op="fuse">
         <node oor:name="X_SHIFT_MOD2" oor:op="replace">
           <prop oor:name="Command">
-            <value xml:lang="en-US">service:ooo.ext.code-highlighter.impl?highlight</value>
+            <value xml:lang="en-US">service:ooo.ext.code-highlighter?highlight</value>
           </prop>
         </node>
         <node oor:name="X_MOD2" oor:op="replace">
           <prop oor:name="Command">
-            <value xml:lang="en-US">service:ooo.ext.code-highlighter.impl?highlight_previous</value>
+            <value xml:lang="en-US">service:ooo.ext.code-highlighter?highlight_previous</value>
           </prop>
         </node>
       </node>
       <node oor:name="com.sun.star.text.WebDocument" oor:op="fuse">
         <node oor:name="X_SHIFT_MOD2" oor:op="replace">
           <prop oor:name="Command">
-            <value xml:lang="en-US">service:ooo.ext.code-highlighter.impl?highlight</value>
+            <value xml:lang="en-US">service:ooo.ext.code-highlighter?highlight</value>
           </prop>
         </node>
         <node oor:name="X_MOD2" oor:op="replace">
           <prop oor:name="Command">
-            <value xml:lang="en-US">service:ooo.ext.code-highlighter.impl?highlight_previous</value>
+            <value xml:lang="en-US">service:ooo.ext.code-highlighter?highlight_previous</value>
           </prop>
         </node>
       </node>
       <node oor:name="com.sun.star.xforms.XMLFormDocument" oor:op="fuse">
         <node oor:name="X_SHIFT_MOD2" oor:op="replace">
           <prop oor:name="Command">
-            <value xml:lang="en-US">service:ooo.ext.code-highlighter.impl?highlight</value>
+            <value xml:lang="en-US">service:ooo.ext.code-highlighter?highlight</value>
           </prop>
         </node>
         <node oor:name="X_MOD2" oor:op="replace">
           <prop oor:name="Command">
-            <value xml:lang="en-US">service:ooo.ext.code-highlighter.impl?highlight_previous</value>
+            <value xml:lang="en-US">service:ooo.ext.code-highlighter?highlight_previous</value>
           </prop>
         </node>
       </node>
       <node oor:name="com.sun.star.text.GlobalDocument" oor:op="fuse">
         <node oor:name="X_SHIFT_MOD2" oor:op="replace">
           <prop oor:name="Command">
-            <value xml:lang="en-US">service:ooo.ext.code-highlighter.impl?highlight</value>
+            <value xml:lang="en-US">service:ooo.ext.code-highlighter?highlight</value>
           </prop>
         </node>
         <node oor:name="X_MOD2" oor:op="replace">
           <prop oor:name="Command">
-            <value xml:lang="en-US">service:ooo.ext.code-highlighter.impl?highlight_previous</value>
+            <value xml:lang="en-US">service:ooo.ext.code-highlighter?highlight_previous</value>
           </prop>
         </node>
       </node>
       <node oor:name="com.sun.star.sdb.FormDesign" oor:op="fuse">
         <node oor:name="X_SHIFT_MOD2" oor:op="replace">
           <prop oor:name="Command">
-            <value xml:lang="en-US">service:ooo.ext.code-highlighter.impl?highlight</value>
+            <value xml:lang="en-US">service:ooo.ext.code-highlighter?highlight</value>
           </prop>
         </node>
         <node oor:name="X_MOD2" oor:op="replace">
           <prop oor:name="Command">
-            <value xml:lang="en-US">service:ooo.ext.code-highlighter.impl?highlight_previous</value>
+            <value xml:lang="en-US">service:ooo.ext.code-highlighter?highlight_previous</value>
           </prop>
         </node>
       </node>

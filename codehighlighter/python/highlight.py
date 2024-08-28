@@ -1556,7 +1556,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
 
 # Component registration
 g_ImplementationHelper = unohelper.ImplementationHelper()
-g_ImplementationHelper.addImplementation(CodeHighlighter, "ooo.ext.code-highlighter.impl", (),)
+g_ImplementationHelper.addImplementation(
+    CodeHighlighter, "ooo.ext.code-highlighter.impl", ("ooo.ext.code-highlighter",),)
 
 
 # exposed functions for development stages only

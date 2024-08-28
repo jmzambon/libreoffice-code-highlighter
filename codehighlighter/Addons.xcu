@@ -62,7 +62,7 @@
                                         <value xml:lang="ru">Подсветить код</value>
                                     </prop>
                                     <prop oor:name="URL" oor:type="xs:string">
-                                        <value>service:ooo.ext.code-highlighter.impl?highlight</value>
+                                        <value>service:ooo.ext.code-highlighter?highlight</value>
                                     </prop>
                                     <prop oor:name="Target" oor:type="xs:string">
                                         <value>_self</value>
@@ -77,7 +77,7 @@
                                         <value xml:lang="ru">Подсветить код (предыдущие настройки)</value>
                                     </prop>
                                     <prop oor:name="URL" oor:type="xs:string">
-                                        <value>service:ooo.ext.code-highlighter.impl?highlight_previous</value>
+                                        <value>service:ooo.ext.code-highlighter?highlight_previous</value>
                                     </prop>
                                     <prop oor:name="Target" oor:type="xs:string">
                                         <value>_self</value>
@@ -92,7 +92,7 @@
                                         <value xml:lang="ru">Обновить выделенное</value>
                                     </prop>
                                     <prop oor:name="URL" oor:type="xs:string">
-                                        <value>service:ooo.ext.code-highlighter.impl?update</value>
+                                        <value>service:ooo.ext.code-highlighter?update</value>
                                     </prop>
                                     <prop oor:name="Target" oor:type="xs:string">
                                         <value>_self</value>
@@ -146,7 +146,7 @@
                                         <value xml:lang="ru">Подсветить код</value>
                                     </prop>
                                     <prop oor:name="URL" oor:type="xs:string">
-                                        <value>service:ooo.ext.code-highlighter.impl?highlight</value>
+                                        <value>service:ooo.ext.code-highlighter?highlight</value>
                                     </prop>
                                     <prop oor:name="Target" oor:type="xs:string">
                                         <value>_self</value>
@@ -161,7 +161,7 @@
                                         <value xml:lang="ru">Подсветить код (предыдущие настройки)</value>
                                     </prop>
                                     <prop oor:name="URL" oor:type="xs:string">
-                                        <value>service:ooo.ext.code-highlighter.impl?highlight_previous</value>
+                                        <value>service:ooo.ext.code-highlighter?highlight_previous</value>
                                     </prop>
                                     <prop oor:name="Target" oor:type="xs:string">
                                         <value>_self</value>
@@ -176,7 +176,7 @@
                                         <value xml:lang="ru">Обновить выделенное</value>
                                     </prop>
                                     <prop oor:name="URL" oor:type="xs:string">
-                                        <value>service:ooo.ext.code-highlighter.impl?update</value>
+                                        <value>service:ooo.ext.code-highlighter?update</value>
                                     </prop>
                                     <prop oor:name="Target" oor:type="xs:string">
                                         <value>_self</value>
@@ -196,7 +196,7 @@
         <node oor:name="Images">
             <node oor:name="codehighlighter.image1" oor:op="replace">
                 <prop oor:name="URL" oor:type="xs:string">
-                    <value>service:ooo.ext.code-highlighter.impl?highlight</value>
+                    <value>service:ooo.ext.code-highlighter?highlight</value>
                 </prop>
                 <node oor:name="UserDefinedImages">
                     <prop oor:name="ImageSmallURL">
@@ -209,7 +209,7 @@
             </node>
             <node oor:name="codehighlighter.image2" oor:op="replace">
                 <prop oor:name="URL" oor:type="xs:string">
-                    <value>service:ooo.ext.code-highlighter.impl?highlight_previous</value>
+                    <value>service:ooo.ext.code-highlighter?highlight_previous</value>
                 </prop>
                 <node oor:name="UserDefinedImages">
                     <prop oor:name="ImageSmallURL">
@@ -222,7 +222,7 @@
             </node>
             <node oor:name="codehighlighter.image3" oor:op="replace">
                 <prop oor:name="URL" oor:type="xs:string">
-                    <value>service:ooo.ext.code-highlighter.impl?update</value>
+                    <value>service:ooo.ext.code-highlighter?update</value>
                 </prop>
                 <node oor:name="UserDefinedImages">
                     <prop oor:name="ImageSmallURL">

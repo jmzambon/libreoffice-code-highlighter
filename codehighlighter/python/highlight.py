@@ -283,6 +283,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
 
         ret = self.choose_options()
         if ret == 2:
+            self.inlinesnippet = False
             self.highlight_parastyle()
             return
         elif self.selection:

@@ -7,6 +7,9 @@
     <prop oor:name="Style" oor:type="xs:string">
       <value>default</value>
     </prop>
+    <prop oor:name="PreviewStyle" oor:type="xs:short">
+      <value>0</value>
+    </prop>
     <prop oor:name="UseCharStyles" oor:type="xs:short">
       <value>0</value>
     </prop>

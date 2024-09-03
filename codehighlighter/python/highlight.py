@@ -244,10 +244,20 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
     # XDialogEventHandler (http://www.openoffice.org/api/docs/common/ref/com/sun/star/awt/XDialogEventHandler.html)
     def callHandlerMethod(self, dialog, event, method):
         logger.debug(f"Dialog handler action: '{method}'.")
-        if method == "preview":
-            focus = {1: 'cb_style', 2: 'nb_start'}
-            self.do_preview(dialog)
-            dialog.getControl(focus[dialog.Model.Step]).setFocus()
+        if method == "setpreview":
+            logger.debug("Activating preview.")
+            self.options['PreviewStyle'] = event.Source.Model.State
+            if self.options['PreviewStyle']:
+                self.do_preview(dialog)
+            else:
+                logger.debug("Undoing existing previews on desabling preview.")
+                self._undo_previews()
+            dialog.getControl('lb_style').setFocus()
+            return True
+        elif method == "preview":
+            # restore PreviewStyle option if deactivated after precedent do_preview 
+            if self.options['PreviewStyle'] and self.selection:
+                self.do_preview(dialog)
             return True
         elif method == "parastyle":
             try:
@@ -267,7 +277,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         return False
 
     def getSupportedMethodNames(self):
-        return 'preview', 'parastyle', 'ev_linenb', 'ev_charstyles'
+        return 'setpreview', 'preview', 'parastyle', 'ev_linenb', 'ev_charstyles'
 
     # main functions
     def do_highlight(self):
@@ -288,10 +298,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             return
         elif self.selection:
             logger.debug("Undoing existing previews on dialog closing.")
-            while self.activepreviews:
-                self.undomanager.undo()
-                self.undomanager.clearRedo()
-                self.activepreviews -= 1
+            self._undo_previews()
             if ret == 1:
                 logger.debug("Starting highlights.")
                 for code_block in self.selection:
@@ -333,11 +340,15 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             logger.debug("Current selection contains no text.")
             self.msgbox(_("Nothing to highlight."))
 
-    def do_preview(self, dialog):
-        logger.debug("Undoing existing previews before creating new ones.")
+    def _undo_previews(self):
         while self.activepreviews:
             self.undomanager.undo()
+            self.undomanager.clearRedo()
             self.activepreviews -= 1
+
+    def do_preview(self, dialog):
+        logger.debug("Undoing existing previews before creating new ones.")
+        self._undo_previews()
         choices = self.get_options_from_dialog(dialog)
         if choices:
             logger.debug("Creating previews.")
@@ -440,9 +451,15 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         "lbl_cs_rootstyle": (_("Pare~nt character style"), _("Use an existing character style as root style."))}
         for controlname in controlnames:
             dialog.getControl(controlname).Model.setPropertyValues(("Label", "HelpText"), controlnames[controlname])
+<<<<<<< HEAD
         controlnames = {"label_lang": _("Language"), "label_style": _("Style"), "lbl_nb_start": _("Start at"), "lbl_nb_ratio": _("Height (%)"),
                         "label_parastyle": _("Highlight all codes ~formatted with paragraph style:"), "btn_parastyle": _("Hi~ghlight all"),
                         "pygments_ver": _("Build upon Pygments {}"), "preview": _("Preview")}
+=======
+        controlnames = {"label_lang": _(""), "label_style": _("Style"), "lbl_nb_start": _("Start at"), "lbl_nb_ratio": _("Height (%)"),
+                        "label_parastyle": _("Highlight all codes formatted with paragraph style:"), "btn_parastyle": _("Highlight all"),
+                        "pygments_ver": _("Build upon Pygments {}"), "check_preview": _("Preview")}
+>>>>>>> First commit.
         for controlname in controlnames:
             dialog.getControl(controlname).Model.Label = controlnames[controlname]
         controlnames = {"nb_sep": _("Use \\t to insert tabulation"),
@@ -453,9 +470,10 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             dialog.getControl(controlname).Model.HelpText = controlnames[controlname]
 
         cb_lang = dialog.getControl('cb_lang')
-        cb_style = dialog.getControl('cb_style')
+        lb_style = dialog.getControl('lb_style')
         check_col_bg = dialog.getControl('check_col_bg')
         check_linenb = dialog.getControl('check_linenb')
+        check_preview = dialog.getControl('check_preview')
         check_charstyles = dialog.getControl('check_charstyles')
         check_charstyles.setEnable(self.charstylesavailable)
         dialog.getControl('lbl_cs_rootstyle').setEnable(self.charstylesavailable)
@@ -473,10 +491,11 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         cb_lang.addItems(all_lexers, 0)
         cb_lang.addItem('automatic', 0)
 
-        style = self.options['Style']
-        if style in self.all_styles:
-            cb_style.Text = style
-        cb_style.addItems(self.all_styles, 0)
+        check_preview.State = self.options['PreviewStyle']
+        lb_style.addItems(self.all_styles, 0)
+        stylename = self.options['Style']
+        if stylename in self.all_styles:
+            lb_style.selectItem(stylename, True)
 
         if self.parastyles:
             lb_parastyle.addItems(sorted(self.parastyles.keys(), key=str.casefold), 0)
@@ -522,15 +541,19 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
     def get_options_from_dialog(self, dialog):
         opt = {}
         lang = dialog.getControl('cb_lang').Text.strip() or 'automatic'
-        style = dialog.getControl('cb_style').Text.strip() or 'default'
+        style = dialog.getControl('lb_style').SelectedItem
         if lang != 'automatic' and lang.lower() not in self.all_lexer_aliases:
-            self.msgbox(_("Unsupported language."))
-        elif style not in self.all_styles:
-            self.msgbox(_("Unknown style."))
+            self.msgbox(_("Unsupported language.")) 
+            cb_lang = dialog.getControl('cb_lang')
+            sel = cb_lang.Selection
+            sel.Min, sel.Max = 0, len(cb_lang.Text)
+            cb_lang.setSelection(sel)
+            cb_lang.setFocus()
         else:
             opt['Language'] = lang
             opt['Style'] = style
             opt['ColourizeBackground'] = dialog.getControl('check_col_bg').State
+            opt['PreviewStyle'] = dialog.getControl('check_preview').State
             opt['UseCharStyles'] = dialog.getControl('check_charstyles').State
             opt['ShowLineNumbers'] = dialog.getControl('check_linenb').State
             opt['LineNumberStart'] = int(dialog.getControl('nb_start').Value)
@@ -1345,6 +1368,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         cell = table.getCellByName(cellname)
                         browse_all_paras(cell)
 
+        self._undo_previews()
         code_blocks = []
         browse_all_paras()
         if code_blocks:

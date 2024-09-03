@@ -10,12 +10,14 @@
   <dlg:text dlg:style-id="0" dlg:id="label_lang" dlg:tab-index="0" dlg:left="10" dlg:top="7" dlg:width="120" dlg:height="10" dlg:page="1" dlg:value="Language"/>
   <dlg:combobox dlg:id="cb_lang" dlg:tab-index="1" dlg:left="10" dlg:top="20" dlg:width="100" dlg:height="15" dlg:page="1" dlg:spin="true" dlg:linecount="20"/>
   <dlg:text dlg:style-id="0" dlg:id="label_style" dlg:tab-index="2" dlg:left="10" dlg:top="39" dlg:width="60" dlg:height="10" dlg:page="1" dlg:value="Style"/>
-  <dlg:combobox dlg:id="cb_style" dlg:tab-index="3" dlg:left="10" dlg:top="51" dlg:width="100" dlg:height="15" dlg:page="1" dlg:spin="true" dlg:linecount="20"/>
-  <dlg:button dlg:id="preview" dlg:tab-index="4" dlg:left="148" dlg:top="14" dlg:width="70" dlg:height="16">
-   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.UNO:preview" script:language="UNO"/>
-  </dlg:button>
-  <dlg:button dlg:id="btn_ok" dlg:tab-index="5" dlg:left="148" dlg:top="35" dlg:width="70" dlg:height="16" dlg:default="true" dlg:button-type="ok"/>
-  <dlg:button dlg:id="btn_cancel" dlg:tab-index="6" dlg:left="148" dlg:top="55" dlg:width="70" dlg:height="16" dlg:button-type="cancel"/>
+  <dlg:menulist dlg:id="lb_style" dlg:tab-index="3" dlg:left="10" dlg:top="51" dlg:width="100" dlg:height="15" dlg:page="1" dlg:spin="true" dlg:linecount="20">
+   <script:event script:event-name="on-itemstatechange" script:macro-name="vnd.sun.star.UNO:preview" script:language="UNO"/>
+  </dlg:menulist>
+  <dlg:button dlg:id="btn_ok" dlg:tab-index="4" dlg:left="148" dlg:top="15" dlg:width="70" dlg:height="16" dlg:default="true" dlg:button-type="ok"/>
+  <dlg:button dlg:id="btn_cancel" dlg:tab-index="5" dlg:left="148" dlg:top="35" dlg:width="70" dlg:height="16" dlg:button-type="cancel"/>
+  <dlg:checkbox dlg:id="check_preview" dlg:tab-index="6" dlg:left="148" dlg:top="54" dlg:width="70" dlg:height="10" dlg:checked="false">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.UNO:setpreview" script:language="UNO"/>
+  </dlg:checkbox>
   <dlg:checkbox dlg:id="check_col_bg" dlg:tab-index="7" dlg:left="10" dlg:top="75" dlg:width="197" dlg:height="10" dlg:page="1" dlg:value="Set background color" dlg:valign="center" dlg:checked="true"/>
   <dlg:checkbox dlg:id="check_linenb" dlg:tab-index="8" dlg:left="10" dlg:top="87" dlg:width="197" dlg:height="10" dlg:page="1" dlg:checked="false">
    <script:event script:event-name="on-itemstatechange" script:macro-name="vnd.sun.star.UNO:ev_linenb" script:language="UNO"/>

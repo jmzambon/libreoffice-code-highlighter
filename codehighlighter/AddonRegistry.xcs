@@ -4,6 +4,7 @@
     <group oor:name="Settings">
       <prop oor:name="Language" oor:type="xs:string"/>
       <prop oor:name="Style" oor:type="xs:string"/>
+      <prop oor:name="PreviewStyle" oor:type="xs:short"/>
       <prop oor:name="UseCharStyles" oor:type="xs:short"/>
       <prop oor:name="MasterCharStyle" oor:type="xs:string"/>
       <prop oor:name="ColourizeBackground" oor:type="xs:short"/>

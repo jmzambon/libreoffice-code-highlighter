@@ -246,17 +246,16 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         logger.debug(f"Dialog handler action: '{method}'.")
         if method == "setpreview":
             logger.debug("Activating preview.")
-            self.options['PreviewStyle'] = event.Source.Model.State
-            if self.options['PreviewStyle']:
+            self.previewable = event.Source.State
+            if self.previewable:
+                dialog.getControl('lb_style').setFocus()
                 self.do_preview(dialog)
             else:
                 logger.debug("Undoing existing previews on desabling preview.")
                 self._undo_previews()
-            dialog.getControl('lb_style').setFocus()
             return True
         elif method == "preview":
-            # restore PreviewStyle option if deactivated after precedent do_preview 
-            if self.options['PreviewStyle'] and self.selection:
+            if self.previewable and self.selection:
                 self.do_preview(dialog)
             return True
         elif method == "parastyle":
@@ -491,7 +490,6 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         cb_lang.addItems(all_lexers, 0)
         cb_lang.addItem('automatic', 0)
 
-        check_preview.State = self.options['PreviewStyle']
         lb_style.addItems(self.all_styles, 0)
         stylename = self.options['Style']
         if stylename in self.all_styles:
@@ -553,7 +551,6 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             opt['Language'] = lang
             opt['Style'] = style
             opt['ColourizeBackground'] = dialog.getControl('check_col_bg').State
-            opt['PreviewStyle'] = dialog.getControl('check_preview').State
             opt['UseCharStyles'] = dialog.getControl('check_charstyles').State
             opt['ShowLineNumbers'] = dialog.getControl('check_linenb').State
             opt['LineNumberStart'] = int(dialog.getControl('nb_start').Value)

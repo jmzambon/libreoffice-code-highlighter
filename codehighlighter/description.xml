@@ -23,6 +23,7 @@
 
   <extension-description>
     <src xlink:href="description/desc_en.txt"/>
+    <src xlink:href="description/desc_bn.txt" lang="bn" />
     <src xlink:href="description/desc_en.txt" lang="en" />
     <src xlink:href="description/desc_fr.txt" lang="fr" />
     <src xlink:href="description/desc_hu.txt" lang="hu" />

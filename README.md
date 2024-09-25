@@ -79,7 +79,7 @@ You can download the extension either from the [official LibreOffice Extensions 
 
 ### Dialog
 
-![Dialog](screenshots/code-highlighter-dialog.png?raw=true "Dialog")
+![Dialog](screenshots/code-highlighter-dialog.png?rngaliaw=true "Dialog")
 
 ### Result
 
@@ -91,6 +91,7 @@ You can download the extension either from the [official LibreOffice Extensions 
 - hu (Hungarian - magyar) [thanks to ovari]
 - it (Italian - Italiana)
 - ru (Russian - Русский) [thanks to kompilainenn]
+- bn (Bengali - বাংলা) [thanks to baseplate-admin]
 
 ## LICENSE
  - GPL v3

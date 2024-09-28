@@ -458,6 +458,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         check_linenb = dialog.getControl('check_linenb')
         check_charstyles = dialog.getControl('check_charstyles')
         check_charstyles.setEnable(self.charstylesavailable)
+        dialog.getControl('lbl_cs_rootstyle').setEnable(self.charstylesavailable)
+        dialog.getControl('cs_rootstyle').setEnable(self.charstylesavailable)
         nb_start = dialog.getControl('nb_start')
         nb_ratio = dialog.getControl('nb_ratio')
         nb_sep = dialog.getControl('nb_sep')

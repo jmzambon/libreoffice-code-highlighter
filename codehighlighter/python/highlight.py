@@ -435,13 +435,13 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         controlnames = {"check_charstyles": (_("Use character ~styles"), _("When possible, code highlighting will be based on character styles.")),
                         "check_col_bg": (_("Set ~background from style"), _("Use the background color provided by the style.")),
                         "check_linenb": (_("Add ~line numbering"), _("Active or deactivate line numbers.")),
-                        "lbl_nb_sep": (_("Separator"), _("Use \\t to insert tabulation")),
-                        "lbl_nb_pad": (_("Padding symbol"), _("Character to fill the leading space (0 for 01 for example)")),
-                        "lbl_cs_rootstyle": (_("Parent character style"), _("Use an existing character style as root style."))}
+                        "lbl_nb_sep": (_("Sepa~rator"), _("Use \\t to insert tabulation")),
+                        "lbl_nb_pad": (_("Padding sy~mbol"), _("Character to fill the leading space (0 for 01 for example)")),
+                        "lbl_cs_rootstyle": (_("Pare~nt character style"), _("Use an existing character style as root style."))}
         for controlname in controlnames:
             dialog.getControl(controlname).Model.setPropertyValues(("Label", "HelpText"), controlnames[controlname])
         controlnames = {"label_lang": _("Language"), "label_style": _("Style"), "lbl_nb_start": _("Start at"), "lbl_nb_ratio": _("Height (%)"),
-                        "label_parastyle": _("Highlight all codes formatted with paragraph style:"), "btn_parastyle": _("Highlight all"),
+                        "label_parastyle": _("Highlight all codes ~formatted with paragraph style:"), "btn_parastyle": _("Hi~ghlight all"),
                         "pygments_ver": _("Build upon Pygments {}"), "preview": _("Preview")}
         for controlname in controlnames:
             dialog.getControl(controlname).Model.Label = controlnames[controlname]

@@ -62,7 +62,7 @@ msgid "Add ~line numbering"
 msgstr "~লাইন নম্বর যোগ করুন"
 
 #: codehighlighter/python/highlight.py:437
-msgid "Separator"
+msgid "Sepa~rator"
 msgstr "বিভাজক"
 
 #: codehighlighter/python/highlight.py:437
@@ -71,7 +71,7 @@ msgid "Use \\t to insert tabulation"
 msgstr "ট্যাবুলেশন সন্নিবেশ করার জন্য \\t ব্যবহার করুন"
 
 #: codehighlighter/python/highlight.py:438
-msgid "Padding symbol"
+msgid "Padding sy~mbol"
 msgstr "প্যাডিং প্রতীক"
 
 #: codehighlighter/python/highlight.py:438
@@ -80,7 +80,7 @@ msgid "Character to fill the leading space (0 for 01 for example)"
 msgstr "অগ্রণী স্থান পূরণ করার জন্য অক্ষর (উদাহরণস্বরূপ 01 এর জন্য 0)"
 
 #: codehighlighter/python/highlight.py:439
-msgid "Parent character style"
+msgid "Pare~nt character style"
 msgstr "অভিভাবক অক্ষরের শৈলী"
 
 #: codehighlighter/python/highlight.py:439
@@ -105,12 +105,12 @@ msgid "Style"
 msgstr "শৈলী"
 
 #: codehighlighter/python/highlight.py:443
-msgid "Highlight all codes formatted with paragraph style:"
+msgid "Highlight all codes ~formatted with paragraph style:"
 msgstr "অনুচ্ছেদ শৈলী সহ ফর্ম্যাট করা সমস্ত কোড হাইলাইট করুন:"
 
 #: codehighlighter/python/highlight.py:443
 #: codehighlighter/python/highlight.py:1352
-msgid "Highlight all"
+msgid "Hi~ghlight all"
 msgstr "সব হাইলাইট করুন"
 
 #: codehighlighter/python/highlight.py:444

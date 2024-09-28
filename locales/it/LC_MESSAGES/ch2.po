@@ -66,7 +66,7 @@ msgid "Add ~line numbering"
 msgstr "~Numerazione righe"
 
 #: codehighlighter/python/highlight.py:437
-msgid "Separator"
+msgid "Sepa~rator"
 msgstr "Separatore"
 
 #: codehighlighter/python/highlight.py:437
@@ -75,7 +75,7 @@ msgid "Use \\t to insert tabulation"
 msgstr "Usare \\t per inserire la tabulazione"
 
 #: codehighlighter/python/highlight.py:438
-msgid "Padding symbol"
+msgid "Padding sy~mbol"
 msgstr "Simbolo d'imbottatura"
 
 #: codehighlighter/python/highlight.py:438
@@ -84,7 +84,7 @@ msgid "Character to fill the leading space (0 for 01 for example)"
 msgstr "Carattere per riempire lo spazio iniziale (0 per 01, ad esempio)"
 
 #: codehighlighter/python/highlight.py:439
-msgid "Parent character style"
+msgid "Pare~nt character style"
 msgstr "Stile di carattere genitore"
 
 #: codehighlighter/python/highlight.py:439
@@ -109,12 +109,12 @@ msgid "Style"
 msgstr "Stile"
 
 #: codehighlighter/python/highlight.py:443
-msgid "Highlight all codes formatted with paragraph style:"
+msgid "Highlight all codes ~formatted with paragraph style:"
 msgstr "Evidenzia tutti i codici formattati con lo stile paragrafo:"
 
 #: codehighlighter/python/highlight.py:443
 #: codehighlighter/python/highlight.py:1352
-msgid "Highlight all"
+msgid "Hi~ghlight all"
 msgstr "Evidenzia tutto"
 
 #: codehighlighter/python/highlight.py:444
@@ -154,18 +154,3 @@ msgid "{} code snippet has been formatted."
 msgid_plural "{} code snippets have been formatted."
 msgstr[0] "{} frammento di codice è stato formattato."
 msgstr[1] "{} frammenti di codice sono stati formattati."
-
-#~ msgid "Line numbering"
-#~ msgstr "Numeri di riga"
-
-#~ msgid "Character styles"
-#~ msgstr "Stili dei carattere"
-
-#~ msgid "Back"
-#~ msgstr "Indietro"
-
-#~ msgid "More..."
-#~ msgstr "Altro..."
-
-#~ msgid "Set ~background color"
-#~ msgstr "~Colore di sfondo"

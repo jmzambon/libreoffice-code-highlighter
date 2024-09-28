@@ -35,7 +35,8 @@ msgstr "Nincs mit kiemelni."
 
 #: codehighlighter/python/highlight.py:330
 msgid "Update impossible: no formatting attribute associated with this code."
-msgstr "Frissítés lehetetlen: ehhez a kódhoz nincs formázási attribútum társítva."
+msgstr ""
+"Frissítés lehetetlen: ehhez a kódhoz nincs formázási attribútum társítva."
 
 #: codehighlighter/python/highlight.py:434
 msgid "Use character ~styles"
@@ -62,8 +63,8 @@ msgid "Add ~line numbering"
 msgstr "Sors~zámozás hozzáadása"
 
 #: codehighlighter/python/highlight.py:437
-msgid "Separator"
-msgstr "Elválasztó"
+msgid "Sepa~rator"
+msgstr "~Elválasztó"
 
 #: codehighlighter/python/highlight.py:437
 #: codehighlighter/python/highlight.py:447
@@ -71,8 +72,8 @@ msgid "Use \\t to insert tabulation"
 msgstr "\\t használata a táblázat beszúrásához"
 
 #: codehighlighter/python/highlight.py:438
-msgid "Padding symbol"
-msgstr "Kitöltési szimbólum"
+msgid "Padding sy~mbol"
+msgstr "Kitöltési szi~mbólum"
 
 #: codehighlighter/python/highlight.py:438
 #: codehighlighter/python/highlight.py:448
@@ -80,8 +81,8 @@ msgid "Character to fill the leading space (0 for 01 for example)"
 msgstr "Karakter a bevezető mező kitöltésére (0 például 01 esetén)"
 
 #: codehighlighter/python/highlight.py:439
-msgid "Parent character style"
-msgstr "Szülő karakterstílus"
+msgid "Pare~nt character style"
+msgstr "Szülő ~karakterstílus"
 
 #: codehighlighter/python/highlight.py:439
 #: codehighlighter/python/highlight.py:449
@@ -105,13 +106,13 @@ msgid "Style"
 msgstr "Stílus"
 
 #: codehighlighter/python/highlight.py:443
-msgid "Highlight all codes formatted with paragraph style:"
-msgstr "Jelölje ki az összes bekezdésstílussal formázott kódot:"
+msgid "Highlight all codes ~formatted with paragraph style:"
+msgstr "Jelölje ki az összes bekezdésstílussal ~formázott kódot:"
 
 #: codehighlighter/python/highlight.py:443
 #: codehighlighter/python/highlight.py:1352
-msgid "Highlight all"
-msgstr "Összes kiemelés"
+msgid "Hi~ghlight all"
+msgstr "Összes k~iemelés"
 
 #: codehighlighter/python/highlight.py:444
 msgid "Build upon Pygments {}"

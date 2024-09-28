@@ -62,8 +62,8 @@ msgid "Add ~line numbering"
 msgstr "Add ~line numbering"
 
 #: codehighlighter/python/highlight.py:437
-msgid "Separator"
-msgstr "Separator"
+msgid "Sepa~rator"
+msgstr "Sepa~rator"
 
 #: codehighlighter/python/highlight.py:437
 #: codehighlighter/python/highlight.py:447
@@ -71,7 +71,7 @@ msgid "Use \\t to insert tabulation"
 msgstr "Use \\t to insert tabulation"
 
 #: codehighlighter/python/highlight.py:438
-msgid "Padding symbol"
+msgid "Padding sy~mbol"
 msgstr "Padding symbol"
 
 #: codehighlighter/python/highlight.py:438
@@ -80,8 +80,8 @@ msgid "Character to fill the leading space (0 for 01 for example)"
 msgstr "Character to fill the leading space (0 for 01 for example)"
 
 #: codehighlighter/python/highlight.py:439
-msgid "Parent character style"
-msgstr "Parent character style"
+msgid "Pare~nt character style"
+msgstr "Pare~nt character style"
 
 #: codehighlighter/python/highlight.py:439
 #: codehighlighter/python/highlight.py:449
@@ -105,13 +105,13 @@ msgid "Style"
 msgstr "Style"
 
 #: codehighlighter/python/highlight.py:443
-msgid "Highlight all codes formatted with paragraph style:"
-msgstr "Highlight all codes formatted with paragraph style:"
+msgid "Highlight all codes ~formatted with paragraph style:"
+msgstr "Highlight all codes ~formatted with paragraph style:"
 
 #: codehighlighter/python/highlight.py:443
 #: codehighlighter/python/highlight.py:1352
-msgid "Highlight all"
-msgstr "Highlight all"
+msgid "Hi~ghlight all"
+msgstr "Hi~ghlight all"
 
 #: codehighlighter/python/highlight.py:444
 msgid "Build upon Pygments {}"

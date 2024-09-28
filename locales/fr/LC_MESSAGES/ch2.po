@@ -48,7 +48,7 @@ msgstr "Si possible, le code sera colorisé sur base des styles de caractère."
 
 #: codehighlighter/python/highlight.py:435
 msgid "Set ~background from style"
-msgstr "Utiliser l'arrière-plan du style"
+msgstr "Utiliser l'arrière-~plan du style"
 
 #: codehighlighter/python/highlight.py:435
 msgid "Use the background color provided by the style."
@@ -63,8 +63,8 @@ msgid "Add ~line numbering"
 msgstr "Numéroter les ~lignes"
 
 #: codehighlighter/python/highlight.py:437
-msgid "Separator"
-msgstr "Séparateur"
+msgid "Sepa~rator"
+msgstr "Sépa~rateur"
 
 #: codehighlighter/python/highlight.py:437
 #: codehighlighter/python/highlight.py:447
@@ -72,8 +72,8 @@ msgid "Use \\t to insert tabulation"
 msgstr "Utiliser \\t pour une tabulation"
 
 #: codehighlighter/python/highlight.py:438
-msgid "Padding symbol"
-msgstr "Symbole d'alignement"
+msgid "Padding sy~mbol"
+msgstr "Sy~mbole d'alignement"
 
 #: codehighlighter/python/highlight.py:438
 #: codehighlighter/python/highlight.py:448
@@ -81,8 +81,8 @@ msgid "Character to fill the leading space (0 for 01 for example)"
 msgstr "Caractère initial de substitution (0 pour 01 par exemple)"
 
 #: codehighlighter/python/highlight.py:439
-msgid "Parent character style"
-msgstr "Style de caractère parent"
+msgid "Pare~nt character style"
+msgstr "Style de caractère pare~nt"
 
 #: codehighlighter/python/highlight.py:439
 #: codehighlighter/python/highlight.py:449
@@ -106,13 +106,13 @@ msgid "Style"
 msgstr "Style"
 
 #: codehighlighter/python/highlight.py:443
-msgid "Highlight all codes formatted with paragraph style:"
-msgstr "Coloriser sur base d'un style de paragraphe :"
+msgid "Highlight all codes ~formatted with paragraph style:"
+msgstr "~Coloriser sur base d'un style de paragraphe :"
 
 #: codehighlighter/python/highlight.py:443
 #: codehighlighter/python/highlight.py:1352
-msgid "Highlight all"
-msgstr "Tout coloriser"
+msgid "Hi~ghlight all"
+msgstr "~Tout coloriser"
 
 #: codehighlighter/python/highlight.py:444
 msgid "Build upon Pygments {}"
@@ -151,18 +151,3 @@ msgid "{} code snippet has been formatted."
 msgid_plural "{} code snippets have been formatted."
 msgstr[0] "{} extrait de code a été formaté."
 msgstr[1] "{} extraits de code ont été formatés."
-
-#~ msgid "Line numbering"
-#~ msgstr "Numéros de ligne"
-
-#~ msgid "Character styles"
-#~ msgstr "Styles de caractères"
-
-#~ msgid "Back"
-#~ msgstr "Retour"
-
-#~ msgid "More..."
-#~ msgstr "Plus..."
-
-#~ msgid "Set ~background color"
-#~ msgstr "Utiliser la couleur de ~fond"

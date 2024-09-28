@@ -35,7 +35,8 @@ msgstr "Нечего подсвечивать."
 
 #: codehighlighter/python/highlight.py:330
 msgid "Update impossible: no formatting attribute associated with this code."
-msgstr "ОБновление невозможно: нет атрибутов форматирования, связанных с этим кодом."
+msgstr ""
+"ОБновление невозможно: нет атрибутов форматирования, связанных с этим кодом."
 
 #: codehighlighter/python/highlight.py:434
 msgid "Use character ~styles"
@@ -62,7 +63,7 @@ msgid "Add ~line numbering"
 msgstr "Добавить ~нумерацию строк"
 
 #: codehighlighter/python/highlight.py:437
-msgid "Separator"
+msgid "Sepa~rator"
 msgstr "Разделитель"
 
 #: codehighlighter/python/highlight.py:437
@@ -71,7 +72,7 @@ msgid "Use \\t to insert tabulation"
 msgstr "Использовать \\t для вставки табуляции"
 
 #: codehighlighter/python/highlight.py:438
-msgid "Padding symbol"
+msgid "Padding sy~mbol"
 msgstr "Символ отступа"
 
 #: codehighlighter/python/highlight.py:438
@@ -80,7 +81,7 @@ msgid "Character to fill the leading space (0 for 01 for example)"
 msgstr "Символ для заполнения лидирующих пробелов (0 для 01, например)"
 
 #: codehighlighter/python/highlight.py:439
-msgid "Parent character style"
+msgid "Pare~nt character style"
 msgstr "Родительский стиль символа"
 
 #: codehighlighter/python/highlight.py:439
@@ -105,12 +106,12 @@ msgid "Style"
 msgstr "Стиль подсветки"
 
 #: codehighlighter/python/highlight.py:443
-msgid "Highlight all codes formatted with paragraph style:"
+msgid "Highlight all codes ~formatted with paragraph style:"
 msgstr "Подсветить весь код, отформатированный со стилем абзаца:"
 
 #: codehighlighter/python/highlight.py:443
 #: codehighlighter/python/highlight.py:1352
-msgid "Highlight all"
+msgid "Hi~ghlight all"
 msgstr "Подсветить всё"
 
 #: codehighlighter/python/highlight.py:444
@@ -126,8 +127,8 @@ msgid ""
 "Highlight every code snippet in the document that is formatted with the "
 "given paragraph style."
 msgstr ""
-"Подсветить каждый кусок кода в документе, который отформатирован с "
-"заданным стилем абзаца."
+"Подсветить каждый кусок кода в документе, который отформатирован с заданным "
+"стилем абзаца."
 
 #: codehighlighter/python/highlight.py:485
 msgid " (There is currently no style in use.)"

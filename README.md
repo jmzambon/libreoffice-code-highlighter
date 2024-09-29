@@ -86,12 +86,12 @@ You can download the extension either from the [official LibreOffice Extensions 
 ![Result](screenshots/code-highlighter-result.png?raw=true "Result")
 
 ## LOCALIZATION
+- bn (Bengali - বাংলা) [thanks to baseplate-admin]
 - en (English, US)
 - fr (French - Français)
 - hu (Hungarian - magyar) [thanks to ovari]
 - it (Italian - Italiana)
 - ru (Russian - Русский) [thanks to kompilainenn]
-- bn (Bengali - বাংলা) [thanks to baseplate-admin]
 
 ## LICENSE
  - GPL v3

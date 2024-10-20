@@ -1198,10 +1198,15 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             # check for existing line numbering and its width
             regexstring = getregexstring()
             p = re.compile(regexstring, re.MULTILINE)
+            lenno = None
             try:
-                lenno = min(len(f) for f in p.findall(code))
+                findall = p.findall(code)
+                # remove line numbering only when every line is numbered
+                # see also issue #45: https://github.com/jmzambon/libreoffice-code-highlighter/issues/45
+                if len(findall) == len(code.split('\n')):
+                    lenno = min(len(f) for f in findall)
             except ValueError:
-                lenno = None
+                logger.exception("Exception while trying to check existing line numbers.")
             if lenno:
                 logger.debug("Hiding code block numbering.")
                 hide_numbering()

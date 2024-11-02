@@ -450,15 +450,10 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
                         "lbl_cs_rootstyle": (_("Pare~nt character style"), _("Use an existing character style as root style."))}
         for controlname in controlnames:
             dialog.getControl(controlname).Model.setPropertyValues(("Label", "HelpText"), controlnames[controlname])
-<<<<<<< HEAD
-        controlnames = {"label_lang": _("Language"), "label_style": _("Style"), "lbl_nb_start": _("Start at"), "lbl_nb_ratio": _("Height (%)"),
-                        "label_parastyle": _("Highlight all codes ~formatted with paragraph style:"), "btn_parastyle": _("Hi~ghlight all"),
-                        "pygments_ver": _("Build upon Pygments {}"), "preview": _("Preview")}
-=======
         controlnames = {"label_lang": _(""), "label_style": _("Style"), "lbl_nb_start": _("Start at"), "lbl_nb_ratio": _("Height (%)"),
                         "label_parastyle": _("Highlight all codes formatted with paragraph style:"), "btn_parastyle": _("Highlight all"),
                         "pygments_ver": _("Build upon Pygments {}"), "check_preview": _("Preview")}
->>>>>>> First commit.
+
         for controlname in controlnames:
             dialog.getControl(controlname).Model.Label = controlnames[controlname]
         controlnames = {"nb_sep": _("Use \\t to insert tabulation"),

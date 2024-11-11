@@ -1151,6 +1151,8 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
         sep = self.options["LineNumberSeparator"]
         if self.lexername.startswith("LLVM") and ':' in sep:    # see issue https://github.com/jmzambon/libreoffice-code-highlighter/issues/27
             sep = '\t'
+        elif not sep or not sep[-1].isspace():
+            sep += " "
         pad = self.options["LineNumberPaddingSymbol"]
         logger.debug(f"Starting code block numbering (show: {show}).")
         sep = sep.replace(r'\t', '\t')
@@ -1185,7 +1187,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
 
         def getregexstring():
             padsymbol = re.escape(pad)
-            regexstring = fr"^[\s|{padsymbol}]*\d+\W?[^\S\n]*"
+            regexstring = fr"^[\s|{padsymbol}]*\d+(?:[^\S\n]+|[^\w\n]\s+)"
             if self.lexername.startswith("LLVM"):    # see issue https://github.com/jmzambon/libreoffice-code-highlighter/issues/27
                 regexstring = fr"^[\s|{padsymbol}]*\d+(?![\d:])\W?[^\S\n]*"
             return regexstring

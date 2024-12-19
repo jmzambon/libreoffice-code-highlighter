@@ -88,6 +88,7 @@ You can download the extension either from the [official LibreOffice Extensions 
 ## LOCALIZATION
 - bn (Bengali - বাংলা) [thanks to baseplate-admin]
 - en (English, US)
+- es (Spanish - español) [thanks to bantoniof]
 - fr (French - Français)
 - hu (Hungarian - magyar) [thanks to ovari]
 - it (Italian - Italiana)

@@ -6,10 +6,10 @@
 
   <identifier value="javahelps.codehighlighter"/>
 
-  <version value="2.7.4.1"/>
+  <version value="2.7.4.2"/>
 
   <update-information>
-    <src xlink:href="https://raw.githubusercontent.com/jmzambon/libreoffice-code-highlighter/master/codehighlighter.update.xml" />
+    <src xlink:href="https://gitlab.com/jmzambon/libreoffice-codehighlighter2/-/raw/master/codehighlighter.update.xml" />
   </update-information>
 
   <icon>

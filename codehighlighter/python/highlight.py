@@ -669,10 +669,11 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             csnames.sort(key=lambda x: x.count('.'), reverse=True)
             keep = set()
             for csname in csnames:
-                if csname in keep:
-                    continue
                 cs = charstyles.getByName(csname)
-                if cs.isInUse():
+                if csname in keep:
+                    if cs.ParentStyle:
+                        keep.add(cs.ParentStyle)
+                elif cs.isInUse():
                     keep.add(csname)
                     if cs.ParentStyle:
                         keep.add(cs.ParentStyle)

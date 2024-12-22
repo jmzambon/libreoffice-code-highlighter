@@ -1,3 +1,11 @@
+>  ⚠️   **IMPORTANT**
+> 
+> This repository has been migrated to [GitLab](https://gitlab.com/jmzambon/libreoffice-codehighlighter), where are hosted all my other projects.
+> 
+> GitHub version will no longer be updated.
+
+***
+
 # Code Highlighter 2
 Code snippet highlighter for LibreOffice Writer, Calc, Impress and Draw.
 

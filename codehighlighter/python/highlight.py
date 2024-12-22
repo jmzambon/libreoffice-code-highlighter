@@ -660,14 +660,24 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             addstyle(ttype)
 
     def cleancharstyles(self, styleprefix):
+        # see discussion in issue #52
         try:
             stylefamilies = self.doc.StyleFamilies
             charstyles = stylefamilies.CharacterStyles
-            for cs in charstyles.ElementNames:
-                # Remove only the styles created with certainty by the extension
-                if cs.startswith(CHARSTYLEID) or cs.startswith(f'{styleprefix}.'):
-                    if not charstyles.getByName(cs).isInUse():
-                        charstyles.removeByName(cs)
+
+            csnames = [s for s in charstyles.ElementNames if (s.startswith('ch2') or s.startswith(f'{styleprefix}.'))]
+            csnames.sort(key=lambda x: x.count('.'), reverse=True)
+            keep = set()
+            for csname in csnames:
+                if csname in keep:
+                    continue
+                cs = charstyles.getByName(csname)
+                if cs.isInUse():
+                    keep.add(csname)
+                    if cs.ParentStyle:
+                        keep.add(cs.ParentStyle)
+                else:
+                    charstyles.removeByName(csname)
         except AttributeError:
             pass
 

@@ -670,11 +670,7 @@ class CodeHighlighter(unohelper.Base, XJobExecutor, XDialogEventHandler):
             keep = set()
             for csname in csnames:
                 cs = charstyles.getByName(csname)
-                if csname in keep:
-                    if cs.ParentStyle:
-                        keep.add(cs.ParentStyle)
-                elif cs.isInUse():
-                    keep.add(csname)
+                if csname in keep or cs.isInUse():
                     if cs.ParentStyle:
                         keep.add(cs.ParentStyle)
                 else:

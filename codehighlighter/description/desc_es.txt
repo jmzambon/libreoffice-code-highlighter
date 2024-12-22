@@ -1,0 +1,2 @@
+Colorea hasta 350 lenguajes de código en LibreOffice Writer, Calc, Impress y Draw.
+Copie y pegue su código, seleccione el texto u objeto contenedor y use Formato → Colorear código

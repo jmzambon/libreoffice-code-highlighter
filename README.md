@@ -1,6 +1,6 @@
 >  ⚠️   **IMPORTANT**
 > 
-> This repository has been migrated to [GitLab](https://gitlab.com/jmzambon/libreoffice-codehighlighter), where are hosted all my other projects.
+> This repository has been migrated to [GitLab](https://gitlab.com/jmzambon/libreoffice-codehighlighter2), where are hosted all my other projects.
 > 
 > GitHub version will no longer be updated.
 

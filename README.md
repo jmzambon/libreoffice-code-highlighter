@@ -1,17 +1,19 @@
->  ⚠️   **IMPORTANT**
-> 
-> This repository has been migrated to [GitLab](https://gitlab.com/jmzambon/libreoffice-codehighlighter2), where are hosted all my other projects.
-> 
-> GitHub version will no longer be updated.
-
-***
-
 # Code Highlighter 2
 Code snippet highlighter for LibreOffice Writer, Calc, Impress and Draw.
 
 Code Highlighter 2 is a fork of [Code Highlighter](https://github.com/slgobinath/libreoffice-code-highlighter), originally created by [slgobinath](https://github.com/slgobinath) and no longer maintained.
 
 Code Highlighter 2 is built upon [Pygments](https://pygments.org/) Python library.
+
+***
+
+> [!WARNING]
+>
+> This repository has been migrated to [GitLab](https://gitlab.com/jmzambon/libreoffice-codehighlighter2), where are hosted all my other projects.
+> 
+> GitHub version will no longer be updated.
+
+***
 
 ## INSTALLATION
 
